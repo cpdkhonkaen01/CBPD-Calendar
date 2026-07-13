@@ -715,6 +715,19 @@
     background:#FBFEFD;
     min-width:0;
   }
+  .summary-item.inline-row{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:start;
+    gap:10px;
+  }
+  .summary-item.inline-row .summary-label{
+    margin-bottom:0;
+    white-space:nowrap;
+  }
+  .summary-item.inline-row .summary-value{
+    text-align:right;
+  }
   .summary-item.wide{grid-column:1 / -1;}
   .summary-label{
     display:flex;
@@ -932,8 +945,14 @@
     .modal.summary-mode{padding:16px 18px 18px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
     .modal-actions{bottom:-18px; margin:20px -18px -18px; padding:14px 18px 18px;}
+    .modal.summary-mode .summary-hero{padding:14px 52px 14px 14px; margin-bottom:10px;}
+    .summary-title{font-size:16px; line-height:1.45; margin-bottom:8px;}
+    .summary-badge{font-size:11px; padding:4px 8px;}
     .summary-grid{grid-template-columns:1fr;}
     .summary-item.wide{grid-column:auto;}
+    .summary-item{padding:10px 12px;}
+    .summary-item.inline-row{gap:8px;}
+    .summary-item.inline-row .summary-value{font-size:13px;}
     footer.note{margin-top:12px; padding:0 10px; font-size:9.5px;}
   }
 </style>
@@ -1071,15 +1090,15 @@
           </div>
         </div>
         <div class="summary-grid">
-          <div class="summary-item">
+          <div class="summary-item inline-row">
             <div class="summary-label"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>วันที่</div>
             <div class="summary-value" id="summaryDate"></div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item inline-row">
             <div class="summary-label"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>เวลา</div>
             <div class="summary-value" id="summaryTime"></div>
           </div>
-          <div class="summary-item">
+          <div class="summary-item inline-row">
             <div class="summary-label"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>ผู้รับผิดชอบ</div>
             <div class="summary-value" id="summaryOwner"></div>
           </div>
@@ -1348,6 +1367,26 @@ function getFilteredMonthTasks(){
   return mockTasks.filter(task => taskOverlapsRange(task, monthStart, monthEnd) && taskMatchesFilters(task));
 }
 
+function getTaskOccurrenceDatesInMonth(task, year, month){
+  const monthStart = dstr(year, month, 1);
+  const monthEnd = dstr(year, month, new Date(year, month + 1, 0).getDate());
+  const range = getTaskDateRange(task);
+  const firstDate = range.start > monthStart ? range.start : monthStart;
+  const lastDate = range.end < monthEnd ? range.end : monthEnd;
+  if(!range.start || firstDate > lastDate) return [];
+
+  const [startYear, startMonth, startDay] = firstDate.split('-').map(Number);
+  const cursor = new Date(startYear, startMonth - 1, startDay);
+  const dates = [];
+  while(true){
+    const iso = dstr(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+    if(iso > lastDate) break;
+    dates.push(iso);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return dates;
+}
+
 function populateOwnerFilter(){
   const select = document.getElementById('ownerFilter');
   const owners = [...new Set([...responsiblePeople.map(p => p.name), ...mockTasks.flatMap(getTaskOwners)])];
@@ -1470,12 +1509,17 @@ function renderCalendar(){
 
 function renderListView(){
   const listView = document.getElementById('listView');
-  const tasks = getFilteredMonthTasks().sort((a,b) =>
-    a.date.localeCompare(b.date) || (a.startTime || '09:00').localeCompare(b.startTime || '09:00')
+  const monthTasks = getFilteredMonthTasks();
+  const taskOccurrences = monthTasks.flatMap(task =>
+    getTaskOccurrenceDatesInMonth(task, viewDate.getFullYear(), viewDate.getMonth())
+      .map(listDate => ({task, listDate}))
+  ).sort((a,b) =>
+    a.listDate.localeCompare(b.listDate) ||
+    (a.task.startTime || '09:00').localeCompare(b.task.startTime || '09:00')
   );
-  document.getElementById('resultCount').textContent = `${tasks.length} งาน`;
+  document.getElementById('resultCount').textContent = `${monthTasks.length} งาน`;
 
-  if(!tasks.length){
+  if(!taskOccurrences.length){
     listView.innerHTML = '<div class="empty-list"><strong>ไม่พบงานที่ตรงกับตัวกรอง</strong><span>ลองเลือกผู้รับผิดชอบคนอื่นหรือเปลี่ยนคำค้นหา</span></div>';
     return;
   }
@@ -1483,15 +1527,15 @@ function renderListView(){
   listView.innerHTML = '';
   let currentDate = '';
   let group;
-  tasks.forEach(task => {
-    if(task.date !== currentDate){
-      currentDate = task.date;
+  taskOccurrences.forEach(({task, listDate}) => {
+    if(listDate !== currentDate){
+      currentDate = listDate;
       group = document.createElement('section');
       group.className = 'list-date-group';
       const heading = document.createElement('h3');
       heading.className = 'list-date-heading';
       heading.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
-      heading.append(document.createTextNode(formatThaiDate(task.date)));
+      heading.append(document.createTextNode(formatThaiDate(listDate)));
       group.appendChild(heading);
       listView.appendChild(group);
     }
