@@ -467,6 +467,7 @@
   }
   .overlay.active{display:flex;}
   .modal{
+    position:relative;
     background:#F5FAF8;
     width:100%;
     max-width:480px;
@@ -477,6 +478,26 @@
     max-height:90vh;
     overflow-y:auto;
   }
+  .modal.summary-mode{padding-top:20px;}
+  .modal.summary-mode .modal-head{
+    position:absolute;
+    top:14px;
+    right:14px;
+    z-index:8;
+    margin:0;
+    padding:0;
+    background:transparent;
+    border:none;
+  }
+  .modal.summary-mode .modal-head-title{display:none;}
+  .modal.summary-mode .close-btn{
+    color:#075F49;
+    background:#fff;
+    border-color:#91CFBB;
+    box-shadow:0 3px 10px rgba(4,56,43,.14);
+  }
+  .modal.summary-mode .close-btn:hover{background:#E9F8F2;}
+  .modal.summary-mode .summary-hero{padding-right:58px; margin-top:0;}
   .modal-head{
     display:flex;
     align-items:center;
@@ -786,6 +807,7 @@
     .list-task{grid-template-columns:minmax(0,1fr) 18px; gap:10px;}
     .list-task-type{display:none;}
     .modal{padding:22px 18px 18px;}
+    .modal.summary-mode{padding:16px 18px 18px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
     .modal-actions{bottom:-18px; margin:20px -18px -18px; padding:14px 18px 18px;}
     .summary-grid{grid-template-columns:1fr;}
@@ -1307,6 +1329,7 @@ function updateStats(){
 
 /* ============ Modal ============ */
 const overlay = document.getElementById('modalOverlay');
+const modal = overlay.querySelector('.modal');
 const summaryView = document.getElementById('summaryView');
 const taskForm = document.getElementById('taskForm');
 const typeLabels = {meeting:'ประชุม', training:'อบรม', seminar:'สัมมนา', monitor:'ตรวจติดตาม/นิเทศงาน', other:'อื่นๆ'};
@@ -1387,6 +1410,7 @@ function showTaskSummary(task){
   if(!task) return;
   selectedTaskId = task.id;
   editingId = null;
+  modal.classList.add('summary-mode');
   summaryView.style.display = 'block';
   taskForm.style.display = 'none';
   document.getElementById('modalTitle').textContent = 'สรุปงาน';
@@ -1415,6 +1439,7 @@ function showTaskSummary(task){
 function openModal(task, presetDate){
   editingId = task ? task.id : null;
   selectedTaskId = task ? task.id : null;
+  modal.classList.remove('summary-mode');
   summaryView.style.display = 'none';
   taskForm.style.display = 'block';
   document.getElementById('modalTitle').textContent = task ? 'แก้ไขงาน' : 'เพิ่มงานใหม่';
@@ -1444,6 +1469,7 @@ function openModal(task, presetDate){
 
 function closeModal(){
   overlay.classList.remove('active');
+  modal.classList.remove('summary-mode');
   editingId = null;
   selectedTaskId = null;
 }
