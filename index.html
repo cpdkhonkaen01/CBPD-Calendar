@@ -542,7 +542,20 @@
     color:#064D3C;
     margin-bottom:7px;
   }
-  .field label .icon{width:21px; height:21px; padding:3px; border-radius:6px; color:#087C5E; background:#DDF7ED;}
+  .field label .icon{
+    width:22px; height:22px; padding:3px; border-radius:7px;
+    color:var(--field-icon-color,#087C5E);
+    background:var(--field-icon-bg,#DDF7ED);
+    box-shadow:0 2px 5px color-mix(in srgb, var(--field-icon-color,#087C5E) 18%, transparent);
+  }
+  .field-title{--field-icon-color:#078363; --field-icon-bg:#DDF8EE;}
+  .field-desc{--field-icon-color:#6D55D9; --field-icon-bg:#EEEAFE;}
+  .field-date{--field-icon-color:#1677C8; --field-icon-bg:#E4F2FF;}
+  .field-time{--field-icon-color:#D87800; --field-icon-bg:#FFF0D9;}
+  .field-location{--field-icon-color:#E6533D; --field-icon-bg:#FFE8E3;}
+  .field-type{--field-icon-color:#6554D9; --field-icon-bg:#ECE9FF;}
+  .field-owners{--field-icon-color:#008F7A; --field-icon-bg:#DDF8F1;}
+  .field-attachments{--field-icon-color:#087FB5; --field-icon-bg:#DFF4FF;}
   .field input, .field select, .field textarea{
     width:100%;
     font-family:var(--font-body);
@@ -981,43 +994,39 @@
       </section>
 
       <form id="taskForm">
-        <div class="field">
+        <div class="field field-title">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ชื่องาน *</label>
           <input type="text" id="fTitle" placeholder="เช่น ประชุมสรุปแผนงานประจำเดือน" required>
         </div>
-        <div class="field">
+        <div class="field field-desc">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>รายละเอียด</label>
           <textarea id="fDesc" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
         </div>
         <div class="row-2">
-          <div class="field">
+          <div class="field field-date">
             <label><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>วันที่เริ่ม</label>
             <input type="date" id="fStartDate">
           </div>
-          <div class="field">
+          <div class="field field-time">
             <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>เวลาเริ่ม</label>
             <input type="time" id="fStartTime">
           </div>
         </div>
         <div class="row-2">
-          <div class="field">
+          <div class="field field-date">
             <label><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>วันที่สิ้นสุด</label>
             <input type="date" id="fEndDate">
           </div>
-          <div class="field">
+          <div class="field field-time">
             <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>เวลาสิ้นสุด</label>
             <input type="time" id="fEndTime">
           </div>
         </div>
-        <div class="field">
-          <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>ผู้รับผิดชอบ</label>
-          <div class="people-choices" id="fOwners" role="group" aria-label="เลือกผู้รับผิดชอบ เลือกได้หลายคน"></div>
-        </div>
-        <div class="field">
+        <div class="field field-location">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M12 22s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="11" r="2.4"/></svg>สถานที่</label>
           <input type="text" id="fLocation" placeholder="เช่น ห้องประชุม กพส. ชั้น 3">
         </div>
-        <div class="field">
+        <div class="field field-type">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 3v18M4 4h13l-2.5 4L17 12H4"/></svg>ประเภทงาน</label>
           <select id="fType">
             <option value="meeting">ประชุม</option>
@@ -1027,7 +1036,11 @@
             <option value="other">อื่นๆ</option>
           </select>
         </div>
-        <div class="field">
+        <div class="field field-owners">
+          <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>ผู้รับผิดชอบ</label>
+          <div class="people-choices" id="fOwners" role="group" aria-label="เลือกผู้รับผิดชอบ เลือกได้หลายคน"></div>
+        </div>
+        <div class="field field-attachments">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>แนบไฟล์เอกสาร</label>
           <div class="file-upload">
             <input type="file" id="fAttachments" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png">
