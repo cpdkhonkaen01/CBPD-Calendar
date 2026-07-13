@@ -667,11 +667,29 @@
   .summary-badge.type.participate{background:var(--type-participate);}
   .summary-badge.type.monitor{background:var(--type-monitor);}
   .summary-badge.type.other{background:var(--type-other); color:#4D3900;}
+  .summary-desc-box{
+    margin-top:16px;
+    padding:12px 14px;
+    border:1.5px solid #92CDBA;
+    border-left:5px solid #6D6AE8;
+    border-radius:10px;
+    background:#FFFFFF;
+  }
+  .summary-desc-label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:#111111;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .summary-desc-label .icon{width:15px; height:15px; color:#6D6AE8;}
   .summary-desc{
-    color:var(--color-text-muted);
+    color:#111111;
     font-size:14px;
     line-height:1.7;
-    margin:0 2px 16px;
+    margin:0;
     white-space:pre-wrap;
   }
   .summary-grid{
@@ -1041,7 +1059,6 @@
             <span class="summary-badge type" id="summaryType"></span>
           </div>
         </div>
-        <p class="summary-desc" id="summaryDesc"></p>
         <div class="summary-grid">
           <div class="summary-item">
             <div class="summary-label"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>วันที่</div>
@@ -1063,6 +1080,13 @@
         <div class="summary-attachments" id="summaryAttachments">
           <h4><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>เอกสารแนบ</h4>
           <div class="attachment-list" id="summaryAttachmentList"></div>
+        </div>
+        <div class="summary-desc-box">
+          <div class="summary-desc-label">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            รายละเอียด
+          </div>
+          <p class="summary-desc" id="summaryDesc"></p>
         </div>
         <div class="summary-actions">
           <button type="button" class="btn btn-primary" id="btnEditTask">
@@ -1149,6 +1173,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwONPUhGYQYNAOe
 const APPS_SCRIPT_TOKEN = '';
 
 let lastSyncedYear = null;
+let calendarSyncInFlight = false;
 
 function isBackendConfigured(){
   return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/i.test(APPS_SCRIPT_URL.trim());
@@ -1174,28 +1199,54 @@ async function apiRequest(action, payload = {}){
 
 async function loadTasksFromBackend(){
   if(!isBackendConfigured()){
-    setBackendStatus('โหมดข้อมูลตัวอย่าง — ใส่ Web App URL เพื่อเชื่อม Google Sheet และ Google Calendar');
+    mockTasks = [];
+    populateOwnerFilter();
+    renderCalendar();
+    setBackendStatus('ยังไม่ได้เชื่อมต่อ Google Apps Script · ปฏิทินยังไม่มีข้อมูล');
     return;
   }
-  setBackendStatus('กำลังโหลดข้อมูลจาก Google Sheet และ Google Calendar...');
+  setBackendStatus('กำลังโหลดข้อมูลจาก Google Sheet...');
   try{
     const year = viewDate.getFullYear();
-    const result = await apiRequest('list', {
+    const result = await apiRequest('list');
+    mockTasks = Array.isArray(result.tasks) ? result.tasks : [];
+    lastSyncedYear = year;
+    setBackendStatus('โหลดข้อมูลจาก Google Sheet แล้ว · กำลังซิงก์ Google Calendar เบื้องหลัง...');
+    populateOwnerFilter();
+    renderCalendar();
+    syncCalendarFromBackend(year);
+  }catch(error){
+    console.error(error);
+    mockTasks = [];
+    populateOwnerFilter();
+    renderCalendar();
+    setBackendStatus('โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ');
+    showToast(error.message, 'warn');
+  }
+}
+
+async function syncCalendarFromBackend(year){
+  if(calendarSyncInFlight) return;
+  calendarSyncInFlight = true;
+  try{
+    const result = await apiRequest('sync-calendar', {
       startDate:`${year}-01-01`,
       endDate:`${year + 1}-01-01`,
     });
+    if(year !== viewDate.getFullYear()) return;
     mockTasks = Array.isArray(result.tasks) ? result.tasks : [];
-    lastSyncedYear = year;
-    const imported = result.sync?.imported || 0;
-    setBackendStatus(imported
-      ? `ซิงก์ Google Calendar ลง Sheet แล้ว · เพิ่มใหม่ ${imported} งาน`
+    const imported = Number(result.sync?.imported || 0);
+    const updated = Number(result.sync?.updated || 0);
+    setBackendStatus(imported || updated
+      ? `ซิงก์ Google Calendar แล้ว · เพิ่ม ${imported} · อัปเดต ${updated} งาน`
       : 'เชื่อมต่อ Google Sheet + Google Calendar แล้ว');
     populateOwnerFilter();
     renderCalendar();
   }catch(error){
     console.error(error);
-    setBackendStatus('เชื่อมต่อ Google Sheet / Calendar ไม่สำเร็จ — กำลังแสดงข้อมูลตัวอย่าง');
-    showToast(error.message, 'warn');
+    setBackendStatus('โหลดข้อมูลจาก Google Sheet แล้ว · แต่ซิงก์ Google Calendar ไม่สำเร็จ');
+  }finally{
+    calendarSyncInFlight = false;
   }
 }
 
@@ -1215,7 +1266,7 @@ const ICONS = {
   toastWarn: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'
 };
 
-/* ============ Mock data (จะถูกแทนที่ด้วย google.script.run เมื่อเชื่อม backend จริง) ============ */
+/* ============ Calendar data ============ */
 const thaiMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 const todayReal = new Date();
 let viewDate = new Date(todayReal.getFullYear(), todayReal.getMonth(), 1);
@@ -1237,20 +1288,7 @@ const responsiblePeople = [
   {name:'(เพียว) นางสาวชลธิชา อ่อนน้อม', position:'นักวิชาการมาตรฐานสินค้า'},
 ];
 
-let mockTasks = [
-{id:1, title:"ประชุมสรุปแผนงานประจำเดือน", date:dstr(2026,6,2), type:"participate", owners:[responsiblePeople[0].name,responsiblePeople[1].name], location:"ห้องประชุม กพส. ชั้น 3"},
-  {id:2, title:"จัดทำรายงานผลการดำเนินงาน Q2", date:dstr(2026,6,3), type:"other", owners:[responsiblePeople[1].name], location:"สำนักงาน กพส."},
-{id:3, title:"อบรมเชิงปฏิบัติการเกษตรกร", date:dstr(2026,6,3), type:"project", owners:[responsiblePeople[2].name,responsiblePeople[3].name], location:"ศูนย์เรียนรู้ชุมชน อ.เมือง"},
-  {id:4, title:"ตรวจติดตามพื้นที่โครงการ", date:dstr(2026,6,3), type:"monitor", owners:[responsiblePeople[3].name,responsiblePeople[4].name], location:"พื้นที่โครงการ ต.หนองแวง"},
-  {id:5, title:"ส่งเอกสารงบประมาณ", date:dstr(2026,6,8), type:"other", owners:[responsiblePeople[4].name], location:"กองคลัง"},
-{id:6, title:"ประชุมคณะทำงาน กพส.", date:dstr(2026,6,13), type:"participate", owners:[responsiblePeople[0].name,responsiblePeople[5].name], location:"ห้องประชุมใหญ่ ชั้น 4"},
-  {id:7, title:"นิเทศงานพื้นที่ภาคเหนือ", date:dstr(2026,6,13), type:"monitor", owners:[responsiblePeople[0].name,responsiblePeople[2].name], location:"จ.เชียงใหม่"},
-{id:8, title:"สัมมนาแลกเปลี่ยนความรู้", date:dstr(2026,6,15), type:"participate", owners:[responsiblePeople[1].name,responsiblePeople[5].name], location:"โรงแรมในตัวเมือง"},
-  {id:9, title:"ตรวจรับพัสดุครุภัณฑ์", date:dstr(2026,6,18), type:"other", owners:[responsiblePeople[2].name], location:"คลังพัสดุ"},
-{id:10, title:"ประเมินผลโครงการรอบ 6 เดือน", date:dstr(2026,6,22), type:"project", owners:[responsiblePeople[0].name,responsiblePeople[3].name], location:"ห้องประชุม กพส. ชั้น 3"},
-  {id:11, title:"จัดเก็บข้อมูลภาคสนาม", date:dstr(2026,6,25), type:"monitor", owners:[responsiblePeople[4].name,responsiblePeople[5].name], location:"พื้นที่ภาคสนาม"},
-{id:12, title:"สรุปผลและปิดโครงการ", date:dstr(2026,6,29), type:"project", owners:[responsiblePeople[1].name,responsiblePeople[5].name], location:"ห้องประชุม กพส. ชั้น 3"},
-];
+let mockTasks = [];
 
 let editingId = null;
 let selectedTaskId = null;
