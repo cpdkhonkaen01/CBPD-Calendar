@@ -381,6 +381,13 @@
     gap:4px;
   }
   .task-pill .icon{width:10px; height:10px; stroke:rgba(255,255,255,0.9); flex-shrink:0;}
+  .task-pill.multi-day{font-weight:700;}
+  .multi-day-mark{
+    flex:0 0 auto;
+    font-size:11px;
+    line-height:1;
+    opacity:.9;
+  }
   .task-pill.project{background:var(--type-project);}
   .task-pill.participate{background:var(--type-participate);}
   .task-pill.monitor{background:var(--type-monitor);}
@@ -669,20 +676,24 @@
   .summary-badge.type.other{background:var(--type-other); color:#4D3900;}
   .summary-desc-box{
     margin-top:16px;
-    padding:12px 14px;
-    border:1.5px solid #92CDBA;
+    padding:14px 16px;
+    border:2px solid #82BFAE;
     border-left:5px solid #6D6AE8;
-    border-radius:10px;
-    background:#FFFFFF;
+    border-radius:12px;
+    background:#FCFBFF;
+    box-shadow:0 3px 10px rgba(50,72,66,.07);
   }
   .summary-desc-label{
-    display:flex;
+    display:inline-flex;
     align-items:center;
     gap:6px;
     color:#111111;
     font-size:13px;
     font-weight:700;
-    margin-bottom:6px;
+    margin-bottom:8px;
+    padding:4px 9px;
+    border-radius:7px;
+    background:#ECEAFE;
   }
   .summary-desc-label .icon{width:15px; height:15px; color:#6D6AE8;}
   .summary-desc{
@@ -1311,12 +1322,30 @@ function taskMatchesFilters(task){
   return ownerMatch && (!searchQuery || haystack.includes(searchQuery));
 }
 
+function getTaskDateRange(task){
+  const start = String(task.date || '');
+  const requestedEnd = String(task.endDate || start);
+  return {
+    start,
+    end: requestedEnd >= start ? requestedEnd : start,
+  };
+}
+
+function taskOccursOnDate(task, isoDate){
+  const range = getTaskDateRange(task);
+  return Boolean(range.start) && isoDate >= range.start && isoDate <= range.end;
+}
+
+function taskOverlapsRange(task, rangeStart, rangeEnd){
+  const range = getTaskDateRange(task);
+  return Boolean(range.start) && range.start <= rangeEnd && range.end >= rangeStart;
+}
+
 function getFilteredMonthTasks(){
   const y = viewDate.getFullYear(), m = viewDate.getMonth();
-  return mockTasks.filter(task => {
-    const d = new Date(task.date);
-    return d.getFullYear() === y && d.getMonth() === m && taskMatchesFilters(task);
-  });
+  const monthStart = dstr(y, m, 1);
+  const monthEnd = dstr(y, m, new Date(y, m + 1, 0).getDate());
+  return mockTasks.filter(task => taskOverlapsRange(task, monthStart, monthEnd) && taskMatchesFilters(task));
 }
 
 function populateOwnerFilter(){
@@ -1395,14 +1424,18 @@ function renderCalendar(){
       cell.classList.add('is-today');
     }
 
-    const dayTasks = mockTasks.filter(t => t.date === iso && taskMatchesFilters(t));
+    const dayTasks = mockTasks.filter(t => taskOccursOnDate(t, iso) && taskMatchesFilters(t));
     const visible = dayTasks.slice(0,3);
     const remaining = dayTasks.length - visible.length;
 
     let pillsHtml = visible.map(t => {
       const cls = t.type;
-      const tip = t.location ? `${t.title} · ${t.location}` : t.title;
-      return `<div class="task-pill ${cls}" data-id="${escapeHtml(t.id)}" title="${escapeHtml(tip)}">${escapeHtml(t.title)}</div>`;
+      const range = getTaskDateRange(t);
+      const isMultiDay = range.end !== range.start;
+      const rangeLabel = isMultiDay ? ` · ${formatThaiDate(range.start)} – ${formatThaiDate(range.end)}` : '';
+      const locationLabel = t.location ? ` · ${t.location}` : '';
+      const tip = `${t.title}${rangeLabel}${locationLabel}`;
+      return `<div class="task-pill ${cls}${isMultiDay ? ' multi-day' : ''}" data-id="${escapeHtml(t.id)}" title="${escapeHtml(tip)}">${isMultiDay ? '<span class="multi-day-mark" aria-hidden="true">↔</span>' : ''}${escapeHtml(t.title)}</div>`;
     }).join('');
     if(remaining > 0){
       pillsHtml += `<div class="more-tasks">+${remaining} งานเพิ่มเติม</div>`;
@@ -1535,6 +1568,22 @@ function formatThaiDate(iso){
   return new Intl.DateTimeFormat('th-TH', {day:'numeric', month:'long', year:'numeric'}).format(new Date(y,m-1,d));
 }
 
+function cleanDescriptionText(value){
+  const raw = String(value || '');
+  const withLineBreaks = raw
+    .replace(/<\s*br\s*\/?>/gi, '\n')
+    .replace(/<\s*li(?:\s[^>]*)?>/gi, '• ')
+    .replace(/<\/\s*(p|div|li|h[1-6])\s*>/gi, '\n');
+  const withoutTags = withLineBreaks.replace(/<[^>]*>/g, '');
+  const decoder = document.createElement('textarea');
+  decoder.innerHTML = withoutTags;
+  return decoder.value
+    .replace(/\r\n?/g, '\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function formatFileSize(bytes){
   if(!bytes) return 'ไม่ระบุขนาด';
   if(bytes < 1024) return `${bytes} B`;
@@ -1653,7 +1702,8 @@ function showTaskSummary(task){
   document.getElementById('modalTitle').textContent = 'สรุปงาน';
   document.getElementById('modalIcon').innerHTML = ICONS.done;
   document.getElementById('summaryTitle').textContent = task.title;
-  document.getElementById('summaryDesc').textContent = task.desc || 'ไม่มีรายละเอียดเพิ่มเติม';
+  const cleanDescription = cleanDescriptionText(task.desc);
+  document.getElementById('summaryDesc').textContent = cleanDescription || 'ไม่มีรายละเอียดเพิ่มเติม';
   const endDate = task.endDate || task.date;
   document.getElementById('summaryDate').textContent = endDate !== task.date
     ? `${formatThaiDate(task.date)} – ${formatThaiDate(endDate)}`
@@ -1686,7 +1736,7 @@ function openModal(task, presetDate){
   document.getElementById('btnDelete').style.display = task ? 'inline-flex' : 'none';
 
   document.getElementById('fTitle').value = task ? task.title : '';
-  document.getElementById('fDesc').value = task ? (task.desc || '') : '';
+  document.getElementById('fDesc').value = task ? cleanDescriptionText(task.desc) : '';
   document.getElementById('fStartDate').value = task ? task.date : (presetDate || '');
   document.getElementById('fStartTime').value = task ? (task.startTime || '09:00') : '09:00';
   document.getElementById('fEndDate').value = task ? (task.endDate || task.date) : (presetDate || '');
