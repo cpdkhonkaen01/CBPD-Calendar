@@ -17,9 +17,9 @@
     --color-accent-amber:#FBBF24;
     --color-accent-mint:#34D399;
     --type-project:#0EA57E;
-    --type-participate:#E8871B;ฟ
-    --type-monitor:#3B9FE0;
-    --type-other:#8B98A0;
+    --type-participate:#E8871B;
+    --type-monitor:#2F9FE5;
+    --type-other:#F4B400;
     --color-text:#123B33;
     --color-text-muted:#5E8A7E;
     --color-border:#D3F0E4;
@@ -384,7 +384,7 @@
   .task-pill.project{background:var(--type-project);}
   .task-pill.participate{background:var(--type-participate);}
   .task-pill.monitor{background:var(--type-monitor);}
-  .task-pill.other{background:var(--type-other);}
+  .task-pill.other{background:var(--type-other); color:#4D3900;}
   .more-tasks{
     font-size:10.5px;
     color:var(--color-text-muted);
@@ -666,7 +666,7 @@
   .summary-badge.type.project{background:var(--type-project);}
   .summary-badge.type.participate{background:var(--type-participate);}
   .summary-badge.type.monitor{background:var(--type-monitor);}
-  .summary-badge.type.other{background:var(--type-other);}
+  .summary-badge.type.other{background:var(--type-other); color:#4D3900;}
   .summary-desc{
     color:var(--color-text-muted);
     font-size:14px;
@@ -1021,7 +1021,7 @@
 
   <footer class="note">
     <svg class="icon" viewBox="0 0 24 24"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
-    หน้าตัวอย่าง UI/UX ใช้ข้อมูลจำลอง — ยังไม่ได้เชื่อมต่อ Google Sheet / Google Calendar จริง
+    <span id="backendStatus">กำลังตรวจสอบการเชื่อมต่อ Google Sheet และ Google Calendar...</span>
   </footer>
 
   <!-- Modal -->
@@ -1144,6 +1144,51 @@
   <div class="toast" id="toast"></div>
 
 <script>
+/* ============ Google Apps Script API ============ */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBcifW0s3QM6AIQ06vJB_71_jC32OC-2gXuDn-Fu4XbdajL86pfecN3l2Qa60Sb4ByTA/exec';
+const APPS_SCRIPT_TOKEN = '';
+
+function isBackendConfigured(){
+  return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/i.test(APPS_SCRIPT_URL.trim());
+}
+
+function setBackendStatus(message){
+  document.getElementById('backendStatus').textContent = message;
+}
+
+async function apiRequest(action, payload = {}){
+  if(!isBackendConfigured()) throw new Error('ยังไม่ได้ตั้งค่า APPS_SCRIPT_URL');
+  const response = await fetch(APPS_SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action, token:APPS_SCRIPT_TOKEN, ...payload}),
+    redirect:'follow',
+  });
+  if(!response.ok) throw new Error(`เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ (${response.status})`);
+  const result = await response.json();
+  if(!result.success) throw new Error(result.message || 'เกิดข้อผิดพลาดจาก Google Apps Script');
+  return result;
+}
+
+async function loadTasksFromBackend(){
+  if(!isBackendConfigured()){
+    setBackendStatus('โหมดข้อมูลตัวอย่าง — ใส่ Web App URL เพื่อเชื่อม Google Sheet และ Google Calendar');
+    return;
+  }
+  setBackendStatus('กำลังโหลดข้อมูลจาก Google Sheet และ Google Calendar...');
+  try{
+    const result = await apiRequest('list');
+    mockTasks = Array.isArray(result.tasks) ? result.tasks : [];
+    setBackendStatus('เชื่อมต่อ Google Sheet + Google Calendar แล้ว');
+    populateOwnerFilter();
+    renderCalendar();
+  }catch(error){
+    console.error(error);
+    setBackendStatus('เชื่อมต่อ Google Sheet / Calendar ไม่สำเร็จ — กำลังแสดงข้อมูลตัวอย่าง');
+    showToast(error.message, 'warn');
+  }
+}
+
 /* ============ Icon helpers ============ */
 const ICONS = {
   add: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
@@ -1154,11 +1199,16 @@ const ICONS = {
 
 /* ============ Mock data (จะถูกแทนที่ด้วย google.script.run เมื่อเชื่อม backend จริง) ============ */
 const thaiMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
-let viewDate = new Date(2026, 6, 1); // กรกฎาคม 2569 (ค.ศ.2026)
-const todayReal = new Date(2026, 6, 13);
+const todayReal = new Date();
+let viewDate = new Date(todayReal.getFullYear(), todayReal.getMonth(), 1);
 
 function pad(n){ return n.toString().padStart(2,'0'); }
 function dstr(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>'"]/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+  })[char]);
+}
 
 const responsiblePeople = [
   {name:'ผอ. นางสุภาพร นรินยา', position:'ผู้อำนวยการกลุ่มส่งเสริมและพัฒนาธุรกิจสหกรณ์'},
@@ -1296,7 +1346,7 @@ function renderCalendar(){
     let pillsHtml = visible.map(t => {
       const cls = t.type;
       const tip = t.location ? `${t.title} · ${t.location}` : t.title;
-      return `<div class="task-pill ${cls}" data-id="${t.id}" title="${tip}">${t.title}</div>`;
+      return `<div class="task-pill ${cls}" data-id="${escapeHtml(t.id)}" title="${escapeHtml(tip)}">${escapeHtml(t.title)}</div>`;
     }).join('');
     if(remaining > 0){
       pillsHtml += `<div class="more-tasks">+${remaining} งานเพิ่มเติม</div>`;
@@ -1439,7 +1489,17 @@ function formatFileSize(bytes){
 function canPreviewAttachment(attachment){
   const mime = (attachment.type || '').toLowerCase();
   const name = (attachment.name || '').toLowerCase();
-  return mime === 'application/pdf' || mime.startsWith('image/') || /\.(pdf|png|jpe?g|gif|webp)$/i.test(name);
+  const storedOnDrive = Boolean(attachment.fileId && /^https:\/\/drive\.google\.com\//i.test(attachment.url || ''));
+  return storedOnDrive || mime === 'application/pdf' || mime.startsWith('image/') || /\.(pdf|png|jpe?g|gif|webp)$/i.test(name);
+}
+
+function readFileAsDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error(`อ่านไฟล์ ${file.name} ไม่สำเร็จ`));
+    reader.readAsDataURL(file);
+  });
 }
 
 function openAttachmentPreview(attachment){
@@ -1605,27 +1665,33 @@ document.getElementById('btnEditTask').addEventListener('click', () => {
 });
 overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
 
-document.getElementById('fAttachments').addEventListener('change', (e) => {
+document.getElementById('fAttachments').addEventListener('change', async (e) => {
   const files = [...e.target.files];
   let rejected = 0;
-  files.forEach(file => {
-    if(file.size > 10 * 1024 * 1024){ rejected++; return; }
+  for(const file of files){
+    if(file.size > 10 * 1024 * 1024){ rejected++; continue; }
     const duplicate = pendingAttachments.some(a => a.name === file.name && a.size === file.size);
-    if(duplicate) return;
-    pendingAttachments.push({
-      id:`file-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      name:file.name,
-      size:file.size,
-      type:file.type,
-      url:URL.createObjectURL(file),
-    });
-  });
+    if(duplicate) continue;
+    try{
+      pendingAttachments.push({
+        id:`file-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        name:file.name,
+        size:file.size,
+        type:file.type,
+        url:URL.createObjectURL(file),
+        dataUrl:await readFileAsDataUrl(file),
+      });
+    }catch(error){
+      rejected++;
+      console.error(error);
+    }
+  }
   e.target.value = '';
   renderAttachmentDrafts();
-  if(rejected) showToast(`มี ${rejected} ไฟล์เกินขนาด 10 MB`, 'warn');
+  if(rejected) showToast(`มี ${rejected} ไฟล์ที่แนบไม่สำเร็จหรือเกิน 10 MB`, 'warn');
 });
 
-document.getElementById('taskForm').addEventListener('submit', (e) => {
+document.getElementById('taskForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const title = document.getElementById('fTitle').value.trim();
   if(!title){ showToast('กรุณากรอกชื่องาน', 'warn'); return; }
@@ -1644,28 +1710,62 @@ document.getElementById('taskForm').addEventListener('submit', (e) => {
     location: document.getElementById('fLocation').value.trim(),
     attachments: [...pendingAttachments],
   };
+  const submitButton = document.querySelector('#taskForm button[type="submit"]');
+  const originalButtonHtml = submitButton.innerHTML;
+  submitButton.disabled = true;
+  submitButton.textContent = 'กำลังบันทึก...';
 
-  if(editingId){
-    const idx = mockTasks.findIndex(t => t.id === editingId);
-    mockTasks[idx] = {...mockTasks[idx], ...data};
-    showToast('บันทึกการแก้ไขเรียบร้อย (ตัวอย่าง)', 'ok');
-  } else {
-    mockTasks.push({id: Date.now(), ...data});
-    showToast('เพิ่มงานใหม่เรียบร้อย (ตัวอย่าง)', 'ok');
+  try{
+    if(isBackendConfigured()){
+      const isEditing = Boolean(editingId);
+      if(isEditing) data.id = editingId;
+      const result = await apiRequest(isEditing ? 'update' : 'create', {task:data});
+      if(isEditing){
+        const idx = mockTasks.findIndex(t => t.id === editingId);
+        if(idx >= 0) mockTasks[idx] = result.task;
+      }else{
+        mockTasks.push(result.task);
+      }
+      setBackendStatus('บันทึก Google Sheet และซิงก์ Google Calendar เรียบร้อย');
+      showToast(isEditing ? 'บันทึกการแก้ไขเรียบร้อย' : 'เพิ่มงานใหม่เรียบร้อย', 'ok');
+    }else if(editingId){
+      const idx = mockTasks.findIndex(t => t.id === editingId);
+      mockTasks[idx] = {...mockTasks[idx], ...data};
+      showToast('บันทึกการแก้ไขเรียบร้อย (โหมดตัวอย่าง)', 'ok');
+    }else{
+      mockTasks.push({id: Date.now(), ...data});
+      showToast('เพิ่มงานใหม่เรียบร้อย (โหมดตัวอย่าง)', 'ok');
+    }
+
+    closeModal();
+    populateOwnerFilter();
+    renderCalendar();
+  }catch(error){
+    console.error(error);
+    showToast(error.message || 'บันทึกงานไม่สำเร็จ', 'warn');
+  }finally{
+    submitButton.disabled = false;
+    submitButton.innerHTML = originalButtonHtml;
   }
-
-  closeModal();
-  populateOwnerFilter();
-  renderCalendar();
 });
 
-document.getElementById('btnDelete').addEventListener('click', () => {
+document.getElementById('btnDelete').addEventListener('click', async () => {
   if(!editingId) return;
-  mockTasks = mockTasks.filter(t => t.id !== editingId);
-  showToast('ลบงานเรียบร้อย (ตัวอย่าง)', 'ok');
-  closeModal();
-  populateOwnerFilter();
-  renderCalendar();
+  const deleteButton = document.getElementById('btnDelete');
+  deleteButton.disabled = true;
+  try{
+    if(isBackendConfigured()) await apiRequest('delete', {id:editingId});
+    mockTasks = mockTasks.filter(t => t.id !== editingId);
+    showToast(isBackendConfigured() ? 'ลบงานออกจาก Google Sheet และ Calendar แล้ว' : 'ลบงานเรียบร้อย (โหมดตัวอย่าง)', 'ok');
+    closeModal();
+    populateOwnerFilter();
+    renderCalendar();
+  }catch(error){
+    console.error(error);
+    showToast(error.message || 'ลบงานไม่สำเร็จ', 'warn');
+  }finally{
+    deleteButton.disabled = false;
+  }
 });
 
 /* ============ Nav ============ */
@@ -1711,6 +1811,7 @@ function showToast(msg, type){
 populateOwnerOptions();
 populateOwnerFilter();
 renderCalendar();
+loadTasksFromBackend();
 </script>
 </body>
 </html>
