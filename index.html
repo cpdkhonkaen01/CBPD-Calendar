@@ -655,6 +655,7 @@
     color:var(--color-primary-dark);
     line-height:1.45;
     margin-bottom:10px;
+    overflow-wrap:anywhere;
   }
   .summary-badges{display:flex; flex-wrap:wrap; gap:7px;}
   .summary-badge{
@@ -942,17 +943,22 @@
     .list-task{grid-template-columns:minmax(0,1fr) 18px; gap:10px;}
     .list-task-type{display:none;}
     .modal{padding:22px 18px 18px;}
-    .modal.summary-mode{padding:16px 18px 18px;}
+    .modal.summary-mode{padding:14px 16px 16px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
     .modal-actions{bottom:-18px; margin:20px -18px -18px; padding:14px 18px 18px;}
-    .modal.summary-mode .summary-hero{padding:14px 52px 14px 14px; margin-bottom:10px;}
-    .summary-title{font-size:16px; line-height:1.45; margin-bottom:8px;}
+    .modal.summary-mode .summary-hero{padding:11px 44px 11px 11px; margin-bottom:7px;}
+    .summary-title{font-size:14px; line-height:1.4; margin-bottom:7px;}
     .summary-badge{font-size:11px; padding:4px 8px;}
-    .summary-grid{grid-template-columns:1fr;}
+    .summary-grid{grid-template-columns:1fr; gap:6px;}
     .summary-item.wide{grid-column:auto;}
-    .summary-item{padding:10px 12px;}
+    .summary-item{padding:7px 10px; border-radius:8px;}
     .summary-item.inline-row{gap:8px;}
     .summary-item.inline-row .summary-value{font-size:13px;}
+    .summary-label{line-height:1.3; margin-bottom:3px;}
+    .summary-value{line-height:1.35;}
+    .summary-desc-box{margin-top:10px; padding:10px 12px;}
+    .summary-actions{margin-top:12px; padding-top:12px;}
+    #summaryDate{font-size:clamp(10.5px,3vw,12.5px); white-space:nowrap; overflow-wrap:normal;}
     footer.note{margin-top:12px; padding:0 10px; font-size:9.5px;}
   }
 </style>
@@ -1612,6 +1618,23 @@ function formatThaiDate(iso){
   return new Intl.DateTimeFormat('th-TH', {day:'numeric', month:'long', year:'numeric'}).format(new Date(y,m-1,d));
 }
 
+function formatThaiDateRange(startIso, endIso){
+  if(!startIso) return 'ไม่ระบุ';
+  if(!endIso || endIso === startIso) return formatThaiDate(startIso);
+  const [startYear, startMonth, startDay] = startIso.split('-').map(Number);
+  const [endYear, endMonth, endDay] = endIso.split('-').map(Number);
+  if(startYear === endYear && startMonth === endMonth){
+    return `${startDay}–${endDay} ${thaiMonths[startMonth - 1]} ${startYear + 543}`;
+  }
+  const shortMonth = iso => new Intl.DateTimeFormat('th-TH', {month:'short'}).format(iso);
+  const startDate = new Date(startYear, startMonth - 1, startDay);
+  const endDate = new Date(endYear, endMonth - 1, endDay);
+  if(startYear === endYear){
+    return `${startDay} ${shortMonth(startDate)}–${endDay} ${shortMonth(endDate)} ${startYear + 543}`;
+  }
+  return `${startDay} ${shortMonth(startDate)} ${startYear + 543}–${endDay} ${shortMonth(endDate)} ${endYear + 543}`;
+}
+
 function cleanDescriptionText(value){
   const raw = String(value || '');
   const withLineBreaks = raw
@@ -1749,9 +1772,7 @@ function showTaskSummary(task){
   const cleanDescription = cleanDescriptionText(task.desc);
   document.getElementById('summaryDesc').textContent = cleanDescription || 'ไม่มีรายละเอียดเพิ่มเติม';
   const endDate = task.endDate || task.date;
-  document.getElementById('summaryDate').textContent = endDate !== task.date
-    ? `${formatThaiDate(task.date)} – ${formatThaiDate(endDate)}`
-    : formatThaiDate(task.date);
+  document.getElementById('summaryDate').textContent = formatThaiDateRange(task.date, endDate);
   document.getElementById('summaryTime').textContent = `${task.startTime || '09:00'} – ${task.endTime || '16:00'} น.`;
   const owners = getTaskOwners(task);
   document.getElementById('summaryOwner').textContent = owners.length
