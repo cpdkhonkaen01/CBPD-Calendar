@@ -1931,8 +1931,11 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     showToast('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถบันทึกงานได้', 'warn');
     return;
   }
-  const savePassword = window.prompt('กรุณาใส่รหัสผ่านสำหรับบันทึกงาน');
-  if(savePassword === null) return;
+  let createPassword = '';
+  if(!editingId){
+    createPassword = window.prompt('กรุณาใส่รหัสผ่านสำหรับเพิ่มงานใหม่');
+    if(createPassword === null) return;
+  }
   const confirmMessage = editingId
     ? `ยืนยันบันทึกการแก้ไขงาน “${title}” ใช่หรือไม่?`
     : `ยืนยันเพิ่มงาน “${title}” ใช่หรือไม่?`;
@@ -1948,7 +1951,9 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     if(isEditing) data.id = editingId;
     const result = await apiRequest(isEditing ? 'update' : 'create', {
       task:data,
-      savePassword,
+      ...(isEditing
+        ? {editPassword:editingPassword}
+        : {savePassword:createPassword}),
     });
     if(isEditing){
       const idx = mockTasks.findIndex(t => t.id === editingId);
