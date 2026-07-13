@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ปฏิทินงาน กลุ่ม กพส.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --color-bg:#EEFCF7;
+    --color-surface:#FFFFFF;
+    --color-primary:#0EA57E;
+    --color-primary-light:#34D8AE;
+    --color-primary-dark:#0B7A5F;
+    --color-accent-coral:#FF7A59;
+    --color-accent-amber:#FBBF24;
+    --color-accent-mint:#34D399;
+    --type-meeting:#0EA57E;
+    --type-training:#E8871B;
+    --type-seminar:#6D6AE8;
+    --type-monitor:#3B9FE0;
+    --type-other:#8B98A0;
+    --color-text:#123B33;
+    --color-text-muted:#5E8A7E;
+    --color-border:#D3F0E4;
+    --font-display:'Kanit',sans-serif;
+    --font-body:'Sarabun',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --radius:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:var(--font-body);
+    background:var(--color-bg);
+    color:var(--color-text);
+    background-image:radial-gradient(circle at 1px 1px, rgba(14,165,126,0.08) 1px, transparent 0);
+    background-size:22px 22px;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  a{color:inherit;}
+  svg{display:block;}
+  .icon{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+
+  /* ===== Header ===== */
+  .topbar{
+    background:linear-gradient(120deg, var(--color-primary-dark), var(--color-primary) 55%, var(--color-primary-light));
+    color:#fff;
+    padding:18px 32px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    box-shadow:0 4px 18px rgba(14,165,126,0.28);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .brand-mark{
+    width:46px;height:46px;
+    background:rgba(255,255,255,0.18);
+    border:1.5px solid rgba(255,255,255,0.5);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .brand-mark .icon{width:24px; height:24px; stroke:#fff;}
+  .brand-text h1{
+    font-family:var(--font-display);
+    font-size:19px;
+    font-weight:600;
+    line-height:1.3;
+  }
+  .brand-text p{
+    font-size:12.5px;
+    color:rgba(255,255,255,0.75);
+    font-family:var(--font-mono);
+    letter-spacing:0.3px;
+  }
+  .btn-add{
+    background:var(--color-accent-coral);
+    color:#fff;
+    border:none;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14.5px;
+    padding:11px 20px 11px 16px;
+    border-radius:9px;
+    cursor:pointer;
+    display:flex;align-items:center;gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 3px 0 #d55c3f;
+  }
+  .btn-add .icon{width:17px; height:17px; stroke:#fff;}
+  .btn-add:hover{transform:translateY(-1px);}
+  .btn-add:active{transform:translateY(2px); box-shadow:0 1px 0 #d55c3f;}
+
+  /* ===== Stats strip ===== */
+  .stats{
+    max-width:1180px;
+    margin:24px auto 0;
+    padding:0 32px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  .stat-card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius);
+    padding:15px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border-left:4px solid var(--color-primary);
+  }
+  .stat-card.meeting{border-left-color:var(--type-meeting);}
+  .stat-card.training{border-left-color:var(--type-training);}
+  .stat-card.seminar{border-left-color:var(--type-seminar);}
+  .stat-icon{
+    width:38px; height:38px;
+    border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    background:#E8FBF3;
+    color:var(--color-primary);
+    flex-shrink:0;
+  }
+  .stat-card.meeting .stat-icon{background:#E4F7F0; color:var(--type-meeting);}
+  .stat-card.training .stat-icon{background:#FDEEDC; color:var(--type-training);}
+  .stat-card.seminar .stat-icon{background:#ECEBFC; color:var(--type-seminar);}
+  .stat-icon .icon{width:19px; height:19px;}
+  .stat-body{display:flex; flex-direction:column;}
+  .stat-card .num{
+    font-family:var(--font-mono);
+    font-size:23px;
+    font-weight:600;
+    color:var(--color-primary);
+    line-height:1.15;
+  }
+  .stat-card .label{
+    font-size:12.5px;
+    color:var(--color-text-muted);
+  }
+
+  /* ===== Calendar shell ===== */
+  .calendar-wrap{
+    max-width:1180px;
+    margin:22px auto 0;
+    padding:0 32px;
+  }
+  .calendar-card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(14,165,126,0.10);
+  }
+  .cal-controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 22px;
+    border-bottom:1px solid var(--color-border);
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .month-nav{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .nav-btn{
+    width:34px;height:34px;
+    border-radius:9px;
+    border:1px solid var(--color-border);
+    background:var(--color-bg);
+    color:var(--color-primary);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s;
+  }
+  .nav-btn .icon{width:17px; height:17px;}
+  .nav-btn:hover{background:#DBF6EA;}
+  .month-title{
+    font-family:var(--font-display);
+    font-size:21px;
+    font-weight:600;
+    color:var(--color-primary-dark);
+    min-width:170px;
+    text-align:center;
+    display:flex; align-items:center; gap:8px; justify-content:center;
+  }
+  .month-title .icon{width:19px; height:19px; color:var(--color-accent-coral);}
+  .cal-tools{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .today-btn{
+    background:#fff;
+    border:1px solid var(--color-primary);
+    color:var(--color-primary-dark);
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13.5px;
+    padding:8px 14px 8px 11px;
+    border-radius:8px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .today-btn .icon{width:15px; height:15px;}
+  .search-box{
+    display:flex;align-items:center;gap:7px;
+    background:var(--color-bg);
+    border:1px solid var(--color-border);
+    border-radius:8px;
+    padding:7px 12px;
+  }
+  .search-box .icon{width:15px; height:15px; color:var(--color-text-muted);}
+  .search-box input{
+    border:none;background:transparent;outline:none;
+    font-family:var(--font-body);
+    font-size:13.5px;
+    width:150px;
+    color:var(--color-text);
+  }
+  .legend{
+    display:flex;gap:16px;align-items:center;
+    padding:10px 22px;
+    font-size:12.5px;
+    color:var(--color-text-muted);
+    border-bottom:1px solid var(--color-border);
+    background:#F6FEFB;
+    flex-wrap:wrap;
+  }
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .dot.meeting{background:var(--type-meeting);}
+  .dot.training{background:var(--type-training);}
+  .dot.seminar{background:var(--type-seminar);}
+  .dot.monitor{background:var(--type-monitor);}
+  .dot.other{background:var(--type-other);}
+  .legend .prio-hint{display:flex; align-items:center; gap:4px; color:var(--color-text-muted);}
+  .legend .prio-hint .icon{width:13px; height:13px;}
+  .legend .divider{width:1px; height:14px; background:var(--color-border);}
+  .legend .hint{margin-left:auto; display:flex; align-items:center; gap:5px;}
+  .legend .hint .icon{width:14px; height:14px;}
+
+  /* ===== Grid ===== */
+  .weekdays{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    background:var(--color-primary-dark);
+  }
+  .weekdays div{
+    text-align:center;
+    font-family:var(--font-display);
+    font-size:12.5px;
+    font-weight:500;
+    color:rgba(255,255,255,0.85);
+    padding:10px 4px;
+    letter-spacing:0.5px;
+  }
+  .weekdays div:first-child{color:#FFD2C4;}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-auto-rows:112px;
+  }
+  .cell{
+    border-right:1px solid var(--color-border);
+    border-bottom:1px solid var(--color-border);
+    padding:6px 6px 4px;
+    position:relative;
+    cursor:pointer;
+    transition:background .12s;
+    overflow:hidden;
+  }
+  .cell:hover{background:#F2FDF8;}
+  .cell.other-month{background:#FAFEFC; color:#bfe4d5;}
+  .cell.other-month .daynum{color:#bfe4d5;}
+  .cell:nth-child(7n){border-right:none;}
+  .daynum{
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:600;
+    color:var(--color-text);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;height:26px;
+  }
+  .cell.is-today .daynum{
+    position:relative;
+    color:#fff;
+    background:var(--color-accent-coral);
+    border-radius:50%;
+  }
+  .cell.is-today .daynum::before{
+    content:"";
+    position:absolute;
+    inset:-4px;
+    border:2px solid var(--color-accent-coral);
+    border-radius:50%;
+    transform:rotate(-8deg);
+    opacity:0.55;
+  }
+  .task-list{
+    margin-top:5px;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .task-pill{
+    font-size:11px;
+    font-family:var(--font-body);
+    font-weight:500;
+    padding:3px 6px;
+    border-radius:5px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .task-pill .icon{width:10px; height:10px; stroke:rgba(255,255,255,0.9); flex-shrink:0;}
+  .task-pill.meeting{background:var(--type-meeting);}
+  .task-pill.training{background:var(--type-training);}
+  .task-pill.seminar{background:var(--type-seminar);}
+  .task-pill.monitor{background:var(--type-monitor);}
+  .task-pill.other{background:var(--type-other);}
+  .more-tasks{
+    font-size:10.5px;
+    color:var(--color-text-muted);
+    font-family:var(--font-mono);
+    padding-left:6px;
+    cursor:pointer;
+  }
+  .add-hint{
+    position:absolute;
+    right:6px; top:6px;
+    opacity:0;
+    color:var(--color-primary);
+    transition:opacity .12s;
+  }
+  .add-hint .icon{width:15px; height:15px;}
+  .cell:hover .add-hint{opacity:1;}
+
+  /* ===== Modal ===== */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(9,40,32,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.active{display:flex;}
+  .modal{
+    background:var(--color-surface);
+    width:100%;
+    max-width:480px;
+    border-radius:16px;
+    padding:26px 26px 22px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .modal-head-title{display:flex; align-items:center; gap:10px;}
+  .modal-head-title .icon-badge{
+    width:34px; height:34px; border-radius:9px;
+    background:#E8FBF3; color:var(--color-primary);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-head-title .icon-badge .icon{width:18px; height:18px;}
+  .modal-head h2{
+    font-family:var(--font-display);
+    font-size:18px;
+    color:var(--color-primary-dark);
+  }
+  .close-btn{
+    border:none;background:none;
+    color:var(--color-text-muted);
+    cursor:pointer;
+    line-height:1;
+    display:flex;
+  }
+  .close-btn .icon{width:20px; height:20px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:flex; align-items:center; gap:6px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--color-text);
+    margin-bottom:6px;
+  }
+  .field label .icon{width:14px; height:14px; color:var(--color-primary);}
+  .field input, .field select, .field textarea{
+    width:100%;
+    font-family:var(--font-body);
+    font-size:14px;
+    padding:9px 11px;
+    border:1px solid var(--color-border);
+    border-radius:8px;
+    outline:none;
+    background:#FBFEFD;
+    color:var(--color-text);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-color:var(--color-primary);
+    box-shadow:0 0 0 3px rgba(14,165,126,0.14);
+  }
+  .field textarea{resize:vertical; min-height:64px;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .modal-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:20px;
+    padding-top:16px;
+    border-top:1px solid var(--color-border);
+  }
+  .btn{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 18px;
+    border-radius:9px;
+    border:none;
+    cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .btn .icon{width:15px; height:15px;}
+  .btn-primary{background:var(--color-primary); color:#fff;}
+  .btn-ghost{background:none; color:var(--color-text-muted); border:1px solid var(--color-border);}
+  .btn-danger{background:none; color:var(--color-accent-coral); font-size:13px;}
+  .priority-choices{display:flex; gap:8px;}
+  .priority-choices label{
+    flex:1;
+    text-align:center;
+    border:1px solid var(--color-border);
+    border-radius:8px;
+    padding:8px 4px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--color-text-muted);
+    position:relative;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+  }
+  .priority-choices label .icon{width:13px; height:13px;}
+  .priority-choices input{position:absolute; opacity:0; width:0; height:0;}
+  .priority-choices .p-high{border-color:#ffd9cc;}
+  .priority-choices .p-mid{border-color:#fceac1;}
+  .priority-choices .p-low{border-color:#c8f0e0;}
+  .priority-choices label:has(input:checked).p-high{background:var(--color-accent-coral); border-color:var(--color-accent-coral); color:#fff;}
+  .priority-choices label:has(input:checked).p-mid{background:var(--color-accent-amber); border-color:var(--color-accent-amber); color:#fff;}
+  .priority-choices label:has(input:checked).p-low{background:var(--color-primary); border-color:var(--color-primary); color:#fff;}
+
+  .toast{
+    position:fixed;
+    bottom:22px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--color-primary-dark);
+    color:#fff;
+    padding:12px 20px;
+    border-radius:9px;
+    font-size:13.5px;
+    font-family:var(--font-body);
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    opacity:0;
+    pointer-events:none;
+    transition:all .25s ease;
+    z-index:100;
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast .icon{width:16px; height:16px;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  footer.note{
+    max-width:1180px;
+    margin:20px auto 0;
+    padding:0 32px;
+    font-size:12px;
+    color:var(--color-text-muted);
+    font-family:var(--font-mono);
+    display:flex; align-items:center; gap:6px;
+  }
+  footer.note .icon{width:13px; height:13px;}
+
+  @media (max-width:760px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .grid{grid-auto-rows:88px;}
+    .task-pill{font-size:9.5px;}
+    .month-title{font-size:17px; min-width:auto;}
+    .search-box{display:none;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M8 2v4M16 2v4"/><path d="M8 14l2 2 4-4"/></svg>
+      </div>
+      <div class="brand-text">
+        <h1>ปฏิทินงาน กลุ่ม กพส.</h1>
+        <p>WORK CALENDAR SYSTEM</p>
+      </div>
+    </div>
+    <button class="btn-add" id="btnAddTask">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      เพิ่มงานใหม่
+    </button>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/></svg></div>
+      <div class="stat-body">
+        <div class="num" id="statAll">12</div>
+        <div class="label">งานทั้งหมดเดือนนี้</div>
+      </div>
+    </div>
+    <div class="stat-card meeting">
+      <div class="stat-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M14.5 14.2c2.6.3 4.5 2.5 4.5 5.3"/></svg></div>
+      <div class="stat-body">
+        <div class="num" id="statMeeting">4</div>
+        <div class="label">ประชุม</div>
+      </div>
+    </div>
+    <div class="stat-card training">
+      <div class="stat-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></div>
+      <div class="stat-body">
+        <div class="num" id="statTraining">3</div>
+        <div class="label">อบรม</div>
+      </div>
+    </div>
+    <div class="stat-card seminar">
+      <div class="stat-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+      <div class="stat-body">
+        <div class="num" id="statSeminar">3</div>
+        <div class="label">สัมมนา</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-wrap">
+    <div class="calendar-card">
+      <div class="cal-controls">
+        <div class="month-nav">
+          <button class="nav-btn" id="prevMonth"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="month-title">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M8 2v4M16 2v4"/></svg>
+            <span id="monthTitle">กรกฎาคม 2569</span>
+          </div>
+          <button class="nav-btn" id="nextMonth"><svg class="icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+        <div class="cal-tools">
+          <div class="search-box">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="searchInput" placeholder="ค้นหางาน...">
+          </div>
+          <button class="today-btn" id="btnToday">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M4 10h16"/><circle cx="12" cy="15" r="1.6"/></svg>
+            วันนี้
+          </button>
+        </div>
+      </div>
+      <div class="legend">
+        <span><span class="dot meeting"></span> ประชุม</span>
+        <span><span class="dot training"></span> อบรม</span>
+        <span><span class="dot seminar"></span> สัมมนา</span>
+        <span><span class="dot monitor"></span> ตรวจติดตาม</span>
+        <span><span class="dot other"></span> อื่นๆ</span>
+        <span class="divider"></span>
+        <span class="prio-hint" title="สูง"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>สูง</span>
+        <span class="prio-hint" title="ปานกลาง"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg>กลาง</span>
+        <span class="prio-hint" title="ต่ำ"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/></svg>ต่ำ</span>
+        <span class="hint">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+          คลิกวันที่เพื่อเพิ่มงาน · คลิกงานเพื่อแก้ไข
+        </span>
+      </div>
+      <div class="weekdays">
+        <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+      </div>
+      <div class="grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <footer class="note">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+    หน้าตัวอย่าง UI/UX ใช้ข้อมูลจำลอง — ยังไม่ได้เชื่อมต่อ Google Sheet / Google Calendar จริง
+  </footer>
+
+  <!-- Modal -->
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-head-title">
+          <div class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+          <h2 id="modalTitle">เพิ่มงานใหม่</h2>
+        </div>
+        <button class="close-btn" id="btnClose"><svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <form id="taskForm">
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ชื่องาน *</label>
+          <input type="text" id="fTitle" placeholder="เช่น ประชุมสรุปแผนงานประจำเดือน" required>
+        </div>
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>รายละเอียด</label>
+          <textarea id="fDesc" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>วันที่เริ่ม</label>
+            <input type="date" id="fStartDate">
+          </div>
+          <div class="field">
+            <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>เวลาเริ่ม</label>
+            <input type="time" id="fStartTime">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>วันที่สิ้นสุด</label>
+            <input type="date" id="fEndDate">
+          </div>
+          <div class="field">
+            <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>เวลาสิ้นสุด</label>
+            <input type="time" id="fEndTime">
+          </div>
+        </div>
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>ผู้รับผิดชอบ</label>
+          <input type="text" id="fOwner" placeholder="ชื่อผู้รับผิดชอบ">
+        </div>
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><path d="M12 22s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="11" r="2.4"/></svg>สถานที่</label>
+          <input type="text" id="fLocation" placeholder="เช่น ห้องประชุม กพส. ชั้น 3">
+        </div>
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 3v18M4 4h13l-2.5 4L17 12H4"/></svg>ประเภทงาน</label>
+          <select id="fType">
+            <option value="meeting">ประชุม</option>
+            <option value="training">อบรม</option>
+            <option value="seminar">สัมมนา</option>
+            <option value="monitor">ตรวจติดตาม/นิเทศงาน</option>
+            <option value="other">อื่นๆ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 3v18M4 4h13l-2.5 4L17 12H4"/></svg>ระดับความสำคัญ</label>
+          <div class="priority-choices">
+            <label class="p-high"><input type="radio" name="priority" value="high"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg><span>สูง</span></label>
+            <label class="p-mid"><input type="radio" name="priority" value="mid" checked><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg><span>ปานกลาง</span></label>
+            <label class="p-low"><input type="radio" name="priority" value="low"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/><circle cx="12" cy="10" r="2.4"/></svg><span>ต่ำ</span></label>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-danger" id="btnDelete" style="display:none;">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>ลบงานนี้
+          </button>
+          <div style="display:flex; gap:8px; margin-left:auto;">
+            <button type="button" class="btn btn-ghost" id="btnCancel">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>บันทึกงาน
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ============ Icon helpers ============ */
+const ICONS = {
+  high: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>',
+  mid: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg>',
+  low: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/></svg>',
+  done: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>',
+  toastOk: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></svg>',
+  toastWarn: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'
+};
+
+/* ============ Mock data (จะถูกแทนที่ด้วย google.script.run เมื่อเชื่อม backend จริง) ============ */
+const thaiMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+let viewDate = new Date(2026, 6, 1); // กรกฎาคม 2569 (ค.ศ.2026)
+const todayReal = new Date(2026, 6, 13);
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+function dstr(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
+
+let mockTasks = [
+  {id:1, title:"ประชุมสรุปแผนงานประจำเดือน", date: dstr(2026,6,2), type:"meeting", priority:"high", owner:"คุณสมชาย", location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:2, title:"จัดทำรายงานผลการดำเนินงาน Q2", date: dstr(2026,6,3), type:"other", priority:"mid", owner:"คุณวราภรณ์", location:"สำนักงาน กพส."},
+  {id:3, title:"อบรมเชิงปฏิบัติการเกษตรกร", date: dstr(2026,6,3), type:"training", priority:"high", owner:"คุณอนุชา", location:"ศูนย์เรียนรู้ชุมชน อ.เมือง"},
+  {id:4, title:"ตรวจติดตามพื้นที่โครงการ", date: dstr(2026,6,3), type:"monitor", priority:"low", owner:"คุณกิตติ", location:"พื้นที่โครงการ ต.หนองแวง"},
+  {id:5, title:"ส่งเอกสารงบประมาณ", date: dstr(2026,6,8), type:"other", priority:"mid", owner:"คุณสมชาย", location:"กองคลัง"},
+  {id:6, title:"ประชุมคณะทำงาน กพส.", date: dstr(2026,6,13), type:"meeting", priority:"high", owner:"คุณวราภรณ์", location:"ห้องประชุมใหญ่ ชั้น 4"},
+  {id:7, title:"นิเทศงานพื้นที่ภาคเหนือ", date: dstr(2026,6,13), type:"monitor", priority:"mid", owner:"คุณอนุชา", location:"จ.เชียงใหม่"},
+  {id:8, title:"สัมมนาแลกเปลี่ยนความรู้", date: dstr(2026,6,15), type:"seminar", priority:"low", owner:"คุณกิตติ", location:"โรงแรมในตัวเมือง"},
+  {id:9, title:"ตรวจรับพัสดุครุภัณฑ์", date: dstr(2026,6,18), type:"other", priority:"mid", owner:"คุณสมชาย", location:"คลังพัสดุ"},
+  {id:10, title:"ประเมินผลโครงการรอบ 6 เดือน", date: dstr(2026,6,22), type:"meeting", priority:"high", owner:"คุณวราภรณ์", location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:11, title:"จัดเก็บข้อมูลภาคสนาม", date: dstr(2026,6,25), type:"monitor", priority:"low", owner:"คุณอนุชา", location:"พื้นที่ภาคสนาม"},
+  {id:12, title:"สรุปผลและปิดโครงการ", date: dstr(2026,6,29), type:"seminar", priority:"mid", owner:"คุณกิตติ", location:"ห้องประชุม กพส. ชั้น 3"},
+];
+
+let editingId = null;
+
+/* ============ Render calendar ============ */
+function renderCalendar(){
+  const y = viewDate.getFullYear();
+  const m = viewDate.getMonth();
+  document.getElementById('monthTitle').textContent = `${thaiMonths[m]} ${y+543}`;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const firstDay = new Date(y, m, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const daysInPrevMonth = new Date(y, m, 0).getDate();
+  const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+  for(let i=0; i<totalCells; i++){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    let cellDate, dayNum, otherMonth = false;
+
+    if(i < startOffset){
+      dayNum = daysInPrevMonth - startOffset + i + 1;
+      cellDate = new Date(y, m-1, dayNum);
+      otherMonth = true;
+    } else if(i >= startOffset + daysInMonth){
+      dayNum = i - startOffset - daysInMonth + 1;
+      cellDate = new Date(y, m+1, dayNum);
+      otherMonth = true;
+    } else {
+      dayNum = i - startOffset + 1;
+      cellDate = new Date(y, m, dayNum);
+    }
+
+    if(otherMonth) cell.classList.add('other-month');
+    const iso = dstr(cellDate.getFullYear(), cellDate.getMonth(), cellDate.getDate());
+
+    if(cellDate.toDateString() === todayReal.toDateString()){
+      cell.classList.add('is-today');
+    }
+
+    const dayTasks = mockTasks.filter(t => t.date === iso);
+    const visible = dayTasks.slice(0,3);
+    const remaining = dayTasks.length - visible.length;
+
+    let pillsHtml = visible.map(t => {
+      const cls = t.type;
+      const icon = ICONS[t.priority];
+      const tip = t.location ? `${t.title} · ${t.location}` : t.title;
+      return `<div class="task-pill ${cls}" data-id="${t.id}" title="${tip}">${icon}${t.title}</div>`;
+    }).join('');
+    if(remaining > 0){
+      pillsHtml += `<div class="more-tasks">+${remaining} งานเพิ่มเติม</div>`;
+    }
+
+    cell.innerHTML = `
+      <span class="daynum">${dayNum}</span>
+      <span class="add-hint"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+      <div class="task-list">${pillsHtml}</div>
+    `;
+
+    cell.addEventListener('click', (e) => {
+      if(e.target.closest('.task-pill')) return;
+      openModal(null, iso);
+    });
+
+    cell.querySelectorAll('.task-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const task = mockTasks.find(t => t.id == pill.dataset.id);
+        openModal(task);
+      });
+    });
+
+    grid.appendChild(cell);
+  }
+
+  updateStats();
+}
+
+function updateStats(){
+  const y = viewDate.getFullYear(), m = viewDate.getMonth();
+  const monthTasks = mockTasks.filter(t => {
+    const d = new Date(t.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+  document.getElementById('statAll').textContent = monthTasks.length;
+  document.getElementById('statMeeting').textContent = monthTasks.filter(t=>t.type==='meeting').length;
+  document.getElementById('statTraining').textContent = monthTasks.filter(t=>t.type==='training').length;
+  document.getElementById('statSeminar').textContent = monthTasks.filter(t=>t.type==='seminar').length;
+}
+
+/* ============ Modal ============ */
+const overlay = document.getElementById('modalOverlay');
+
+function openModal(task, presetDate){
+  editingId = task ? task.id : null;
+  document.getElementById('modalTitle').textContent = task ? 'แก้ไขงาน' : 'เพิ่มงานใหม่';
+  document.getElementById('btnDelete').style.display = task ? 'inline-flex' : 'none';
+
+  document.getElementById('fTitle').value = task ? task.title : '';
+  document.getElementById('fDesc').value = task ? (task.desc || '') : '';
+  document.getElementById('fStartDate').value = task ? task.date : (presetDate || '');
+  document.getElementById('fStartTime').value = '09:00';
+  document.getElementById('fEndDate').value = task ? task.date : (presetDate || '');
+  document.getElementById('fEndTime').value = '16:00';
+  document.getElementById('fOwner').value = task ? task.owner : '';
+  document.getElementById('fLocation').value = task ? (task.location || '') : '';
+  document.getElementById('fType').value = task ? task.type : 'meeting';
+
+  document.querySelectorAll('input[name="priority"]').forEach(r => {
+    r.checked = r.value === (task ? task.priority : 'mid');
+  });
+
+  overlay.classList.add('active');
+}
+
+function closeModal(){
+  overlay.classList.remove('active');
+  editingId = null;
+}
+
+document.getElementById('btnAddTask').addEventListener('click', () => openModal(null, dstr(viewDate.getFullYear(), viewDate.getMonth(), 13)));
+document.getElementById('btnClose').addEventListener('click', closeModal);
+document.getElementById('btnCancel').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+
+document.getElementById('taskForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = document.getElementById('fTitle').value.trim();
+  if(!title){ showToast('กรุณากรอกชื่องาน', 'warn'); return; }
+
+  const priority = document.querySelector('input[name="priority"]:checked').value;
+  const data = {
+    title,
+    date: document.getElementById('fStartDate').value,
+    type: document.getElementById('fType').value,
+    priority,
+    owner: document.getElementById('fOwner').value.trim(),
+    location: document.getElementById('fLocation').value.trim(),
+  };
+
+  if(editingId){
+    const idx = mockTasks.findIndex(t => t.id === editingId);
+    mockTasks[idx] = {...mockTasks[idx], ...data};
+    showToast('บันทึกการแก้ไขเรียบร้อย (ตัวอย่าง)', 'ok');
+  } else {
+    mockTasks.push({id: Date.now(), ...data});
+    showToast('เพิ่มงานใหม่เรียบร้อย (ตัวอย่าง)', 'ok');
+  }
+
+  closeModal();
+  renderCalendar();
+});
+
+document.getElementById('btnDelete').addEventListener('click', () => {
+  if(!editingId) return;
+  mockTasks = mockTasks.filter(t => t.id !== editingId);
+  showToast('ลบงานเรียบร้อย (ตัวอย่าง)', 'ok');
+  closeModal();
+  renderCalendar();
+});
+
+/* ============ Nav ============ */
+document.getElementById('prevMonth').addEventListener('click', () => {
+  viewDate.setMonth(viewDate.getMonth() - 1);
+  renderCalendar();
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+  viewDate.setMonth(viewDate.getMonth() + 1);
+  renderCalendar();
+});
+document.getElementById('btnToday').addEventListener('click', () => {
+  viewDate = new Date(todayReal.getFullYear(), todayReal.getMonth(), 1);
+  renderCalendar();
+});
+
+/* ============ Search ============ */
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.task-pill').forEach(pill => {
+    const match = pill.textContent.toLowerCase().includes(q);
+    pill.style.outline = (q && match) ? '2px solid var(--color-primary)' : 'none';
+  });
+});
+
+/* ============ Toast ============ */
+function showToast(msg, type){
+  const t = document.getElementById('toast');
+  t.innerHTML = (type === 'warn' ? ICONS.toastWarn : ICONS.toastOk) + `<span>${msg}</span>`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+renderCalendar();
+</script>
+</body>
+</html>
