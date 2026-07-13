@@ -17,7 +17,7 @@
     --color-accent-amber:#FBBF24;
     --color-accent-mint:#34D399;
     --type-project:#0EA57E;
-    --type-participate:#E8871B;
+    --type-participate:#E8871B;ฟ
     --type-monitor:#3B9FE0;
     --type-other:#8B98A0;
     --color-text:#123B33;
@@ -733,6 +733,25 @@
   .attachment-info{min-width:0; flex:1;}
   .attachment-name{display:block; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .attachment-size{display:block; font-size:11px; color:var(--color-text-muted); margin-top:1px;}
+  .attachment-open{
+    border:none;
+    background:#E5F7FF;
+    color:#087FB5;
+    min-height:27px;
+    padding:5px 8px;
+    border-radius:7px;
+    font-family:var(--font-body);
+    font-size:11px;
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    flex-shrink:0;
+  }
+  .attachment-open:hover{background:#CDEEFF;}
+  .attachment-open .icon{width:13px; height:13px;}
+  .attachment-open.unsupported{background:#F1F4F3; color:#6D817C; cursor:default;}
   .attachment-remove{
     border:none;
     background:#FFF1ED;
@@ -1417,6 +1436,24 @@ function formatFileSize(bytes){
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function canPreviewAttachment(attachment){
+  const mime = (attachment.type || '').toLowerCase();
+  const name = (attachment.name || '').toLowerCase();
+  return mime === 'application/pdf' || mime.startsWith('image/') || /\.(pdf|png|jpe?g|gif|webp)$/i.test(name);
+}
+
+function openAttachmentPreview(attachment){
+  if(!attachment.url){
+    showToast('ยังไม่มีที่อยู่ไฟล์สำหรับเปิดดู', 'warn');
+    return;
+  }
+  if(!canPreviewAttachment(attachment)){
+    showToast('ไฟล์ Word, Excel และ PowerPoint ต้องเปิดด้วยแอปที่รองรับ', 'warn');
+    return;
+  }
+  window.open(attachment.url, '_blank', 'noopener,noreferrer');
+}
+
 function renderAttachmentDrafts(){
   const container = document.getElementById('attachmentDraftList');
   container.innerHTML = '';
@@ -1433,6 +1470,14 @@ function renderAttachmentDrafts(){
     size.className = 'attachment-size';
     size.textContent = formatFileSize(attachment.size);
     info.append(name, size);
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = `attachment-open${canPreviewAttachment(attachment) ? '' : ' unsupported'}`;
+    open.title = canPreviewAttachment(attachment) ? `เปิดดู ${attachment.name}` : 'ไฟล์นี้ต้องเปิดด้วยแอปที่รองรับ';
+    open.innerHTML = canPreviewAttachment(attachment)
+      ? '<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>เปิดดู'
+      : 'เปิดด้วยแอป';
+    open.addEventListener('click', () => openAttachmentPreview(attachment));
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'attachment-remove';
@@ -1442,7 +1487,7 @@ function renderAttachmentDrafts(){
       pendingAttachments.splice(index, 1);
       renderAttachmentDrafts();
     });
-    item.append(info, remove);
+    item.append(info, open, remove);
     container.appendChild(item);
   });
 }
@@ -1453,11 +1498,12 @@ function renderSummaryAttachments(attachments = []){
   section.style.display = attachments.length ? 'block' : 'none';
   container.innerHTML = '';
   attachments.forEach(attachment => {
-    const item = document.createElement(attachment.url ? 'a' : 'div');
+    const item = document.createElement(attachment.url && canPreviewAttachment(attachment) ? 'a' : 'div');
     item.className = 'attachment-item';
-    if(attachment.url){
+    if(attachment.url && canPreviewAttachment(attachment)){
       item.href = attachment.url;
-      item.download = attachment.name;
+      item.target = '_blank';
+      item.rel = 'noopener noreferrer';
       item.title = `เปิดไฟล์ ${attachment.name}`;
     }
     item.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>';
@@ -1471,6 +1517,12 @@ function renderSummaryAttachments(attachments = []){
     size.textContent = formatFileSize(attachment.size);
     info.append(name, size);
     item.appendChild(info);
+    const action = document.createElement('span');
+    action.className = `attachment-open${canPreviewAttachment(attachment) ? '' : ' unsupported'}`;
+    action.innerHTML = canPreviewAttachment(attachment)
+      ? '<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>เปิดดู'
+      : 'เปิดด้วยแอป';
+    item.appendChild(action);
     container.appendChild(item);
   });
 }
@@ -1528,7 +1580,7 @@ function openModal(task, presetDate){
     input.checked = taskOwners.includes(input.value);
   });
   document.getElementById('fLocation').value = task ? (task.location || '') : '';
-  document.getElementById('fType').value = task ? task.type : 'meeting';
+  document.getElementById('fType').value = task ? task.type : 'project';
 
   pendingAttachments = task ? [...(task.attachments || [])] : [];
   document.getElementById('fAttachments').value = '';
