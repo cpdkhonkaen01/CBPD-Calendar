@@ -622,6 +622,67 @@
     border-top:1px solid var(--color-border);
   }
   .summary-actions .btn{width:100%; justify-content:center; padding:12px 18px;}
+  .summary-attachments{margin-top:16px;}
+  .summary-attachments h4{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:13px;
+    color:var(--color-primary-dark);
+    margin-bottom:8px;
+  }
+  .summary-attachments h4 .icon{width:15px; height:15px;}
+  .attachment-list{display:flex; flex-direction:column; gap:7px;}
+  .attachment-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    min-width:0;
+    border:1px solid var(--color-border);
+    border-radius:9px;
+    padding:9px 10px;
+    background:#FBFEFD;
+    color:var(--color-text);
+    text-decoration:none;
+  }
+  a.attachment-item:hover{border-color:var(--color-primary); background:#F1FCF7;}
+  .attachment-item > .icon{width:17px; height:17px; color:var(--color-primary);}
+  .attachment-info{min-width:0; flex:1;}
+  .attachment-name{display:block; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .attachment-size{display:block; font-size:11px; color:var(--color-text-muted); margin-top:1px;}
+  .attachment-remove{
+    border:none;
+    background:#FFF1ED;
+    color:var(--color-accent-coral);
+    width:27px;
+    height:27px;
+    border-radius:7px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .attachment-remove .icon{width:14px; height:14px;}
+  .file-upload{
+    border:1.5px dashed #A9E1CF;
+    border-radius:10px;
+    padding:13px;
+    background:#F8FFFC;
+  }
+  .file-upload input{padding:0; border:none; background:transparent; font-size:12.5px;}
+  .file-upload input::file-selector-button{
+    font-family:var(--font-body);
+    font-weight:600;
+    color:var(--color-primary-dark);
+    background:#E8FBF3;
+    border:1px solid var(--color-border);
+    border-radius:7px;
+    padding:7px 10px;
+    margin-right:10px;
+    cursor:pointer;
+  }
+  .file-help{font-size:11px; color:var(--color-text-muted); margin-top:7px; line-height:1.5;}
+  .attachment-draft-list{margin-top:9px;}
   .priority-choices{display:flex; gap:8px;}
   .priority-choices label{
     flex:1;
@@ -857,6 +918,10 @@
             <div class="summary-value" id="summaryLocation"></div>
           </div>
         </div>
+        <div class="summary-attachments" id="summaryAttachments">
+          <h4><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>เอกสารแนบ</h4>
+          <div class="attachment-list" id="summaryAttachmentList"></div>
+        </div>
         <div class="summary-actions">
           <button type="button" class="btn btn-primary" id="btnEditTask">
             <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/></svg>
@@ -896,7 +961,9 @@
         </div>
         <div class="field">
           <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>ผู้รับผิดชอบ</label>
-          <input type="text" id="fOwner" placeholder="ชื่อผู้รับผิดชอบ">
+          <select id="fOwner" required>
+            <option value="">เลือกผู้รับผิดชอบ</option>
+          </select>
         </div>
         <div class="field">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M12 22s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="11" r="2.4"/></svg>สถานที่</label>
@@ -919,6 +986,14 @@
             <label class="p-mid"><input type="radio" name="priority" value="mid" checked><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg><span>ปานกลาง</span></label>
             <label class="p-low"><input type="radio" name="priority" value="low"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/><circle cx="12" cy="10" r="2.4"/></svg><span>ต่ำ</span></label>
           </div>
+        </div>
+        <div class="field">
+          <label><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>แนบไฟล์เอกสาร</label>
+          <div class="file-upload">
+            <input type="file" id="fAttachments" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png">
+            <div class="file-help">รองรับ PDF, Word, Excel, PowerPoint และรูปภาพ ขนาดไม่เกิน 10 MB ต่อไฟล์</div>
+          </div>
+          <div class="attachment-list attachment-draft-list" id="attachmentDraftList"></div>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-danger" id="btnDelete" style="display:none;">
@@ -957,19 +1032,28 @@ const todayReal = new Date(2026, 6, 13);
 function pad(n){ return n.toString().padStart(2,'0'); }
 function dstr(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
 
+const responsiblePeople = [
+  {name:'ผอ. นางสุภาพร นรินยา', position:'ผู้อำนวยการกลุ่มส่งเสริมและพัฒนาธุรกิจสหกรณ์'},
+  {name:'(แหน่ง) นางสาวดุจนภา เทศสีหา', position:'นักวิชาการสหกรณ์ชำนาญการ'},
+  {name:'(หนูดี) นางสาวจิดาภา เหลาพรม', position:'นักวิชาการสหกรณ์ปฏิบัติการ'},
+  {name:'(ดิส) นางดิศรากุนต์ ต้นกันยา', position:'นักวิชาการสหกรณ์'},
+  {name:'(ทอป) นายนิธิกร เสริมปรุงสุข', position:'นักวิชาการสหกรณ์'},
+  {name:'(เพียว) นางสาวชลธิชา อ่อนน้อม', position:'นักวิชาการมาตรฐานสินค้า'},
+];
+
 let mockTasks = [
-  {id:1, title:"ประชุมสรุปแผนงานประจำเดือน", date: dstr(2026,6,2), type:"meeting", priority:"high", owner:"คุณสมชาย", location:"ห้องประชุม กพส. ชั้น 3"},
-  {id:2, title:"จัดทำรายงานผลการดำเนินงาน Q2", date: dstr(2026,6,3), type:"other", priority:"mid", owner:"คุณวราภรณ์", location:"สำนักงาน กพส."},
-  {id:3, title:"อบรมเชิงปฏิบัติการเกษตรกร", date: dstr(2026,6,3), type:"training", priority:"high", owner:"คุณอนุชา", location:"ศูนย์เรียนรู้ชุมชน อ.เมือง"},
-  {id:4, title:"ตรวจติดตามพื้นที่โครงการ", date: dstr(2026,6,3), type:"monitor", priority:"low", owner:"คุณกิตติ", location:"พื้นที่โครงการ ต.หนองแวง"},
-  {id:5, title:"ส่งเอกสารงบประมาณ", date: dstr(2026,6,8), type:"other", priority:"mid", owner:"คุณสมชาย", location:"กองคลัง"},
-  {id:6, title:"ประชุมคณะทำงาน กพส.", date: dstr(2026,6,13), type:"meeting", priority:"high", owner:"คุณวราภรณ์", location:"ห้องประชุมใหญ่ ชั้น 4"},
-  {id:7, title:"นิเทศงานพื้นที่ภาคเหนือ", date: dstr(2026,6,13), type:"monitor", priority:"mid", owner:"คุณอนุชา", location:"จ.เชียงใหม่"},
-  {id:8, title:"สัมมนาแลกเปลี่ยนความรู้", date: dstr(2026,6,15), type:"seminar", priority:"low", owner:"คุณกิตติ", location:"โรงแรมในตัวเมือง"},
-  {id:9, title:"ตรวจรับพัสดุครุภัณฑ์", date: dstr(2026,6,18), type:"other", priority:"mid", owner:"คุณสมชาย", location:"คลังพัสดุ"},
-  {id:10, title:"ประเมินผลโครงการรอบ 6 เดือน", date: dstr(2026,6,22), type:"meeting", priority:"high", owner:"คุณวราภรณ์", location:"ห้องประชุม กพส. ชั้น 3"},
-  {id:11, title:"จัดเก็บข้อมูลภาคสนาม", date: dstr(2026,6,25), type:"monitor", priority:"low", owner:"คุณอนุชา", location:"พื้นที่ภาคสนาม"},
-  {id:12, title:"สรุปผลและปิดโครงการ", date: dstr(2026,6,29), type:"seminar", priority:"mid", owner:"คุณกิตติ", location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:1, title:"ประชุมสรุปแผนงานประจำเดือน", date: dstr(2026,6,2), type:"meeting", priority:"high", owner:responsiblePeople[0].name, location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:2, title:"จัดทำรายงานผลการดำเนินงาน Q2", date: dstr(2026,6,3), type:"other", priority:"mid", owner:responsiblePeople[1].name, location:"สำนักงาน กพส."},
+  {id:3, title:"อบรมเชิงปฏิบัติการเกษตรกร", date: dstr(2026,6,3), type:"training", priority:"high", owner:responsiblePeople[2].name, location:"ศูนย์เรียนรู้ชุมชน อ.เมือง"},
+  {id:4, title:"ตรวจติดตามพื้นที่โครงการ", date: dstr(2026,6,3), type:"monitor", priority:"low", owner:responsiblePeople[3].name, location:"พื้นที่โครงการ ต.หนองแวง"},
+  {id:5, title:"ส่งเอกสารงบประมาณ", date: dstr(2026,6,8), type:"other", priority:"mid", owner:responsiblePeople[4].name, location:"กองคลัง"},
+  {id:6, title:"ประชุมคณะทำงาน กพส.", date: dstr(2026,6,13), type:"meeting", priority:"high", owner:responsiblePeople[5].name, location:"ห้องประชุมใหญ่ ชั้น 4"},
+  {id:7, title:"นิเทศงานพื้นที่ภาคเหนือ", date: dstr(2026,6,13), type:"monitor", priority:"mid", owner:responsiblePeople[0].name, location:"จ.เชียงใหม่"},
+  {id:8, title:"สัมมนาแลกเปลี่ยนความรู้", date: dstr(2026,6,15), type:"seminar", priority:"low", owner:responsiblePeople[1].name, location:"โรงแรมในตัวเมือง"},
+  {id:9, title:"ตรวจรับพัสดุครุภัณฑ์", date: dstr(2026,6,18), type:"other", priority:"mid", owner:responsiblePeople[2].name, location:"คลังพัสดุ"},
+  {id:10, title:"ประเมินผลโครงการรอบ 6 เดือน", date: dstr(2026,6,22), type:"meeting", priority:"high", owner:responsiblePeople[3].name, location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:11, title:"จัดเก็บข้อมูลภาคสนาม", date: dstr(2026,6,25), type:"monitor", priority:"low", owner:responsiblePeople[4].name, location:"พื้นที่ภาคสนาม"},
+  {id:12, title:"สรุปผลและปิดโครงการ", date: dstr(2026,6,29), type:"seminar", priority:"mid", owner:responsiblePeople[5].name, location:"ห้องประชุม กพส. ชั้น 3"},
 ];
 
 let editingId = null;
@@ -977,10 +1061,12 @@ let selectedTaskId = null;
 let activeView = 'calendar';
 let selectedOwner = 'all';
 let searchQuery = '';
+let pendingAttachments = [];
 
 function taskMatchesFilters(task){
   const ownerMatch = selectedOwner === 'all' || task.owner === selectedOwner;
-  const haystack = [task.title, task.desc, task.owner, task.location, typeLabels[task.type]]
+  const person = responsiblePeople.find(p => p.name === task.owner);
+  const haystack = [task.title, task.desc, task.owner, person?.position, task.location, typeLabels[task.type]]
     .filter(Boolean).join(' ').toLowerCase();
   return ownerMatch && (!searchQuery || haystack.includes(searchQuery));
 }
@@ -995,14 +1081,26 @@ function getFilteredMonthTasks(){
 
 function populateOwnerFilter(){
   const select = document.getElementById('ownerFilter');
-  const owners = [...new Set(mockTasks.map(t => t.owner).filter(Boolean))].sort((a,b) => a.localeCompare(b,'th'));
+  const owners = [...new Set([...responsiblePeople.map(p => p.name), ...mockTasks.map(t => t.owner).filter(Boolean)])];
   if(selectedOwner !== 'all' && !owners.includes(selectedOwner)) selectedOwner = 'all';
   select.innerHTML = '<option value="all">ผู้รับผิดชอบทั้งหมด</option>';
   owners.forEach(owner => {
     const option = document.createElement('option');
     option.value = owner;
-    option.textContent = owner;
+    const person = responsiblePeople.find(p => p.name === owner);
+    option.textContent = person ? `${person.name} — ${person.position}` : owner;
     option.selected = owner === selectedOwner;
+    select.appendChild(option);
+  });
+}
+
+function populateOwnerOptions(){
+  const select = document.getElementById('fOwner');
+  select.innerHTML = '<option value="">เลือกผู้รับผิดชอบ</option>';
+  responsiblePeople.forEach(person => {
+    const option = document.createElement('option');
+    option.value = person.name;
+    option.textContent = `${person.name} — ${person.position}`;
     select.appendChild(option);
   });
 }
@@ -1188,6 +1286,71 @@ function formatThaiDate(iso){
   return new Intl.DateTimeFormat('th-TH', {day:'numeric', month:'long', year:'numeric'}).format(new Date(y,m-1,d));
 }
 
+function formatFileSize(bytes){
+  if(!bytes) return 'ไม่ระบุขนาด';
+  if(bytes < 1024) return `${bytes} B`;
+  if(bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function renderAttachmentDrafts(){
+  const container = document.getElementById('attachmentDraftList');
+  container.innerHTML = '';
+  pendingAttachments.forEach((attachment, index) => {
+    const item = document.createElement('div');
+    item.className = 'attachment-item';
+    item.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>';
+    const info = document.createElement('span');
+    info.className = 'attachment-info';
+    const name = document.createElement('span');
+    name.className = 'attachment-name';
+    name.textContent = attachment.name;
+    const size = document.createElement('span');
+    size.className = 'attachment-size';
+    size.textContent = formatFileSize(attachment.size);
+    info.append(name, size);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'attachment-remove';
+    remove.setAttribute('aria-label', `นำไฟล์ ${attachment.name} ออก`);
+    remove.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    remove.addEventListener('click', () => {
+      pendingAttachments.splice(index, 1);
+      renderAttachmentDrafts();
+    });
+    item.append(info, remove);
+    container.appendChild(item);
+  });
+}
+
+function renderSummaryAttachments(attachments = []){
+  const section = document.getElementById('summaryAttachments');
+  const container = document.getElementById('summaryAttachmentList');
+  section.style.display = attachments.length ? 'block' : 'none';
+  container.innerHTML = '';
+  attachments.forEach(attachment => {
+    const item = document.createElement(attachment.url ? 'a' : 'div');
+    item.className = 'attachment-item';
+    if(attachment.url){
+      item.href = attachment.url;
+      item.download = attachment.name;
+      item.title = `เปิดไฟล์ ${attachment.name}`;
+    }
+    item.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>';
+    const info = document.createElement('span');
+    info.className = 'attachment-info';
+    const name = document.createElement('span');
+    name.className = 'attachment-name';
+    name.textContent = attachment.name;
+    const size = document.createElement('span');
+    size.className = 'attachment-size';
+    size.textContent = formatFileSize(attachment.size);
+    info.append(name, size);
+    item.appendChild(info);
+    container.appendChild(item);
+  });
+}
+
 function showTaskSummary(task){
   if(!task) return;
   selectedTaskId = task.id;
@@ -1203,8 +1366,12 @@ function showTaskSummary(task){
     ? `${formatThaiDate(task.date)} – ${formatThaiDate(endDate)}`
     : formatThaiDate(task.date);
   document.getElementById('summaryTime').textContent = `${task.startTime || '09:00'} – ${task.endTime || '16:00'} น.`;
-  document.getElementById('summaryOwner').textContent = task.owner || 'ไม่ระบุ';
+  const person = responsiblePeople.find(p => p.name === task.owner);
+  document.getElementById('summaryOwner').textContent = person
+    ? `${person.name} · ${person.position}`
+    : (task.owner || 'ไม่ระบุ');
   document.getElementById('summaryLocation').textContent = task.location || 'ไม่ระบุ';
+  renderSummaryAttachments(task.attachments || []);
 
   const typeBadge = document.getElementById('summaryType');
   typeBadge.textContent = typeLabels[task.type] || typeLabels.other;
@@ -1236,6 +1403,10 @@ function openModal(task, presetDate){
     r.checked = r.value === (task ? task.priority : 'mid');
   });
 
+  pendingAttachments = task ? [...(task.attachments || [])] : [];
+  document.getElementById('fAttachments').value = '';
+  renderAttachmentDrafts();
+
   overlay.classList.add('active');
 }
 
@@ -1254,6 +1425,26 @@ document.getElementById('btnEditTask').addEventListener('click', () => {
 });
 overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
 
+document.getElementById('fAttachments').addEventListener('change', (e) => {
+  const files = [...e.target.files];
+  let rejected = 0;
+  files.forEach(file => {
+    if(file.size > 10 * 1024 * 1024){ rejected++; return; }
+    const duplicate = pendingAttachments.some(a => a.name === file.name && a.size === file.size);
+    if(duplicate) return;
+    pendingAttachments.push({
+      id:`file-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      name:file.name,
+      size:file.size,
+      type:file.type,
+      url:URL.createObjectURL(file),
+    });
+  });
+  e.target.value = '';
+  renderAttachmentDrafts();
+  if(rejected) showToast(`มี ${rejected} ไฟล์เกินขนาด 10 MB`, 'warn');
+});
+
 document.getElementById('taskForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const title = document.getElementById('fTitle').value.trim();
@@ -1271,6 +1462,7 @@ document.getElementById('taskForm').addEventListener('submit', (e) => {
     priority,
     owner: document.getElementById('fOwner').value.trim(),
     location: document.getElementById('fLocation').value.trim(),
+    attachments: [...pendingAttachments],
   };
 
   if(editingId){
@@ -1336,6 +1528,7 @@ function showToast(msg, type){
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+populateOwnerOptions();
 populateOwnerFilter();
 renderCalendar();
 </script>
