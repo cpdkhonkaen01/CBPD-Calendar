@@ -300,9 +300,6 @@
   .dot.seminar{background:var(--type-seminar);}
   .dot.monitor{background:var(--type-monitor);}
   .dot.other{background:var(--type-other);}
-  .legend .prio-hint{display:flex; align-items:center; gap:4px; color:var(--color-text-muted);}
-  .legend .prio-hint .icon{width:13px; height:13px;}
-  .legend .divider{width:1px; height:14px; background:var(--color-border);}
   .legend .hint{margin-left:auto; display:flex; align-items:center; gap:5px;}
   .legend .hint .icon{width:14px; height:14px;}
 
@@ -568,7 +565,35 @@
   #fTitle{border-left:5px solid #0EA57E; background:#F7FFFC;}
   #fDesc{border-left:5px solid #6D6AE8; background:#FAF9FF;}
   #fStartDate, #fStartTime, #fEndDate, #fEndTime{border-left:5px solid #3B9FE0; background:#F7FBFF;}
-  #fOwner{border-left:5px solid #0EA57E; background:#F5FFF9;}
+  .people-choices{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:7px;
+    padding:9px;
+    border:1.5px solid #91CFBB;
+    border-left:5px solid #0EA57E;
+    border-radius:10px;
+    background:#F5FFF9;
+  }
+  .person-choice{
+    display:grid !important;
+    grid-template-columns:22px minmax(0,1fr);
+    align-items:start !important;
+    gap:9px !important;
+    margin:0 !important;
+    padding:9px 10px;
+    border:1px solid #C5E5DA;
+    border-radius:8px;
+    background:#fff;
+    cursor:pointer;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  .person-choice:hover{border-color:#53B697; background:#F4FCF8;}
+  .person-choice:has(input:checked){border-color:#0EA57E; background:#E7F9F2; box-shadow:0 0 0 2px rgba(14,165,126,.10);}
+  .person-choice input{width:18px; height:18px; margin-top:2px; accent-color:#0EA57E;}
+  .person-choice-text{min-width:0;}
+  .person-choice-name{display:block; color:#064D3C; font-size:13px; font-weight:700; line-height:1.4;}
+  .person-choice-position{display:block; color:#5E7F76; font-size:11.5px; font-weight:400; line-height:1.4; margin-top:1px;}
   #fLocation{border-left:5px solid #FF7A59; background:#FFF9F7;}
   #fType{border-left:5px solid #6D6AE8; background:#FAF9FF;}
   .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
@@ -665,6 +690,7 @@
   }
   .summary-label .icon{width:14px; height:14px; color:var(--color-primary);}
   .summary-value{font-size:14px; font-weight:600; overflow-wrap:anywhere;}
+  #summaryOwner{white-space:pre-line; line-height:1.55;}
   .summary-actions{
     display:flex;
     padding-top:18px;
@@ -733,30 +759,6 @@
   }
   .file-help{font-size:11px; color:var(--color-text-muted); margin-top:7px; line-height:1.5;}
   .attachment-draft-list{margin-top:9px;}
-  .priority-choices{display:flex; gap:8px;}
-  .priority-choices label{
-    flex:1;
-    text-align:center;
-    border:1.5px solid #AFCFC5;
-    border-radius:8px;
-    padding:8px 4px;
-    font-size:12.5px;
-    font-weight:600;
-    cursor:pointer;
-    color:var(--color-text-muted);
-    background:#fff;
-    position:relative;
-    display:flex; align-items:center; justify-content:center; gap:5px;
-  }
-  .priority-choices label .icon{width:13px; height:13px;}
-  .priority-choices input{position:absolute; opacity:0; width:0; height:0;}
-  .priority-choices .p-high{border-color:#ffd9cc;}
-  .priority-choices .p-mid{border-color:#fceac1;}
-  .priority-choices .p-low{border-color:#c8f0e0;}
-  .priority-choices label:has(input:checked).p-high{background:var(--color-accent-coral); border-color:var(--color-accent-coral); color:#fff;}
-  .priority-choices label:has(input:checked).p-mid{background:var(--color-accent-amber); border-color:var(--color-accent-amber); color:#fff;}
-  .priority-choices label:has(input:checked).p-low{background:var(--color-primary); border-color:var(--color-primary); color:#fff;}
-
   .toast{
     position:fixed;
     bottom:22px; left:50%;
@@ -913,10 +915,6 @@
         <span><span class="dot seminar"></span> สัมมนา</span>
         <span><span class="dot monitor"></span> ตรวจติดตาม</span>
         <span><span class="dot other"></span> อื่นๆ</span>
-        <span class="divider"></span>
-        <span class="prio-hint" title="สูง"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>สูง</span>
-        <span class="prio-hint" title="ปานกลาง"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg>กลาง</span>
-        <span class="prio-hint" title="ต่ำ"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/></svg>ต่ำ</span>
         <span class="hint">
           <svg class="icon" viewBox="0 0 24 24"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
           คลิกวันที่เพื่อเพิ่มงาน · คลิกงานเพื่อแก้ไข
@@ -950,7 +948,6 @@
           <h3 class="summary-title" id="summaryTitle"></h3>
           <div class="summary-badges">
             <span class="summary-badge type" id="summaryType"></span>
-            <span class="summary-badge" id="summaryPriority"></span>
           </div>
         </div>
         <p class="summary-desc" id="summaryDesc"></p>
@@ -1015,9 +1012,7 @@
         </div>
         <div class="field">
           <label><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>ผู้รับผิดชอบ</label>
-          <select id="fOwner" required>
-            <option value="">เลือกผู้รับผิดชอบ</option>
-          </select>
+          <div class="people-choices" id="fOwners" role="group" aria-label="เลือกผู้รับผิดชอบ เลือกได้หลายคน"></div>
         </div>
         <div class="field">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M12 22s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="11" r="2.4"/></svg>สถานที่</label>
@@ -1032,14 +1027,6 @@
             <option value="monitor">ตรวจติดตาม/นิเทศงาน</option>
             <option value="other">อื่นๆ</option>
           </select>
-        </div>
-        <div class="field">
-          <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 3v18M4 4h13l-2.5 4L17 12H4"/></svg>ระดับความสำคัญ</label>
-          <div class="priority-choices">
-            <label class="p-high"><input type="radio" name="priority" value="high"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg><span>สูง</span></label>
-            <label class="p-mid"><input type="radio" name="priority" value="mid" checked><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg><span>ปานกลาง</span></label>
-            <label class="p-low"><input type="radio" name="priority" value="low"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/><circle cx="12" cy="10" r="2.4"/></svg><span>ต่ำ</span></label>
-          </div>
         </div>
         <div class="field">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>แนบไฟล์เอกสาร</label>
@@ -1070,9 +1057,6 @@
 /* ============ Icon helpers ============ */
 const ICONS = {
   add: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
-  high: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg>',
-  mid: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5c3 0 4 2 7 2v8c-3 0-4-2-7-2s-4 2-7 2V7c3 0 4-2 7-2z"/></svg>',
-  low: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 22c5-4.5 8-8.3 8-12a8 8 0 1 0-16 0c0 3.7 3 7.5 8 12z"/></svg>',
   done: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>',
   toastOk: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></svg>',
   toastWarn: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'
@@ -1096,18 +1080,18 @@ const responsiblePeople = [
 ];
 
 let mockTasks = [
-  {id:1, title:"ประชุมสรุปแผนงานประจำเดือน", date: dstr(2026,6,2), type:"meeting", priority:"high", owner:responsiblePeople[0].name, location:"ห้องประชุม กพส. ชั้น 3"},
-  {id:2, title:"จัดทำรายงานผลการดำเนินงาน Q2", date: dstr(2026,6,3), type:"other", priority:"mid", owner:responsiblePeople[1].name, location:"สำนักงาน กพส."},
-  {id:3, title:"อบรมเชิงปฏิบัติการเกษตรกร", date: dstr(2026,6,3), type:"training", priority:"high", owner:responsiblePeople[2].name, location:"ศูนย์เรียนรู้ชุมชน อ.เมือง"},
-  {id:4, title:"ตรวจติดตามพื้นที่โครงการ", date: dstr(2026,6,3), type:"monitor", priority:"low", owner:responsiblePeople[3].name, location:"พื้นที่โครงการ ต.หนองแวง"},
-  {id:5, title:"ส่งเอกสารงบประมาณ", date: dstr(2026,6,8), type:"other", priority:"mid", owner:responsiblePeople[4].name, location:"กองคลัง"},
-  {id:6, title:"ประชุมคณะทำงาน กพส.", date: dstr(2026,6,13), type:"meeting", priority:"high", owner:responsiblePeople[5].name, location:"ห้องประชุมใหญ่ ชั้น 4"},
-  {id:7, title:"นิเทศงานพื้นที่ภาคเหนือ", date: dstr(2026,6,13), type:"monitor", priority:"mid", owner:responsiblePeople[0].name, location:"จ.เชียงใหม่"},
-  {id:8, title:"สัมมนาแลกเปลี่ยนความรู้", date: dstr(2026,6,15), type:"seminar", priority:"low", owner:responsiblePeople[1].name, location:"โรงแรมในตัวเมือง"},
-  {id:9, title:"ตรวจรับพัสดุครุภัณฑ์", date: dstr(2026,6,18), type:"other", priority:"mid", owner:responsiblePeople[2].name, location:"คลังพัสดุ"},
-  {id:10, title:"ประเมินผลโครงการรอบ 6 เดือน", date: dstr(2026,6,22), type:"meeting", priority:"high", owner:responsiblePeople[3].name, location:"ห้องประชุม กพส. ชั้น 3"},
-  {id:11, title:"จัดเก็บข้อมูลภาคสนาม", date: dstr(2026,6,25), type:"monitor", priority:"low", owner:responsiblePeople[4].name, location:"พื้นที่ภาคสนาม"},
-  {id:12, title:"สรุปผลและปิดโครงการ", date: dstr(2026,6,29), type:"seminar", priority:"mid", owner:responsiblePeople[5].name, location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:1, title:"ประชุมสรุปแผนงานประจำเดือน", date:dstr(2026,6,2), type:"meeting", owners:[responsiblePeople[0].name,responsiblePeople[1].name], location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:2, title:"จัดทำรายงานผลการดำเนินงาน Q2", date:dstr(2026,6,3), type:"other", owners:[responsiblePeople[1].name], location:"สำนักงาน กพส."},
+  {id:3, title:"อบรมเชิงปฏิบัติการเกษตรกร", date:dstr(2026,6,3), type:"training", owners:[responsiblePeople[2].name,responsiblePeople[3].name], location:"ศูนย์เรียนรู้ชุมชน อ.เมือง"},
+  {id:4, title:"ตรวจติดตามพื้นที่โครงการ", date:dstr(2026,6,3), type:"monitor", owners:[responsiblePeople[3].name,responsiblePeople[4].name], location:"พื้นที่โครงการ ต.หนองแวง"},
+  {id:5, title:"ส่งเอกสารงบประมาณ", date:dstr(2026,6,8), type:"other", owners:[responsiblePeople[4].name], location:"กองคลัง"},
+  {id:6, title:"ประชุมคณะทำงาน กพส.", date:dstr(2026,6,13), type:"meeting", owners:[responsiblePeople[0].name,responsiblePeople[5].name], location:"ห้องประชุมใหญ่ ชั้น 4"},
+  {id:7, title:"นิเทศงานพื้นที่ภาคเหนือ", date:dstr(2026,6,13), type:"monitor", owners:[responsiblePeople[0].name,responsiblePeople[2].name], location:"จ.เชียงใหม่"},
+  {id:8, title:"สัมมนาแลกเปลี่ยนความรู้", date:dstr(2026,6,15), type:"seminar", owners:[responsiblePeople[1].name,responsiblePeople[5].name], location:"โรงแรมในตัวเมือง"},
+  {id:9, title:"ตรวจรับพัสดุครุภัณฑ์", date:dstr(2026,6,18), type:"other", owners:[responsiblePeople[2].name], location:"คลังพัสดุ"},
+  {id:10, title:"ประเมินผลโครงการรอบ 6 เดือน", date:dstr(2026,6,22), type:"meeting", owners:[responsiblePeople[0].name,responsiblePeople[3].name], location:"ห้องประชุม กพส. ชั้น 3"},
+  {id:11, title:"จัดเก็บข้อมูลภาคสนาม", date:dstr(2026,6,25), type:"monitor", owners:[responsiblePeople[4].name,responsiblePeople[5].name], location:"พื้นที่ภาคสนาม"},
+  {id:12, title:"สรุปผลและปิดโครงการ", date:dstr(2026,6,29), type:"seminar", owners:[responsiblePeople[1].name,responsiblePeople[5].name], location:"ห้องประชุม กพส. ชั้น 3"},
 ];
 
 let editingId = null;
@@ -1117,10 +1101,16 @@ let selectedOwner = 'all';
 let searchQuery = '';
 let pendingAttachments = [];
 
+function getTaskOwners(task){
+  if(Array.isArray(task.owners)) return task.owners;
+  return task.owner ? [task.owner] : [];
+}
+
 function taskMatchesFilters(task){
-  const ownerMatch = selectedOwner === 'all' || task.owner === selectedOwner;
-  const person = responsiblePeople.find(p => p.name === task.owner);
-  const haystack = [task.title, task.desc, task.owner, person?.position, task.location, typeLabels[task.type]]
+  const taskOwners = getTaskOwners(task);
+  const ownerMatch = selectedOwner === 'all' || taskOwners.includes(selectedOwner);
+  const positions = taskOwners.map(owner => responsiblePeople.find(p => p.name === owner)?.position).filter(Boolean);
+  const haystack = [task.title, task.desc, ...taskOwners, ...positions, task.location, typeLabels[task.type]]
     .filter(Boolean).join(' ').toLowerCase();
   return ownerMatch && (!searchQuery || haystack.includes(searchQuery));
 }
@@ -1135,7 +1125,7 @@ function getFilteredMonthTasks(){
 
 function populateOwnerFilter(){
   const select = document.getElementById('ownerFilter');
-  const owners = [...new Set([...responsiblePeople.map(p => p.name), ...mockTasks.map(t => t.owner).filter(Boolean)])];
+  const owners = [...new Set([...responsiblePeople.map(p => p.name), ...mockTasks.flatMap(getTaskOwners)])];
   if(selectedOwner !== 'all' && !owners.includes(selectedOwner)) selectedOwner = 'all';
   select.innerHTML = '<option value="all">ผู้รับผิดชอบทั้งหมด</option>';
   owners.forEach(owner => {
@@ -1149,13 +1139,26 @@ function populateOwnerFilter(){
 }
 
 function populateOwnerOptions(){
-  const select = document.getElementById('fOwner');
-  select.innerHTML = '<option value="">เลือกผู้รับผิดชอบ</option>';
+  const container = document.getElementById('fOwners');
+  container.innerHTML = '';
   responsiblePeople.forEach(person => {
-    const option = document.createElement('option');
-    option.value = person.name;
-    option.textContent = `${person.name} — ${person.position}`;
-    select.appendChild(option);
+    const label = document.createElement('label');
+    label.className = 'person-choice';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = 'owners';
+    input.value = person.name;
+    const text = document.createElement('span');
+    text.className = 'person-choice-text';
+    const name = document.createElement('span');
+    name.className = 'person-choice-name';
+    name.textContent = person.name;
+    const position = document.createElement('span');
+    position.className = 'person-choice-position';
+    position.textContent = person.position;
+    text.append(name, position);
+    label.append(input, text);
+    container.appendChild(label);
   });
 }
 
@@ -1205,9 +1208,8 @@ function renderCalendar(){
 
     let pillsHtml = visible.map(t => {
       const cls = t.type;
-      const icon = ICONS[t.priority];
       const tip = t.location ? `${t.title} · ${t.location}` : t.title;
-      return `<div class="task-pill ${cls}" data-id="${t.id}" title="${tip}">${icon}${t.title}</div>`;
+      return `<div class="task-pill ${cls}" data-id="${t.id}" title="${tip}">${t.title}</div>`;
     }).join('');
     if(remaining > 0){
       pillsHtml += `<div class="more-tasks">+${remaining} งานเพิ่มเติม</div>`;
@@ -1284,7 +1286,7 @@ function renderListView(){
     time.append(document.createTextNode(`${task.startTime || '09:00'}–${task.endTime || '16:00'} น.`));
     const owner = document.createElement('span');
     owner.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>';
-    owner.append(document.createTextNode(task.owner || 'ไม่ระบุผู้รับผิดชอบ'));
+    owner.append(document.createTextNode(getTaskOwners(task).join(', ') || 'ไม่ระบุผู้รับผิดชอบ'));
     meta.append(time, owner);
     if(task.location){
       const location = document.createElement('span');
@@ -1333,7 +1335,6 @@ const modal = overlay.querySelector('.modal');
 const summaryView = document.getElementById('summaryView');
 const taskForm = document.getElementById('taskForm');
 const typeLabels = {meeting:'ประชุม', training:'อบรม', seminar:'สัมมนา', monitor:'ตรวจติดตาม/นิเทศงาน', other:'อื่นๆ'};
-const priorityLabels = {high:'ความสำคัญสูง', mid:'ความสำคัญปานกลาง', low:'ความสำคัญต่ำ'};
 
 function formatThaiDate(iso){
   if(!iso) return 'ไม่ระบุ';
@@ -1422,17 +1423,19 @@ function showTaskSummary(task){
     ? `${formatThaiDate(task.date)} – ${formatThaiDate(endDate)}`
     : formatThaiDate(task.date);
   document.getElementById('summaryTime').textContent = `${task.startTime || '09:00'} – ${task.endTime || '16:00'} น.`;
-  const person = responsiblePeople.find(p => p.name === task.owner);
-  document.getElementById('summaryOwner').textContent = person
-    ? `${person.name} · ${person.position}`
-    : (task.owner || 'ไม่ระบุ');
+  const owners = getTaskOwners(task);
+  document.getElementById('summaryOwner').textContent = owners.length
+    ? owners.map(owner => {
+        const person = responsiblePeople.find(p => p.name === owner);
+        return person ? `• ${person.name} · ${person.position}` : `• ${owner}`;
+      }).join('\n')
+    : 'ไม่ระบุ';
   document.getElementById('summaryLocation').textContent = task.location || 'ไม่ระบุ';
   renderSummaryAttachments(task.attachments || []);
 
   const typeBadge = document.getElementById('summaryType');
   typeBadge.textContent = typeLabels[task.type] || typeLabels.other;
   typeBadge.className = `summary-badge type ${task.type || 'other'}`;
-  document.getElementById('summaryPriority').textContent = priorityLabels[task.priority] || priorityLabels.mid;
   overlay.classList.add('active');
 }
 
@@ -1452,13 +1455,12 @@ function openModal(task, presetDate){
   document.getElementById('fStartTime').value = task ? (task.startTime || '09:00') : '09:00';
   document.getElementById('fEndDate').value = task ? (task.endDate || task.date) : (presetDate || '');
   document.getElementById('fEndTime').value = task ? (task.endTime || '16:00') : '16:00';
-  document.getElementById('fOwner').value = task ? task.owner : '';
+  const taskOwners = task ? getTaskOwners(task) : [];
+  document.querySelectorAll('input[name="owners"]').forEach(input => {
+    input.checked = taskOwners.includes(input.value);
+  });
   document.getElementById('fLocation').value = task ? (task.location || '') : '';
   document.getElementById('fType').value = task ? task.type : 'meeting';
-
-  document.querySelectorAll('input[name="priority"]').forEach(r => {
-    r.checked = r.value === (task ? task.priority : 'mid');
-  });
 
   pendingAttachments = task ? [...(task.attachments || [])] : [];
   document.getElementById('fAttachments').value = '';
@@ -1507,8 +1509,8 @@ document.getElementById('taskForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const title = document.getElementById('fTitle').value.trim();
   if(!title){ showToast('กรุณากรอกชื่องาน', 'warn'); return; }
-
-  const priority = document.querySelector('input[name="priority"]:checked').value;
+  const owners = [...document.querySelectorAll('input[name="owners"]:checked')].map(input => input.value);
+  if(!owners.length){ showToast('กรุณาเลือกผู้รับผิดชอบอย่างน้อย 1 คน', 'warn'); return; }
   const data = {
     title,
     date: document.getElementById('fStartDate').value,
@@ -1517,8 +1519,8 @@ document.getElementById('taskForm').addEventListener('submit', (e) => {
     endDate: document.getElementById('fEndDate').value,
     endTime: document.getElementById('fEndTime').value,
     type: document.getElementById('fType').value,
-    priority,
-    owner: document.getElementById('fOwner').value.trim(),
+    owners,
+    owner: owners[0],
     location: document.getElementById('fLocation').value.trim(),
     attachments: [...pendingAttachments],
   };
