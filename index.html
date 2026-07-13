@@ -1145,8 +1145,10 @@
 
 <script>
 /* ============ Google Apps Script API ============ */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBcifW0s3QM6AIQ06vJB_71_jC32OC-2gXuDn-Fu4XbdajL86pfecN3l2Qa60Sb4ByTA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwONPUhGYQYNAOe1C83ZtrzZG28YO0uDT1YBBgMThfe6M1LwQ79-8oewLvRmbG1wjTy9Q/exec';
 const APPS_SCRIPT_TOKEN = '';
+
+let lastSyncedYear = null;
 
 function isBackendConfigured(){
   return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/i.test(APPS_SCRIPT_URL.trim());
@@ -1177,15 +1179,31 @@ async function loadTasksFromBackend(){
   }
   setBackendStatus('กำลังโหลดข้อมูลจาก Google Sheet และ Google Calendar...');
   try{
-    const result = await apiRequest('list');
+    const year = viewDate.getFullYear();
+    const result = await apiRequest('list', {
+      startDate:`${year}-01-01`,
+      endDate:`${year + 1}-01-01`,
+    });
     mockTasks = Array.isArray(result.tasks) ? result.tasks : [];
-    setBackendStatus('เชื่อมต่อ Google Sheet + Google Calendar แล้ว');
+    lastSyncedYear = year;
+    const imported = result.sync?.imported || 0;
+    setBackendStatus(imported
+      ? `ซิงก์ Google Calendar ลง Sheet แล้ว · เพิ่มใหม่ ${imported} งาน`
+      : 'เชื่อมต่อ Google Sheet + Google Calendar แล้ว');
     populateOwnerFilter();
     renderCalendar();
   }catch(error){
     console.error(error);
     setBackendStatus('เชื่อมต่อ Google Sheet / Calendar ไม่สำเร็จ — กำลังแสดงข้อมูลตัวอย่าง');
     showToast(error.message, 'warn');
+  }
+}
+
+function renderOrSyncCurrentYear(forceSync = false){
+  if(isBackendConfigured() && (forceSync || lastSyncedYear !== viewDate.getFullYear())){
+    loadTasksFromBackend();
+  }else{
+    renderCalendar();
   }
 }
 
@@ -1771,15 +1789,15 @@ document.getElementById('btnDelete').addEventListener('click', async () => {
 /* ============ Nav ============ */
 document.getElementById('prevMonth').addEventListener('click', () => {
   viewDate.setMonth(viewDate.getMonth() - 1);
-  renderCalendar();
+  renderOrSyncCurrentYear();
 });
 document.getElementById('nextMonth').addEventListener('click', () => {
   viewDate.setMonth(viewDate.getMonth() + 1);
-  renderCalendar();
+  renderOrSyncCurrentYear();
 });
 document.getElementById('btnToday').addEventListener('click', () => {
   viewDate = new Date(todayReal.getFullYear(), todayReal.getMonth(), 1);
-  renderCalendar();
+  renderOrSyncCurrentYear(true);
 });
 
 /* ============ View and filters ============ */
