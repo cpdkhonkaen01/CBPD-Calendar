@@ -797,21 +797,86 @@
   }
   footer.note .icon{width:13px; height:13px;}
 
+  @media (min-width:1100px){
+    .stats,
+    .calendar-wrap,
+    footer.note{
+      width:100%;
+      max-width:none;
+      padding-left:24px;
+      padding-right:24px;
+    }
+    .stats{margin-top:20px;}
+    .calendar-wrap{margin-top:18px;}
+  }
+
   @media (max-width:760px){
-    .stats{grid-template-columns:repeat(2,1fr);}
-    .grid{grid-auto-rows:88px;}
-    .task-pill{font-size:9.5px;}
-    .month-title{font-size:17px; min-width:auto;}
-    .cal-controls{padding:14px;}
+    body{padding-bottom:24px;}
+    .topbar{
+      padding:10px 12px;
+      flex-wrap:nowrap;
+      gap:8px;
+    }
+    .brand{gap:8px; min-width:0;}
+    .brand-mark{width:34px; height:34px; border-radius:10px;}
+    .brand-mark .icon{width:19px; height:19px;}
+    .brand-text{min-width:0;}
+    .brand-text h1{font-size:14px; white-space:nowrap;}
+    .brand-text p{font-size:8.5px; white-space:nowrap;}
+    .btn-add{
+      flex-shrink:0;
+      font-size:11.5px;
+      padding:8px 10px;
+      gap:5px;
+      border-radius:8px;
+    }
+    .btn-add .icon{width:14px; height:14px;}
+    .stats{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:6px;
+      margin-top:10px;
+      padding:0 6px;
+    }
+    .stat-card{
+      min-width:0;
+      min-height:58px;
+      padding:7px 8px;
+      gap:7px;
+      border-left-width:3px;
+      border-radius:8px;
+    }
+    .stat-icon{width:29px; height:29px; border-radius:8px;}
+    .stat-icon .icon{width:16px; height:16px;}
+    .stat-card .num{font-size:17px;}
+    .stat-card .label{font-size:9.5px; line-height:1.25;}
+    .calendar-wrap{width:100%; margin-top:10px; padding:0 4px;}
+    .calendar-card{border-radius:10px;}
+    .grid{grid-auto-rows:78px;}
+    .cell{padding:3px 2px 2px;}
+    .daynum{width:22px; height:22px; font-size:11px;}
+    .task-list{margin-top:3px; gap:2px;}
+    .task-pill{font-size:8px; padding:2px 3px; border-radius:4px;}
+    .month-nav{gap:6px;}
+    .nav-btn{width:30px; height:30px; border-radius:8px;}
+    .month-title{font-size:15px; min-width:auto; gap:5px;}
+    .month-title .icon{width:16px; height:16px;}
+    .cal-controls{padding:9px 8px; gap:8px;}
     .cal-tools{width:100%;}
     .search-box{display:flex; flex:1;}
     .search-box input{width:100%;}
-    .view-filter-bar{padding:10px 14px; align-items:stretch;}
+    .search-box{padding:6px 8px;}
+    .search-box input{font-size:12px;}
+    .today-btn{font-size:12px; padding:7px 9px;}
+    .view-filter-bar{padding:8px; gap:8px; align-items:stretch;}
     .view-switch{width:100%;}
-    .view-btn{flex:1; justify-content:center;}
+    .view-btn{flex:1; justify-content:center; padding:6px 8px; font-size:12px;}
     .filter-tools{width:100%;}
     .owner-filter{flex:1;}
     .owner-filter select{min-width:0; width:100%;}
+    .legend{gap:7px 10px; padding:7px 8px; font-size:9.5px;}
+    .legend .hint{display:none;}
+    .dot{width:7px; height:7px;}
+    .weekdays div{font-size:10px; padding:7px 1px;}
     .list-view{padding:14px;}
     .list-task{grid-template-columns:minmax(0,1fr) 18px; gap:10px;}
     .list-task-type{display:none;}
@@ -821,6 +886,7 @@
     .modal-actions{bottom:-18px; margin:20px -18px -18px; padding:14px 18px 18px;}
     .summary-grid{grid-template-columns:1fr;}
     .summary-item.wide{grid-column:auto;}
+    footer.note{margin-top:12px; padding:0 10px; font-size:9.5px;}
   }
 </style>
 </head>
