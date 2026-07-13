@@ -825,6 +825,88 @@
   }
   .file-help{font-size:11px; color:var(--color-text-muted); margin-top:7px; line-height:1.5;}
   .attachment-draft-list{margin-top:9px;}
+  .action-dialog-overlay{
+    position:fixed;
+    inset:0;
+    z-index:300;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(3,38,29,.58);
+    backdrop-filter:blur(4px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .18s ease, visibility .18s ease;
+  }
+  .action-dialog-overlay.active{opacity:1; visibility:visible;}
+  .action-dialog{
+    width:min(100%,420px);
+    padding:24px;
+    border:1px solid #B7E2D4;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 24px 70px rgba(0,35,26,.30);
+    transform:translateY(12px) scale(.98);
+    transition:transform .18s ease;
+  }
+  .action-dialog-overlay.active .action-dialog{transform:translateY(0) scale(1);}
+  .action-dialog-icon{
+    width:48px;
+    height:48px;
+    margin:0 auto 12px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+    background:#E6F8F1;
+    box-shadow:inset 0 0 0 1px #BCE9DA;
+  }
+  .action-dialog h3{
+    margin:0;
+    color:var(--color-primary-dark);
+    font-family:var(--font-display);
+    font-size:19px;
+    text-align:center;
+  }
+  .action-dialog-message{
+    margin:7px 0 16px;
+    color:var(--color-text-muted);
+    font-size:13px;
+    line-height:1.55;
+    text-align:center;
+  }
+  .action-dialog-field{margin-bottom:6px;}
+  .action-dialog-field[hidden]{display:none;}
+  .action-dialog-field label{display:block; margin-bottom:6px; color:#214D43; font-size:12px; font-weight:700;}
+  .action-dialog-field input{
+    width:100%;
+    height:46px;
+    padding:10px 13px;
+    border:1.5px solid #91CFBB;
+    border-radius:10px;
+    outline:none;
+    font-family:var(--font-body);
+    font-size:16px;
+    color:var(--color-text);
+    background:#F9FFFC;
+  }
+  .action-dialog-field input:focus{border-color:#087C5E; box-shadow:0 0 0 4px rgba(14,165,126,.14);}
+  .action-dialog-error{min-height:19px; margin:3px 0 8px; color:#C94028; font-size:11.5px;}
+  .action-dialog-actions{display:grid; grid-template-columns:1fr 1.25fr; gap:9px;}
+  .action-dialog-actions button{
+    min-height:44px;
+    border-radius:10px;
+    border:1px solid #A9D4C6;
+    font-family:var(--font-body);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .action-dialog-cancel{background:#fff; color:#355F56;}
+  .action-dialog-confirm{border-color:transparent !important; background:linear-gradient(135deg,#08775B,#0EA57E); color:#fff; box-shadow:0 5px 12px rgba(14,165,126,.24);}
+  .action-dialog-confirm.danger{background:linear-gradient(135deg,#C84129,#E55E3E); box-shadow:0 5px 12px rgba(210,70,43,.22);}
   .toast{
     position:fixed;
     bottom:22px; left:50%;
@@ -960,6 +1042,11 @@
     .modal-action-main{flex:1; min-width:0; gap:7px; margin-left:0;}
     .modal-action-main .btn{flex:1; min-width:0;}
     .modal-action-main .btn-primary{flex-grow:1.25;}
+    .action-dialog-overlay{padding:16px;}
+    .action-dialog{padding:20px 18px; border-radius:16px;}
+    .action-dialog-icon{width:44px; height:44px; margin-bottom:10px;}
+    .action-dialog h3{font-size:17px;}
+    .action-dialog-message{font-size:12.5px; margin-bottom:14px;}
     .modal.summary-mode .summary-hero{padding:11px 44px 11px 11px; margin-bottom:7px;}
     .summary-title{font-size:14px; line-height:1.4; margin-bottom:7px;}
     .summary-badge{font-size:11px; padding:4px 8px;}
@@ -1228,6 +1315,23 @@
 
   <div class="toast" id="toast"></div>
 
+  <div class="action-dialog-overlay" id="actionDialogOverlay" aria-hidden="true">
+    <form class="action-dialog" id="actionDialog" role="dialog" aria-modal="true" aria-labelledby="actionDialogTitle">
+      <div class="action-dialog-icon" id="actionDialogIcon" aria-hidden="true">🔐</div>
+      <h3 id="actionDialogTitle">ยืนยันการทำรายการ</h3>
+      <p class="action-dialog-message" id="actionDialogMessage"></p>
+      <div class="action-dialog-field" id="actionDialogField">
+        <label for="actionDialogInput">รหัสผ่าน</label>
+        <input type="password" id="actionDialogInput" autocomplete="current-password" inputmode="text">
+      </div>
+      <div class="action-dialog-error" id="actionDialogError" aria-live="polite"></div>
+      <div class="action-dialog-actions">
+        <button type="button" class="action-dialog-cancel" id="actionDialogCancel">ยกเลิก</button>
+        <button type="submit" class="action-dialog-confirm" id="actionDialogConfirm">ยืนยัน</button>
+      </div>
+    </form>
+  </div>
+
 <script>
 /* ============ Google Apps Script API ============ */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwONPUhGYQYNAOe1C83ZtrzZG28YO0uDT1YBBgMThfe6M1LwQ79-8oewLvRmbG1wjTy9Q/exec';
@@ -1358,6 +1462,60 @@ let activeView = 'calendar';
 let selectedOwner = 'all';
 let searchQuery = '';
 let pendingAttachments = [];
+
+const actionDialogOverlay = document.getElementById('actionDialogOverlay');
+const actionDialogForm = document.getElementById('actionDialog');
+const actionDialogTitle = document.getElementById('actionDialogTitle');
+const actionDialogMessage = document.getElementById('actionDialogMessage');
+const actionDialogIcon = document.getElementById('actionDialogIcon');
+const actionDialogField = document.getElementById('actionDialogField');
+const actionDialogInput = document.getElementById('actionDialogInput');
+const actionDialogError = document.getElementById('actionDialogError');
+const actionDialogConfirm = document.getElementById('actionDialogConfirm');
+let actionDialogResolve = null;
+let actionDialogNeedsPassword = false;
+
+function requestActionDialog({title, message, confirmLabel = 'ยืนยัน', password = false, danger = false}){
+  if(actionDialogResolve) actionDialogResolve(null);
+  actionDialogNeedsPassword = password;
+  actionDialogTitle.textContent = title;
+  actionDialogMessage.textContent = message || '';
+  actionDialogIcon.textContent = danger ? '⚠️' : (password ? '🔐' : '✓');
+  actionDialogField.hidden = !password;
+  actionDialogInput.value = '';
+  actionDialogError.textContent = '';
+  actionDialogConfirm.textContent = confirmLabel;
+  actionDialogConfirm.classList.toggle('danger', danger);
+  actionDialogOverlay.classList.add('active');
+  actionDialogOverlay.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => (password ? actionDialogInput : actionDialogConfirm).focus());
+  return new Promise(resolve => { actionDialogResolve = resolve; });
+}
+
+function finishActionDialog(value){
+  actionDialogOverlay.classList.remove('active');
+  actionDialogOverlay.setAttribute('aria-hidden', 'true');
+  const resolve = actionDialogResolve;
+  actionDialogResolve = null;
+  if(resolve) resolve(value);
+}
+
+actionDialogForm.addEventListener('submit', event => {
+  event.preventDefault();
+  if(actionDialogNeedsPassword && !actionDialogInput.value){
+    actionDialogError.textContent = 'กรุณากรอกรหัสผ่าน';
+    actionDialogInput.focus();
+    return;
+  }
+  finishActionDialog(actionDialogNeedsPassword ? actionDialogInput.value : true);
+});
+document.getElementById('actionDialogCancel').addEventListener('click', () => finishActionDialog(null));
+actionDialogOverlay.addEventListener('click', event => {
+  if(event.target === actionDialogOverlay) finishActionDialog(null);
+});
+document.addEventListener('keydown', event => {
+  if(event.key === 'Escape' && actionDialogOverlay.classList.contains('active')) finishActionDialog(null);
+});
 
 function getTaskOwners(task){
   if(Array.isArray(task.owners)) return task.owners;
@@ -1865,7 +2023,12 @@ document.getElementById('btnEditTask').addEventListener('click', async () => {
     showToast('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถแก้ไขงานได้', 'warn');
     return;
   }
-  const password = window.prompt('กรุณาใส่รหัสผ่านสำหรับแก้ไขงาน');
+  const password = await requestActionDialog({
+    title:'กรอกรหัสผ่าน',
+    message:'กรุณาใส่รหัสผ่านเพื่อเข้าสู่หน้าแก้ไขงาน',
+    confirmLabel:'เข้าสู่หน้าแก้ไข',
+    password:true,
+  });
   if(password === null) return;
   const editButton = document.getElementById('btnEditTask');
   editButton.disabled = true;
@@ -1933,13 +2096,23 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
   }
   let createPassword = '';
   if(!editingId){
-    createPassword = window.prompt('กรุณาใส่รหัสผ่านสำหรับเพิ่มงานใหม่');
+    createPassword = await requestActionDialog({
+      title:'ยืนยันสิทธิ์เพิ่มงาน',
+      message:'กรุณาใส่รหัสผ่านก่อนเพิ่มงานใหม่ลงในปฏิทิน',
+      confirmLabel:'ตรวจสอบรหัส',
+      password:true,
+    });
     if(createPassword === null) return;
   }
   const confirmMessage = editingId
     ? `ยืนยันบันทึกการแก้ไขงาน “${title}” ใช่หรือไม่?`
     : `ยืนยันเพิ่มงาน “${title}” ใช่หรือไม่?`;
-  if(!window.confirm(confirmMessage)) return;
+  const confirmed = await requestActionDialog({
+    title:editingId ? 'ยืนยันการแก้ไขงาน' : 'ยืนยันการเพิ่มงาน',
+    message:confirmMessage,
+    confirmLabel:editingId ? 'บันทึกการแก้ไข' : 'เพิ่มงาน',
+  });
+  if(!confirmed) return;
 
   const submitButton = document.querySelector('#taskForm button[type="submit"]');
   const originalButtonHtml = submitButton.innerHTML;
@@ -1979,9 +2152,21 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
 document.getElementById('btnDelete').addEventListener('click', async () => {
   if(!editingId) return;
   const task = mockTasks.find(item => item.id === editingId);
-  const deletePassword = window.prompt('กรุณาใส่รหัสผ่านสำหรับลบงาน');
+  const deletePassword = await requestActionDialog({
+    title:'กรอกรหัสผ่าน',
+    message:'กรุณาใส่รหัสผ่านก่อนลบงานออกจากระบบ',
+    confirmLabel:'ตรวจสอบรหัส',
+    password:true,
+    danger:true,
+  });
   if(deletePassword === null) return;
-  if(!window.confirm(`ยืนยันลบงาน “${task?.title || 'งานนี้'}” ใช่หรือไม่?`)) return;
+  const confirmed = await requestActionDialog({
+    title:'ยืนยันการลบงาน',
+    message:`ต้องการลบงาน “${task?.title || 'งานนี้'}” ออกจาก Google Sheet และ Google Calendar ใช่หรือไม่?`,
+    confirmLabel:'ลบงาน',
+    danger:true,
+  });
+  if(!confirmed) return;
 
   const deleteButton = document.getElementById('btnDelete');
   deleteButton.disabled = true;
