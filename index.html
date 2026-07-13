@@ -640,6 +640,7 @@
   .btn-primary:hover{background:linear-gradient(135deg,#065F49,#0B8C6B);}
   .btn-ghost{background:#fff; color:#355F56; border:1.5px solid #AACFC3;}
   .btn-danger{background:#FFF1ED; color:#D94E2D; border:1px solid #FFD2C7; font-size:13px;}
+  .modal-action-main{display:flex; gap:8px; margin-left:auto;}
   .summary-view{display:none;}
   .summary-hero{
     background:linear-gradient(135deg,#E8FBF3,#F8FFFC);
@@ -941,7 +942,24 @@
     .modal{padding:22px 18px 18px;}
     .modal.summary-mode{padding:14px 16px 16px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
-    .modal-actions{bottom:-18px; margin:20px -18px -18px; padding:14px 18px 18px;}
+    .modal-actions{
+      bottom:-18px;
+      margin:16px -18px -18px;
+      padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+      gap:7px;
+    }
+    .modal-actions .btn{
+      min-height:42px;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:12px;
+      justify-content:center;
+      white-space:nowrap;
+    }
+    .modal-actions #btnDelete{flex:0 0 auto;}
+    .modal-action-main{flex:1; min-width:0; gap:7px; margin-left:0;}
+    .modal-action-main .btn{flex:1; min-width:0;}
+    .modal-action-main .btn-primary{flex-grow:1.25;}
     .modal.summary-mode .summary-hero{padding:11px 44px 11px 11px; margin-bottom:7px;}
     .summary-title{font-size:14px; line-height:1.4; margin-bottom:7px;}
     .summary-badge{font-size:11px; padding:4px 8px;}
@@ -1195,9 +1213,9 @@
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-danger" id="btnDelete" style="display:none;">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>ลบงานนี้
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>ลบงาน
           </button>
-          <div style="display:flex; gap:8px; margin-left:auto;">
+          <div class="modal-action-main">
             <button type="button" class="btn btn-ghost" id="btnCancel">ยกเลิก</button>
             <button type="submit" class="btn btn-primary">
               <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>บันทึกงาน
@@ -1334,6 +1352,7 @@ const responsiblePeople = [
 let mockTasks = [];
 
 let editingId = null;
+let editingPassword = '';
 let selectedTaskId = null;
 let activeView = 'calendar';
 let selectedOwner = 'all';
@@ -1799,6 +1818,7 @@ function showTaskSummary(task){
 
 function openModal(task, presetDate){
   editingId = task ? task.id : null;
+  if(!task) editingPassword = '';
   selectedTaskId = task ? task.id : null;
   modal.classList.remove('summary-mode');
   summaryView.style.display = 'none';
@@ -1831,15 +1851,34 @@ function closeModal(){
   overlay.classList.remove('active');
   modal.classList.remove('summary-mode');
   editingId = null;
+  editingPassword = '';
   selectedTaskId = null;
 }
 
 document.getElementById('btnAddTask').addEventListener('click', () => openModal(null, dstr(viewDate.getFullYear(), viewDate.getMonth(), 13)));
 document.getElementById('btnClose').addEventListener('click', closeModal);
 document.getElementById('btnCancel').addEventListener('click', closeModal);
-document.getElementById('btnEditTask').addEventListener('click', () => {
+document.getElementById('btnEditTask').addEventListener('click', async () => {
   const task = mockTasks.find(t => t.id === selectedTaskId);
-  if(task) openModal(task);
+  if(!task) return;
+  if(!isBackendConfigured()){
+    showToast('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถแก้ไขงานได้', 'warn');
+    return;
+  }
+  const password = window.prompt('กรุณาใส่รหัสผ่านสำหรับแก้ไขงาน');
+  if(password === null) return;
+  const editButton = document.getElementById('btnEditTask');
+  editButton.disabled = true;
+  try{
+    await apiRequest('verify-edit-password', {editPassword:password});
+    editingPassword = password;
+    openModal(task);
+  }catch(error){
+    console.error(error);
+    showToast(error.message || 'รหัสผ่านสำหรับแก้ไขงานไม่ถูกต้อง', 'warn');
+  }finally{
+    editButton.disabled = false;
+  }
 });
 overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
 
@@ -1888,32 +1927,37 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     location: document.getElementById('fLocation').value.trim(),
     attachments: [...pendingAttachments],
   };
+  if(!isBackendConfigured()){
+    showToast('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถบันทึกงานได้', 'warn');
+    return;
+  }
+  const savePassword = window.prompt('กรุณาใส่รหัสผ่านสำหรับบันทึกงาน');
+  if(savePassword === null) return;
+  const confirmMessage = editingId
+    ? `ยืนยันบันทึกการแก้ไขงาน “${title}” ใช่หรือไม่?`
+    : `ยืนยันเพิ่มงาน “${title}” ใช่หรือไม่?`;
+  if(!window.confirm(confirmMessage)) return;
+
   const submitButton = document.querySelector('#taskForm button[type="submit"]');
   const originalButtonHtml = submitButton.innerHTML;
   submitButton.disabled = true;
   submitButton.textContent = 'กำลังบันทึก...';
 
   try{
-    if(isBackendConfigured()){
-      const isEditing = Boolean(editingId);
-      if(isEditing) data.id = editingId;
-      const result = await apiRequest(isEditing ? 'update' : 'create', {task:data});
-      if(isEditing){
-        const idx = mockTasks.findIndex(t => t.id === editingId);
-        if(idx >= 0) mockTasks[idx] = result.task;
-      }else{
-        mockTasks.push(result.task);
-      }
-      setBackendStatus('บันทึก Google Sheet และซิงก์ Google Calendar เรียบร้อย');
-      showToast(isEditing ? 'บันทึกการแก้ไขเรียบร้อย' : 'เพิ่มงานใหม่เรียบร้อย', 'ok');
-    }else if(editingId){
+    const isEditing = Boolean(editingId);
+    if(isEditing) data.id = editingId;
+    const result = await apiRequest(isEditing ? 'update' : 'create', {
+      task:data,
+      savePassword,
+    });
+    if(isEditing){
       const idx = mockTasks.findIndex(t => t.id === editingId);
-      mockTasks[idx] = {...mockTasks[idx], ...data};
-      showToast('บันทึกการแก้ไขเรียบร้อย (โหมดตัวอย่าง)', 'ok');
+      if(idx >= 0) mockTasks[idx] = result.task;
     }else{
-      mockTasks.push({id: Date.now(), ...data});
-      showToast('เพิ่มงานใหม่เรียบร้อย (โหมดตัวอย่าง)', 'ok');
+      mockTasks.push(result.task);
     }
+    setBackendStatus('บันทึก Google Sheet และซิงก์ Google Calendar เรียบร้อย');
+    showToast(isEditing ? 'บันทึกการแก้ไขเรียบร้อย' : 'เพิ่มงานใหม่เรียบร้อย', 'ok');
 
     closeModal();
     populateOwnerFilter();
@@ -1929,10 +1973,19 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
 
 document.getElementById('btnDelete').addEventListener('click', async () => {
   if(!editingId) return;
+  const task = mockTasks.find(item => item.id === editingId);
+  const deletePassword = window.prompt('กรุณาใส่รหัสผ่านสำหรับลบงาน');
+  if(deletePassword === null) return;
+  if(!window.confirm(`ยืนยันลบงาน “${task?.title || 'งานนี้'}” ใช่หรือไม่?`)) return;
+
   const deleteButton = document.getElementById('btnDelete');
   deleteButton.disabled = true;
   try{
-    if(isBackendConfigured()) await apiRequest('delete', {id:editingId});
+    if(isBackendConfigured()){
+      await apiRequest('delete', {id:editingId, deletePassword});
+    }else{
+      throw new Error('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถลบงานได้');
+    }
     mockTasks = mockTasks.filter(t => t.id !== editingId);
     showToast(isBackendConfigured() ? 'ลบงานออกจาก Google Sheet และ Calendar แล้ว' : 'ลบงานเรียบร้อย (โหมดตัวอย่าง)', 'ok');
     closeModal();
