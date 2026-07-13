@@ -475,7 +475,7 @@
     max-height:90vh;
     overflow-y:auto;
   }
-  .modal.summary-mode{padding-top:20px;}
+  .modal.summary-mode{max-width:680px; padding-top:20px;}
   .modal.summary-mode .modal-head{
     position:absolute;
     top:14px;
@@ -593,7 +593,6 @@
   .person-choice input{width:18px; height:18px; margin-top:2px; accent-color:#0EA57E;}
   .person-choice-text{min-width:0;}
   .person-choice-name{display:block; color:#064D3C; font-size:13px; font-weight:700; line-height:1.4;}
-  .person-choice-position{display:block; color:#5E7F76; font-size:11.5px; font-weight:400; line-height:1.4; margin-top:1px;}
   #fLocation{border-left:5px solid #FF7A59; background:#FFF9F7;}
   #fType{border-left:5px solid #6D6AE8; background:#FAF9FF;}
   .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
@@ -1132,7 +1131,7 @@ function populateOwnerFilter(){
     const option = document.createElement('option');
     option.value = owner;
     const person = responsiblePeople.find(p => p.name === owner);
-    option.textContent = person ? `${person.name} — ${person.position}` : owner;
+    option.textContent = person ? person.name : owner;
     option.selected = owner === selectedOwner;
     select.appendChild(option);
   });
@@ -1153,10 +1152,7 @@ function populateOwnerOptions(){
     const name = document.createElement('span');
     name.className = 'person-choice-name';
     name.textContent = person.name;
-    const position = document.createElement('span');
-    position.className = 'person-choice-position';
-    position.textContent = person.position;
-    text.append(name, position);
+    text.append(name);
     label.append(input, text);
     container.appendChild(label);
   });
@@ -1427,7 +1423,7 @@ function showTaskSummary(task){
   document.getElementById('summaryOwner').textContent = owners.length
     ? owners.map(owner => {
         const person = responsiblePeople.find(p => p.name === owner);
-        return person ? `• ${person.name} · ${person.position}` : `• ${owner}`;
+        return `• ${person ? person.name : owner}`;
       }).join('\n')
     : 'ไม่ระบุ';
   document.getElementById('summaryLocation').textContent = task.location || 'ไม่ระบุ';
