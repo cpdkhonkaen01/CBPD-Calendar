@@ -19,6 +19,8 @@
     --type-project:#0EA57E;
     --type-participate:#E8871B;
     --type-monitor:#2F9FE5;
+    --type-followup:#DB2777;
+    --type-reminder:#E53935;
     --type-other:#7C3AED;
     --color-text:#123B33;
     --color-text-muted:#5E8A7E;
@@ -297,6 +299,8 @@
   .dot.project{background:var(--type-project);}
   .dot.participate{background:var(--type-participate);}
   .dot.monitor{background:var(--type-monitor);}
+  .dot.followup{background:var(--type-followup);}
+  .dot.reminder{background:var(--type-reminder);}
   .dot.other{background:var(--type-other);}
   .legend .hint{margin-left:auto; display:flex; align-items:center; gap:5px;}
   .legend .hint .icon{width:14px; height:14px;}
@@ -395,6 +399,8 @@
   .task-pill.project{background:var(--type-project);}
   .task-pill.participate{background:var(--type-participate);}
   .task-pill.monitor{background:var(--type-monitor);}
+  .task-pill.followup{background:var(--type-followup); color:#fff;}
+  .task-pill.reminder{background:var(--type-reminder); color:#fff;}
   .task-pill.other{background:var(--type-other); color:#fff;}
   .more-tasks{
     font-size:10.5px;
@@ -449,6 +455,8 @@
   .list-task.project{border-left-color:var(--type-project);}
   .list-task.participate{border-left-color:var(--type-participate);}
   .list-task.monitor{border-left-color:var(--type-monitor);}
+  .list-task.followup{border-left-color:var(--type-followup);}
+  .list-task.reminder{border-left-color:var(--type-reminder);}
   .list-task-title{font-size:14px; font-weight:600; line-height:1.45; margin-bottom:5px;}
   .list-task-meta{display:flex; flex-wrap:wrap; gap:6px 14px; color:var(--color-text-muted); font-size:12px;}
   .list-task-meta span{display:flex; align-items:center; gap:5px;}
@@ -679,6 +687,8 @@
   .summary-badge.type.project{background:var(--type-project);}
   .summary-badge.type.participate{background:var(--type-participate);}
   .summary-badge.type.monitor{background:var(--type-monitor);}
+  .summary-badge.type.followup{background:var(--type-followup); color:#fff;}
+  .summary-badge.type.reminder{background:var(--type-reminder); color:#fff;}
   .summary-badge.type.other{background:var(--type-other); color:#fff;}
   .summary-desc-box{
     margin-top:10px;
@@ -1165,9 +1175,11 @@
       </div>
       <div class="legend">
         <span><span class="dot project"></span> จัดโครงการ</span>
-        <span><span class="dot participate"></span> ร่วมประชุม/สัมมนา/อบรม</span>
-        <span><span class="dot monitor"></span> ตรวจติดตาม</span>
-        <span><span class="dot other"></span> อื่นๆ</span>
+          <span><span class="dot participate"></span> ร่วมประชุม/สัมมนา/อบรม</span>
+          <span><span class="dot monitor"></span> ตรวจติดตาม</span>
+          <span><span class="dot followup"></span> ติดตามงาน</span>
+          <span><span class="dot reminder"></span> แจ้งเตือน</span>
+          <span><span class="dot other"></span> อื่นๆ</span>
         <span class="hint">
           <svg class="icon" viewBox="0 0 24 24"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
           คลิกวันที่เพื่อเพิ่มงาน · คลิกงานเพื่อแก้ไข
@@ -1279,6 +1291,8 @@
             <option value="project">จัดโครงการ</option>
             <option value="participate">ร่วมประชุม/สัมมนา/อบรม</option>
             <option value="monitor">ตรวจติดตาม</option>
+            <option value="followup">ติดตามงาน</option>
+            <option value="reminder">แจ้งเตือน</option>
             <option value="other">อื่นๆ</option>
           </select>
         </div>
@@ -1790,7 +1804,7 @@ const overlay = document.getElementById('modalOverlay');
 const modal = overlay.querySelector('.modal');
 const summaryView = document.getElementById('summaryView');
 const taskForm = document.getElementById('taskForm');
-const typeLabels = {project:'จัดโครงการ', participate:'ร่วมประชุม/สัมมนา/อบรม', monitor:'ตรวจติดตาม', other:'อื่นๆ'};
+const typeLabels = {project:'จัดโครงการ', participate:'ร่วมประชุม/สัมมนา/อบรม', monitor:'ตรวจติดตาม', followup:'ติดตามงาน', reminder:'แจ้งเตือน', other:'อื่นๆ'};
 
 function formatThaiDate(iso){
   if(!iso) return 'ไม่ระบุ';
