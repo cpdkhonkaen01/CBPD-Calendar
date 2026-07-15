@@ -783,9 +783,9 @@
   .attachment-name{display:block; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .attachment-size{display:block; font-size:11px; color:var(--color-text-muted); margin-top:1px;}
   .attachment-open{
-    border:none;
-    background:#E5F7FF;
-    color:#087FB5;
+    border:1px solid #FCA5A5;
+    background:#FEE2E2;
+    color:#DC2626;
     min-height:27px;
     padding:5px 8px;
     border-radius:7px;
@@ -798,9 +798,9 @@
     gap:4px;
     flex-shrink:0;
   }
-  .attachment-open:hover{background:#CDEEFF;}
+  .attachment-open:hover{background:#FECACA; border-color:#EF4444;}
   .attachment-open .icon{width:13px; height:13px;}
-  .attachment-open.unsupported{background:#F1F4F3; color:#6D817C; cursor:default;}
+  .attachment-open.unsupported{background:#F1F4F3; color:#6D817C; border-color:#D6DEDB; cursor:default;}
   .attachment-remove{
     border:none;
     background:#FFF1ED;
@@ -1227,16 +1227,16 @@
             <div class="summary-value" id="summaryLocation"></div>
           </div>
         </div>
-        <div class="summary-attachments" id="summaryAttachments">
-          <h4><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>เอกสารแนบ</h4>
-          <div class="attachment-list" id="summaryAttachmentList"></div>
-        </div>
         <div class="summary-desc-box">
           <div class="summary-desc-label">
             <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             รายละเอียด
           </div>
           <p class="summary-desc" id="summaryDesc"></p>
+        </div>
+        <div class="summary-attachments" id="summaryAttachments">
+          <h4><svg class="icon" viewBox="0 0 24 24"><path d="M21.4 11.6l-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7L9.7 17.7a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>เอกสารแนบ</h4>
+          <div class="attachment-list" id="summaryAttachmentList"></div>
         </div>
         <div class="summary-actions">
           <button type="button" class="btn btn-primary" id="btnEditTask">
@@ -2128,16 +2128,6 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     showToast('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถบันทึกงานได้', 'warn');
     return;
   }
-  let createPassword = '';
-  if(!editingId){
-    createPassword = await requestActionDialog({
-      title:'ยืนยันสิทธิ์เพิ่มงาน',
-      message:'กรุณาใส่รหัสผ่านก่อนเพิ่มงานใหม่ลงในปฏิทิน',
-      confirmLabel:'ตรวจสอบรหัส',
-      password:true,
-    });
-    if(createPassword === null) return;
-  }
   const confirmMessage = editingId
     ? `ยืนยันบันทึกการแก้ไขงาน “${title}” ใช่หรือไม่?`
     : `ยืนยันเพิ่มงาน “${title}” ใช่หรือไม่?`;
@@ -2158,9 +2148,7 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     if(isEditing) data.id = editingId;
     const result = await apiRequest(isEditing ? 'update' : 'create', {
       task:data,
-      ...(isEditing
-        ? {editPassword:editingPassword}
-        : {savePassword:createPassword}),
+      ...(isEditing ? {editPassword:editingPassword} : {}),
     });
     if(isEditing){
       const idx = mockTasks.findIndex(t => t.id === editingId);
