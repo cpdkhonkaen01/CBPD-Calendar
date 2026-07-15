@@ -586,7 +586,15 @@
     box-shadow:0 0 0 4px rgba(14,165,126,0.17);
   }
   .field textarea{resize:vertical; min-height:80px;}
-  #fTitle{border-left:5px solid #0EA57E; background:#F7FFFC;}
+  #fTitle{
+    min-height:112px;
+    max-height:220px;
+    border-left:5px solid #0EA57E;
+    background:#F7FFFC;
+    line-height:1.55;
+    resize:vertical;
+    overflow-y:hidden;
+  }
   #fDesc{border-left:5px solid #6D6AE8; background:#FAF9FF;}
   #fStartDate, #fStartTime, #fEndDate, #fEndTime{border-left:5px solid #3B9FE0; background:#F7FBFF;}
   .people-choices{
@@ -1025,6 +1033,7 @@
     .modal{padding:22px 18px 18px;}
     .modal.summary-mode{padding:14px 16px 16px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
+    #fTitle{min-height:104px; max-height:180px; font-size:15px;}
     .modal-actions{
       bottom:-18px;
       margin:16px -18px -18px;
@@ -1249,7 +1258,7 @@
       <form id="taskForm">
         <div class="field field-title">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ชื่องาน *</label>
-          <input type="text" id="fTitle" placeholder="เช่น ประชุมสรุปแผนงานประจำเดือน" required>
+          <textarea id="fTitle" rows="4" placeholder="พิมพ์ชื่องานหรือข้อความประกาศแบบยาวได้ที่นี่..." required></textarea>
         </div>
         <div class="field field-desc">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>รายละเอียด</label>
@@ -2008,6 +2017,18 @@ function showTaskSummary(task){
   overlay.classList.add('active');
 }
 
+const titleField = document.getElementById('fTitle');
+
+function autoResizeTitleField(){
+  titleField.style.height = 'auto';
+  const maxHeight = parseFloat(getComputedStyle(titleField).maxHeight) || 220;
+  const nextHeight = Math.min(titleField.scrollHeight, maxHeight);
+  titleField.style.height = `${nextHeight}px`;
+  titleField.style.overflowY = titleField.scrollHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+titleField.addEventListener('input', autoResizeTitleField);
+
 function openModal(task, presetDate){
   editingId = task ? task.id : null;
   if(!task) editingPassword = '';
@@ -2037,6 +2058,7 @@ function openModal(task, presetDate){
   renderAttachmentDrafts();
 
   overlay.classList.add('active');
+  requestAnimationFrame(autoResizeTitleField);
 }
 
 function closeModal(){
