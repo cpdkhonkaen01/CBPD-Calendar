@@ -405,6 +405,9 @@
     font-family:var(--font-mono);
     padding-left:6px;
     cursor:pointer;
+    border:none;
+    background:transparent;
+    text-align:left;
   }
   .add-hint{
     position:absolute;
@@ -628,6 +631,39 @@
   #fLocation{border-left:5px solid #FF7A59; background:#FFF9F7;}
   #fType{border-left:5px solid #6D6AE8; background:#FAF9FF;}
   .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .all-day-control{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:-2px 0 16px;
+  }
+  .all-day-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    min-height:38px;
+    padding:8px 14px;
+    border:1.5px solid #76BFA9;
+    border-radius:10px;
+    background:#F4FCF9;
+    color:#08644E;
+    font-family:var(--font-body);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s, box-shadow .15s;
+  }
+  .all-day-toggle .icon{width:17px; height:17px;}
+  .all-day-toggle:hover{border-color:#0EA57E; background:#E9F9F3;}
+  .all-day-toggle.active{
+    border-color:#078363;
+    background:#078363;
+    color:#fff;
+    box-shadow:0 4px 10px rgba(7,131,99,.22);
+  }
+  .all-day-help{font-size:12px; color:var(--color-text-muted);}
+  .field-time.all-day-disabled{opacity:.58;}
+  .field-time.all-day-disabled input{background:#EDF3F1; cursor:not-allowed;}
   .modal-actions{
     display:flex;
     justify-content:space-between;
@@ -968,6 +1004,59 @@
     .calendar-wrap{margin-top:18px;}
   }
 
+  @media (min-width:761px){
+    .overlay{padding:28px;}
+    .modal{
+      max-width:760px;
+      padding:32px 34px 26px;
+      border-radius:20px;
+    }
+    .modal.summary-mode{max-width:900px; padding:26px 32px 28px;}
+    .modal-head{
+      margin:-32px -34px 28px;
+      padding:23px 30px;
+    }
+    .modal-head h2{font-size:23px;}
+    .modal-head-title .icon-badge{width:42px; height:42px; border-radius:11px;}
+    .modal-head-title .icon-badge .icon{width:22px; height:22px;}
+    .close-btn{width:42px; height:42px; border-radius:11px;}
+    .close-btn .icon{width:23px; height:23px;}
+    .field{margin-bottom:19px;}
+    .field label{font-size:15px; gap:8px; margin-bottom:9px;}
+    .field label .icon{width:26px; height:26px; padding:4px;}
+    .field input,
+    .field select,
+    .field textarea{
+      font-size:16px;
+      padding:13px 15px;
+      border-radius:11px;
+    }
+    #fTitle{min-height:132px; max-height:260px; font-size:17px;}
+    #fDesc{min-height:112px; line-height:1.55;}
+    .row-2{gap:18px;}
+    .all-day-toggle{font-size:15px; padding:10px 17px;}
+    .all-day-help{font-size:13px;}
+    .people-choices{gap:9px; padding:12px;}
+    .person-choice{padding:11px 13px;}
+    .person-choice-name{font-size:15px; line-height:1.5;}
+    .file-help{font-size:13px;}
+    .attachment-name{font-size:14px;}
+    .attachment-size{font-size:12px;}
+    .attachment-open{font-size:13px; padding:7px 10px;}
+    .modal-actions{
+      bottom:-26px;
+      margin:26px -34px -26px;
+      padding:17px 34px 22px;
+    }
+    .btn{font-size:15px; padding:12px 22px; border-radius:11px;}
+    .btn .icon{width:17px; height:17px;}
+    .summary-title{font-size:23px;}
+    .summary-label{font-size:14px;}
+    .summary-value{font-size:16px;}
+    .summary-desc{font-size:15px; line-height:1.55;}
+    .summary-attachments h4{font-size:15px;}
+  }
+
   @media (max-width:760px){
     body{padding-bottom:24px;}
     .topbar{
@@ -1006,11 +1095,29 @@
     .stat-card .label{font-size:9.5px; line-height:1.25;}
     .calendar-wrap{width:100%; margin-top:10px; padding:0 4px;}
     .calendar-card{border-radius:10px;}
-    .grid{grid-auto-rows:78px;}
+    .grid{grid-auto-rows:92px;}
     .cell{padding:3px 2px 2px;}
     .daynum{width:22px; height:22px; font-size:11px;}
     .task-list{margin-top:3px; gap:2px;}
-    .task-pill{font-size:8px; padding:2px 3px; border-radius:4px;}
+    .task-pill{min-height:22px; font-size:9px; padding:3px 4px; border-radius:5px;}
+    .more-tasks{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:30px;
+      padding:3px 2px;
+      border:1px solid #91CFBB;
+      border-radius:5px;
+      background:#F1FCF7;
+      color:#075F49;
+      font-family:var(--font-body);
+      font-size:9.5px;
+      font-weight:700;
+      line-height:1.15;
+      text-align:center;
+    }
+    .more-tasks:active{background:#DDF7ED; border-color:#0EA57E;}
     .month-nav{gap:6px;}
     .nav-btn{width:30px; height:30px; border-radius:8px;}
     .month-title{font-size:15px; min-width:auto; gap:5px;}
@@ -1263,6 +1370,13 @@
         <div class="field field-desc">
           <label><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>รายละเอียด</label>
           <textarea id="fDesc" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+        </div>
+        <div class="all-day-control">
+          <button type="button" class="all-day-toggle" id="btnAllDay" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg>
+            <span id="allDayButtonText">ตลอดวัน</span>
+          </button>
+          <span class="all-day-help">ไม่ต้องระบุเวลาเริ่มและเวลาสิ้นสุด</span>
         </div>
         <div class="row-2">
           <div class="field field-date">
@@ -1697,7 +1811,9 @@ function renderCalendar(){
     }
 
     const dayTasks = mockTasks.filter(t => taskOccursOnDate(t, iso) && taskMatchesFilters(t));
-    const visible = dayTasks.slice(0,3);
+    const isMobileCalendar = window.matchMedia('(max-width:760px)').matches;
+    const visibleLimit = isMobileCalendar && dayTasks.length > 2 ? 1 : 3;
+    const visible = dayTasks.slice(0, visibleLimit);
     const remaining = dayTasks.length - visible.length;
 
     let pillsHtml = visible.map(t => {
@@ -1710,7 +1826,7 @@ function renderCalendar(){
       return `<div class="task-pill ${cls}${isMultiDay ? ' multi-day' : ''}" data-id="${escapeHtml(t.id)}" title="${escapeHtml(tip)}">${isMultiDay ? '<span class="multi-day-mark" aria-hidden="true">↔</span>' : ''}${escapeHtml(t.title)}</div>`;
     }).join('');
     if(remaining > 0){
-      pillsHtml += `<div class="more-tasks">+${remaining} งานเพิ่มเติม</div>`;
+      pillsHtml += `<button type="button" class="more-tasks" data-date="${iso}" aria-label="ดูงานทั้งหมด ${dayTasks.length} งาน วันที่ ${formatThaiDate(iso)}">ดูทั้งหมด ${dayTasks.length} งาน</button>`;
     }
 
     cell.innerHTML = `
@@ -1720,9 +1836,22 @@ function renderCalendar(){
     `;
 
     cell.addEventListener('click', (e) => {
-      if(e.target.closest('.task-pill')) return;
+      if(e.target.closest('.task-pill, .more-tasks')) return;
       openModal(null, iso);
     });
+
+    const moreButton = cell.querySelector('.more-tasks');
+    if(moreButton){
+      moreButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView = 'list';
+        updateViewVisibility();
+        requestAnimationFrame(() => {
+          const dayGroup = document.querySelector(`.list-date-group[data-date="${iso}"]`);
+          if(dayGroup) dayGroup.scrollIntoView({behavior:'smooth', block:'start'});
+        });
+      });
+    }
 
     cell.querySelectorAll('.task-pill').forEach(pill => {
       pill.addEventListener('click', (e) => {
@@ -1765,6 +1894,7 @@ function renderListView(){
       currentDate = listDate;
       group = document.createElement('section');
       group.className = 'list-date-group';
+      group.dataset.date = listDate;
       const heading = document.createElement('h3');
       heading.className = 'list-date-heading';
       heading.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
@@ -1786,7 +1916,9 @@ function renderListView(){
     meta.className = 'list-task-meta';
     const time = document.createElement('span');
     time.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
-    time.append(document.createTextNode(`${task.startTime || '09:00'}–${task.endTime || '16:00'} น.`));
+    time.append(document.createTextNode(isAllDayTask(task)
+      ? 'ตลอดวัน'
+      : `${task.startTime || '09:00'}–${task.endTime || '16:00'} น.`));
     const owner = document.createElement('span');
     owner.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c1.5-4.5 5-6 7-6s5.5 1.5 7 6"/></svg>';
     owner.append(document.createTextNode(getTaskOwners(task).join(', ') || 'ไม่ระบุผู้รับผิดชอบ'));
@@ -2000,7 +2132,9 @@ function showTaskSummary(task){
   document.getElementById('summaryDesc').textContent = cleanDescription || 'ไม่มีรายละเอียดเพิ่มเติม';
   const endDate = task.endDate || task.date;
   document.getElementById('summaryDate').textContent = formatThaiDateRange(task.date, endDate);
-  document.getElementById('summaryTime').textContent = `${task.startTime || '09:00'} – ${task.endTime || '16:00'} น.`;
+  document.getElementById('summaryTime').textContent = isAllDayTask(task)
+    ? 'ตลอดวัน'
+    : `${task.startTime || '09:00'} – ${task.endTime || '16:00'} น.`;
   const owners = getTaskOwners(task);
   document.getElementById('summaryOwner').textContent = owners.length
     ? owners.map(owner => {
@@ -2029,6 +2163,40 @@ function autoResizeTitleField(){
 
 titleField.addEventListener('input', autoResizeTitleField);
 
+const allDayButton = document.getElementById('btnAllDay');
+const startTimeField = document.getElementById('fStartTime');
+const endTimeField = document.getElementById('fEndTime');
+
+function isAllDayTask(task){
+  return String((task && task.startTime) || '') === '00:00'
+    && String((task && task.endTime) || '') === '23:59';
+}
+
+function setAllDayMode(enabled, rememberCurrentTimes = true){
+  if(enabled && rememberCurrentTimes){
+    if(startTimeField.value !== '00:00') startTimeField.dataset.timedValue = startTimeField.value || '09:00';
+    if(endTimeField.value !== '23:59') endTimeField.dataset.timedValue = endTimeField.value || '16:00';
+  }
+  if(enabled){
+    startTimeField.value = '00:00';
+    endTimeField.value = '23:59';
+  }else{
+    startTimeField.value = startTimeField.dataset.timedValue || '09:00';
+    endTimeField.value = endTimeField.dataset.timedValue || '16:00';
+  }
+  startTimeField.disabled = enabled;
+  endTimeField.disabled = enabled;
+  startTimeField.closest('.field-time').classList.toggle('all-day-disabled', enabled);
+  endTimeField.closest('.field-time').classList.toggle('all-day-disabled', enabled);
+  allDayButton.classList.toggle('active', enabled);
+  allDayButton.setAttribute('aria-pressed', String(enabled));
+  document.getElementById('allDayButtonText').textContent = enabled ? '✓ ตลอดวัน' : 'ตลอดวัน';
+}
+
+allDayButton.addEventListener('click', () => {
+  setAllDayMode(allDayButton.getAttribute('aria-pressed') !== 'true');
+});
+
 function openModal(task, presetDate){
   editingId = task ? task.id : null;
   if(!task) editingPassword = '';
@@ -2046,6 +2214,10 @@ function openModal(task, presetDate){
   document.getElementById('fStartTime').value = task ? (task.startTime || '09:00') : '09:00';
   document.getElementById('fEndDate').value = task ? (task.endDate || task.date) : (presetDate || '');
   document.getElementById('fEndTime').value = task ? (task.endTime || '16:00') : '16:00';
+  const allDay = task ? isAllDayTask(task) : false;
+  startTimeField.dataset.timedValue = allDay ? '09:00' : startTimeField.value;
+  endTimeField.dataset.timedValue = allDay ? '16:00' : endTimeField.value;
+  setAllDayMode(allDay, false);
   const taskOwners = task ? getTaskOwners(task) : [];
   document.querySelectorAll('input[name="owners"]').forEach(input => {
     input.checked = taskOwners.includes(input.value);
