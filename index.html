@@ -105,7 +105,7 @@
     margin:24px auto 0;
     padding:0 32px;
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(6,minmax(0,1fr));
     gap:14px;
   }
   .stat-card{
@@ -121,6 +121,8 @@
   .stat-card.project{border-left-color:var(--type-project);}
   .stat-card.participate{border-left-color:var(--type-participate);}
   .stat-card.monitor{border-left-color:var(--type-monitor);}
+  .stat-card.followup{border-left-color:var(--type-followup);}
+  .stat-card.other{border-left-color:var(--type-other);}
   .stat-icon{
     width:38px; height:38px;
     border-radius:10px;
@@ -132,6 +134,8 @@
   .stat-card.project .stat-icon{background:#E4F7F0; color:var(--type-project);}
   .stat-card.participate .stat-icon{background:#FDEEDC; color:var(--type-participate);}
   .stat-card.monitor .stat-icon{background:#E4F2FF; color:var(--type-monitor);}
+  .stat-card.followup .stat-icon{background:#FCE7F3; color:var(--type-followup);}
+  .stat-card.other .stat-icon{background:#EDE9FE; color:var(--type-other);}
   .stat-icon .icon{width:19px; height:19px;}
   .stat-body{display:flex; flex-direction:column;}
   .stat-card .num{
@@ -1004,6 +1008,10 @@
     .calendar-wrap{margin-top:18px;}
   }
 
+  @media (min-width:761px) and (max-width:1099px){
+    .stats{grid-template-columns:repeat(3,minmax(0,1fr));}
+  }
+
   @media (min-width:761px){
     .overlay{padding:28px;}
     .modal{
@@ -1098,8 +1106,8 @@
     .grid{grid-auto-rows:92px;}
     .cell{padding:3px 2px 2px;}
     .daynum{width:22px; height:22px; font-size:11px;}
-    .task-list{margin-top:3px; gap:2px;}
-    .task-pill{min-height:22px; font-size:9px; padding:3px 4px; border-radius:5px;}
+    .task-list{margin-top:2px; gap:1px;}
+    .task-pill{min-height:18px; font-size:8px; line-height:1.15; padding:1px 3px; border-radius:4px;}
     .more-tasks{
       display:flex;
       align-items:center;
@@ -1237,6 +1245,20 @@
       <div class="stat-body">
         <div class="num" id="statMonitor">0</div>
         <div class="label">ตรวจติดตาม</div>
+      </div>
+    </div>
+    <div class="stat-card followup">
+      <div class="stat-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h3"/></svg></div>
+      <div class="stat-body">
+        <div class="num" id="statFollowup">0</div>
+        <div class="label">ติดตามงาน</div>
+      </div>
+    </div>
+    <div class="stat-card other">
+      <div class="stat-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></div>
+      <div class="stat-body">
+        <div class="num" id="statOther">0</div>
+        <div class="label">อื่นๆ</div>
       </div>
     </div>
   </div>
@@ -1812,7 +1834,7 @@ function renderCalendar(){
 
     const dayTasks = mockTasks.filter(t => taskOccursOnDate(t, iso) && taskMatchesFilters(t));
     const isMobileCalendar = window.matchMedia('(max-width:760px)').matches;
-    const visibleLimit = isMobileCalendar && dayTasks.length > 2 ? 1 : 3;
+    const visibleLimit = isMobileCalendar && dayTasks.length > 3 ? 1 : 3;
     const visible = dayTasks.slice(0, visibleLimit);
     const remaining = dayTasks.length - visible.length;
 
@@ -1962,6 +1984,8 @@ function updateStats(){
   document.getElementById('statProject').textContent = monthTasks.filter(t=>t.type==='project').length;
   document.getElementById('statParticipate').textContent = monthTasks.filter(t=>t.type==='participate').length;
   document.getElementById('statMonitor').textContent = monthTasks.filter(t=>t.type==='monitor').length;
+  document.getElementById('statFollowup').textContent = monthTasks.filter(t=>t.type==='followup').length;
+  document.getElementById('statOther').textContent = monthTasks.filter(t=>t.type==='other').length;
 }
 
 /* ============ Modal ============ */
