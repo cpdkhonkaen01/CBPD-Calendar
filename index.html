@@ -1481,16 +1481,13 @@
   </div>
 
 <script>
-/* ============ Supabase read API + Google Apps Script write/sync API ============ */
+/* ============ Supabase data + Google Apps Script secure write/LINE API ============ */
 const SUPABASE_URL = 'https://laemdvxpjyhbayexpjpy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qmACNwg1Oq2bGEhQIJygbw_NnmZLgg5';
 const SUPABASE_ATTACHMENT_BUCKET = 'calendar-attachments';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbqCOxgfG7uCPWdg9TqZR7GXcCx0YbjMyxe-5sPjnFUWc_p3n6FhxNBQxtdg7PV6UXOw/exec';
 const APPS_SCRIPT_TOKEN = 'CBPD-Calendar-2569';
 
-let lastSyncedWindowKey = '';
-let calendarSyncInFlight = false;
-let pendingCalendarSync = null;
 let supabaseLoadSequence = 0;
 
 function isSupabaseConfigured(){
@@ -1542,20 +1539,19 @@ function supabaseRowToTask(row){
     attachments:Array.isArray(row.attachments) ? row.attachments : [],
     createdAt:String(row.created_at || ''),
     updatedAt:String(row.updated_at || ''),
-    calendarEventId:String(row.calendar_event_id || ''),
   };
 }
 
 async function loadTasksFromSupabase(year, month, options = {}){
   if(!isSupabaseConfigured()) throw new Error('ยังไม่ได้ตั้งค่าการเชื่อมต่อ Supabase');
-  const syncWindow = getCalendarSyncWindow(year, month);
+  const dataWindow = getSupabaseDataWindow(year, month);
   const requestSequence = ++supabaseLoadSequence;
   if(!options.silent) setBackendStatus('กำลังโหลดข้อมูลจาก Supabase...');
 
   const query = new URLSearchParams({
-    select:'id,title,description,start_date,start_time,end_date,end_time,task_type,owners,location,attachments,created_at,updated_at,calendar_event_id',
-    start_date:`lt.${syncWindow.endDate}`,
-    end_date:`gte.${syncWindow.startDate}`,
+    select:'id,title,description,start_date,start_time,end_date,end_time,task_type,owners,location,attachments,created_at,updated_at',
+    start_date:`lt.${dataWindow.endDate}`,
+    end_date:`gte.${dataWindow.startDate}`,
     order:'start_date.asc,start_time.asc',
   });
   const response = await fetch(`${SUPABASE_URL}/rest/v1/calendar_tasks?${query}`, {
@@ -1573,8 +1569,8 @@ async function loadTasksFromSupabase(year, month, options = {}){
   }
   const rows = await response.json();
   const tasks = Array.isArray(rows) ? rows.map(supabaseRowToTask) : [];
-  const activeWindow = getCalendarSyncWindow(viewDate.getFullYear(), viewDate.getMonth());
-  if(requestSequence === supabaseLoadSequence && activeWindow.key === syncWindow.key){
+  const activeWindow = getSupabaseDataWindow(viewDate.getFullYear(), viewDate.getMonth());
+  if(requestSequence === supabaseLoadSequence && activeWindow.key === dataWindow.key){
     mockTasks = tasks;
     populateOwnerFilter();
     renderCalendar();
@@ -1594,12 +1590,7 @@ async function loadTasksFromBackend(){
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
     await loadTasksFromSupabase(year, month);
-    if(isBackendConfigured()){
-      setBackendStatus('โหลดข้อมูลจาก Supabase แล้ว · กำลังซิงก์ Google Calendar เบื้องหลัง...');
-      syncCalendarFromBackend(year, month);
-    }else{
-      setBackendStatus('โหลดข้อมูลจาก Supabase แล้ว');
-    }
+    setBackendStatus('โหลดข้อมูลจาก Supabase แล้ว');
   }catch(error){
     console.error(error);
     mockTasks = [];
@@ -1610,7 +1601,7 @@ async function loadTasksFromBackend(){
   }
 }
 
-function getCalendarSyncWindow(year, month){
+function getSupabaseDataWindow(year, month){
   const start = new Date(year, month, 1);
   const end = new Date(year, month + 2, 1);
   const toIsoDate = date => [
@@ -1623,55 +1614,13 @@ function getCalendarSyncWindow(year, month){
   return {startDate, endDate, key:`${startDate}|${endDate}`};
 }
 
-async function syncCalendarFromBackend(year, month){
-  if(!isBackendConfigured()) return;
-  const syncWindow = getCalendarSyncWindow(year, month);
-  if(calendarSyncInFlight){
-    pendingCalendarSync = {year, month};
-    return;
-  }
-  calendarSyncInFlight = true;
-  try{
-    const result = await apiRequest('sync-calendar', {
-      startDate:syncWindow.startDate,
-      endDate:syncWindow.endDate,
-    });
-    lastSyncedWindowKey = syncWindow.key;
-    await loadTasksFromSupabase(year, month, {silent:true});
-    const imported = Number(result.sync?.imported || 0);
-    const updated = Number(result.sync?.updated || 0);
-    setBackendStatus(imported || updated
-      ? `ซิงก์ Google Calendar แล้ว · เพิ่ม ${imported} · อัปเดต ${updated} งาน`
-      : 'โหลดจาก Supabase แล้ว · Google Calendar ซิงก์เรียบร้อย');
-  }catch(error){
-    console.error(error);
-    setBackendStatus('โหลดข้อมูลจาก Supabase แล้ว · แต่ซิงก์ Google Calendar ไม่สำเร็จ');
-  }finally{
-    calendarSyncInFlight = false;
-    if(pendingCalendarSync){
-      const nextSync = pendingCalendarSync;
-      pendingCalendarSync = null;
-      const nextWindow = getCalendarSyncWindow(nextSync.year, nextSync.month);
-      if(nextWindow.key !== lastSyncedWindowKey){
-        syncCalendarFromBackend(nextSync.year, nextSync.month);
-      }
-    }
-  }
-}
-
-async function renderOrSyncCurrentWindow(forceSync = false){
+async function renderOrLoadCurrentWindow(){
   renderCalendar();
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   try{
     await loadTasksFromSupabase(year, month);
-    const syncWindow = getCalendarSyncWindow(year, month);
-    if(isBackendConfigured() && (forceSync || syncWindow.key !== lastSyncedWindowKey)){
-      setBackendStatus('โหลดจาก Supabase แล้ว · กำลังซิงก์ Google Calendar เบื้องหลัง...');
-      syncCalendarFromBackend(year, month);
-    }else{
-      setBackendStatus('โหลดข้อมูลจาก Supabase แล้ว');
-    }
+    setBackendStatus('โหลดข้อมูลจาก Supabase แล้ว');
   }catch(error){
     console.error(error);
     setBackendStatus('โหลดข้อมูลจาก Supabase ไม่สำเร็จ');
@@ -2668,7 +2617,7 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     }else{
       mockTasks.push(result.task);
     }
-    setBackendStatus('บันทึก Supabase และซิงก์ Google Calendar เรียบร้อย');
+    setBackendStatus('บันทึกข้อมูลลง Supabase เรียบร้อย');
     showToast(isEditing ? 'บันทึกการแก้ไขเรียบร้อย' : 'เพิ่มงานใหม่เรียบร้อย', 'ok');
 
     closeModal();
@@ -2699,7 +2648,7 @@ document.getElementById('btnDelete').addEventListener('click', async () => {
   if(deletePassword === null) return;
   const confirmed = await requestActionDialog({
     title:'ยืนยันการลบงาน',
-    message:`ต้องการลบงาน “${task?.title || 'งานนี้'}” ออกจาก Supabase และ Google Calendar ใช่หรือไม่?`,
+    message:`ต้องการลบงาน “${task?.title || 'งานนี้'}” ออกจาก Supabase ใช่หรือไม่?`,
     confirmLabel:'ลบงาน',
     danger:true,
   });
@@ -2714,7 +2663,7 @@ document.getElementById('btnDelete').addEventListener('click', async () => {
       throw new Error('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถลบงานได้');
     }
     mockTasks = mockTasks.filter(t => t.id !== editingId);
-    showToast(isBackendConfigured() ? 'ลบงานออกจาก Supabase และ Google Calendar แล้ว' : 'ลบงานเรียบร้อย (โหมดตัวอย่าง)', 'ok');
+    showToast(isBackendConfigured() ? 'ลบงานออกจาก Supabase แล้ว' : 'ลบงานเรียบร้อย (โหมดตัวอย่าง)', 'ok');
     closeModal();
     populateOwnerFilter();
     renderCalendar();
@@ -2729,15 +2678,15 @@ document.getElementById('btnDelete').addEventListener('click', async () => {
 /* ============ Nav ============ */
 document.getElementById('prevMonth').addEventListener('click', () => {
   viewDate.setMonth(viewDate.getMonth() - 1);
-  renderOrSyncCurrentWindow();
+  renderOrLoadCurrentWindow();
 });
 document.getElementById('nextMonth').addEventListener('click', () => {
   viewDate.setMonth(viewDate.getMonth() + 1);
-  renderOrSyncCurrentWindow();
+  renderOrLoadCurrentWindow();
 });
 document.getElementById('btnToday').addEventListener('click', () => {
   viewDate = new Date(todayReal.getFullYear(), todayReal.getMonth(), 1);
-  renderOrSyncCurrentWindow(true);
+  renderOrLoadCurrentWindow();
 });
 
 /* ============ View and filters ============ */
