@@ -1484,6 +1484,7 @@
 /* ============ Supabase read API + Google Apps Script write/sync API ============ */
 const SUPABASE_URL = 'https://laemdvxpjyhbayexpjpy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qmACNwg1Oq2bGEhQIJygbw_NnmZLgg5';
+const SUPABASE_ATTACHMENT_BUCKET = 'calendar-attachments';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbqCOxgfG7uCPWdg9TqZR7GXcCx0YbjMyxe-5sPjnFUWc_p3n6FhxNBQxtdg7PV6UXOw/exec';
 const APPS_SCRIPT_TOKEN = 'CBPD-Calendar-2569';
 
@@ -2219,6 +2220,14 @@ function canPreviewAttachment(attachment){
     || /\.(pdf|docx?|xlsx?|pptx?|png|jpe?g)$/i.test(name);
 }
 
+function getSupabaseAttachmentPublicUrl(attachment){
+  const storagePath = String(attachment.storagePath || attachment.path || '').replace(/^\/+/, '');
+  if(!storagePath) return '';
+  const bucket = String(attachment.bucket || SUPABASE_ATTACHMENT_BUCKET);
+  const encodedPath = storagePath.split('/').map(encodeURIComponent).join('/');
+  return `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encodedPath}`;
+}
+
 function readFileAsDataUrl(file){
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -2238,24 +2247,12 @@ async function openAttachmentPreview(attachment, taskId = ''){
     return;
   }
   if(attachment.storage === 'supabase' || attachment.storagePath || attachment.path){
-    if(!taskId){
-      showToast('กรุณาบันทึกงานก่อนเปิดไฟล์นี้', 'warn');
+    const publicUrl = getSupabaseAttachmentPublicUrl(attachment);
+    if(!publicUrl){
+      showToast('ไม่พบที่อยู่ไฟล์สำหรับเปิดดู', 'warn');
       return;
     }
-    const previewWindow = window.open('about:blank', '_blank');
-    try{
-      const result = await apiRequest('get-attachment-url', {
-        taskId,
-        attachmentId:attachment.id || attachment.storagePath || attachment.path,
-      });
-      if(!result.url) throw new Error('ไม่พบลิงก์สำหรับเปิดเอกสาร');
-      if(previewWindow) previewWindow.location.replace(result.url);
-      else window.open(result.url, '_blank', 'noopener,noreferrer');
-    }catch(error){
-      if(previewWindow) previewWindow.close();
-      console.error(error);
-      showToast(error.message || 'เปิดเอกสารแนบไม่สำเร็จ', 'warn');
-    }
+    window.open(publicUrl, '_blank', 'noopener,noreferrer');
     return;
   }
   if(!attachment.url){
@@ -2279,7 +2276,7 @@ async function uploadAttachmentToSupabase(attachment){
   if(!upload.signedUrl || !upload.path) throw new Error(`เตรียมอัปโหลด ${file.name} ไม่สำเร็จ`);
 
   const formData = new FormData();
-  formData.append('cacheControl', '3600');
+  formData.append('cacheControl', '31536000');
   formData.append('', uploadFile);
   const response = await fetch(upload.signedUrl, {
     method:'PUT',
@@ -2305,6 +2302,14 @@ async function uploadAttachmentToSupabase(attachment){
     name:file.name,
     size:file.size,
     type:contentType,
+    url:upload.publicUrl || getSupabaseAttachmentPublicUrl({
+      bucket:upload.bucket || SUPABASE_ATTACHMENT_BUCKET,
+      storagePath:upload.path,
+    }),
+    downloadUrl:upload.publicUrl || getSupabaseAttachmentPublicUrl({
+      bucket:upload.bucket || SUPABASE_ATTACHMENT_BUCKET,
+      storagePath:upload.path,
+    }),
   };
 }
 
