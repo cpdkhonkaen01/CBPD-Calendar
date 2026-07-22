@@ -1661,7 +1661,6 @@ const responsiblePeople = [
 let mockTasks = [];
 
 let editingId = null;
-let editingPassword = '';
 let selectedTaskId = null;
 let activeView = 'calendar';
 let selectedOwner = 'all';
@@ -2436,7 +2435,6 @@ allDayButton.addEventListener('click', () => {
 
 function openModal(task, presetDate){
   editingId = task ? task.id : null;
-  if(!task) editingPassword = '';
   selectedTaskId = task ? task.id : null;
   modal.classList.remove('summary-mode');
   summaryView.style.display = 'none';
@@ -2477,39 +2475,20 @@ function closeModal(){
   overlay.classList.remove('active');
   modal.classList.remove('summary-mode');
   editingId = null;
-  editingPassword = '';
   selectedTaskId = null;
 }
 
 document.getElementById('btnAddTask').addEventListener('click', () => openModal(null, dstr(viewDate.getFullYear(), viewDate.getMonth(), 13)));
 document.getElementById('btnClose').addEventListener('click', closeModal);
 document.getElementById('btnCancel').addEventListener('click', closeModal);
-document.getElementById('btnEditTask').addEventListener('click', async () => {
+document.getElementById('btnEditTask').addEventListener('click', () => {
   const task = mockTasks.find(t => t.id === selectedTaskId);
   if(!task) return;
   if(!isBackendConfigured()){
     showToast('ยังไม่ได้เชื่อมต่อ Google Apps Script จึงไม่สามารถแก้ไขงานได้', 'warn');
     return;
   }
-  const password = await requestActionDialog({
-    title:'กรอกรหัสผ่าน',
-    message:'กรุณาใส่รหัสผ่านเพื่อเข้าสู่หน้าแก้ไขงาน',
-    confirmLabel:'เข้าสู่หน้าแก้ไข',
-    password:true,
-  });
-  if(password === null) return;
-  const editButton = document.getElementById('btnEditTask');
-  editButton.disabled = true;
-  try{
-    await apiRequest('verify-edit-password', {editPassword:password});
-    editingPassword = password;
-    openModal(task);
-  }catch(error){
-    console.error(error);
-    showToast(error.message || 'รหัสผ่านสำหรับแก้ไขงานไม่ถูกต้อง', 'warn');
-  }finally{
-    editButton.disabled = false;
-  }
+  openModal(task);
 });
 overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
 
@@ -2607,10 +2586,7 @@ document.getElementById('taskForm').addEventListener('submit', async (e) => {
     submitButton.textContent = 'กำลังบันทึก...';
     const isEditing = Boolean(editingId);
     if(isEditing) data.id = editingId;
-    const result = await apiRequest(isEditing ? 'update' : 'create', {
-      task:data,
-      ...(isEditing ? {editPassword:editingPassword} : {}),
-    });
+    const result = await apiRequest(isEditing ? 'update' : 'create', {task:data});
     if(isEditing){
       const idx = mockTasks.findIndex(t => t.id === editingId);
       if(idx >= 0) mockTasks[idx] = result.task;
