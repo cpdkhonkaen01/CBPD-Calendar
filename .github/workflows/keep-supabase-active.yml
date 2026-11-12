@@ -5,6 +5,11 @@ on:
     # 00:17 UTC = 07:17 Asia/Bangkok. Avoid minute 0 when GitHub Actions is busiest.
     - cron: "17 0 * * *"
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/keep-supabase-active.yml
 
 permissions:
   contents: read
