@@ -1,0 +1,44 @@
+name: Keep Supabase Active
+
+on:
+  schedule:
+    # 00:17 UTC = 07:17 Asia/Bangkok. Avoid minute 0 when GitHub Actions is busiest.
+    - cron: "17 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-supabase-active
+  cancel-in-progress: false
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Query Supabase database
+        env:
+          SUPABASE_URL: https://laemdvxpjyhbayexpjpy.supabase.co
+          # Publishable keys are designed for use in public clients and are not secrets.
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_qmACNwg1Oq2bGEhQIJygbw_NnmZLgg5
+        run: |
+          set -euo pipefail
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 3 \
+            --retry-all-errors \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --output /tmp/supabase-keepalive.json \
+            --header "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
+            "${SUPABASE_URL}/rest/v1/calendar_settings?select=key&key=eq.responsible_people&limit=1"
+
+          test -s /tmp/supabase-keepalive.json
+          echo "Supabase database responded successfully at $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
