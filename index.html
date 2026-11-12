@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Release: admin-responsible-people-20261112 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -98,6 +99,21 @@
   .btn-add .icon{width:17px; height:17px; stroke:#fff;}
   .btn-add:hover{transform:translateY(-1px);}
   .btn-add:active{transform:translateY(2px); box-shadow:0 1px 0 #d55c3f;}
+  .topbar-actions{display:flex; align-items:center; gap:9px;}
+  .btn-admin{
+    background:rgba(255,255,255,.14);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.55);
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 14px;
+    border-radius:9px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:7px;
+  }
+  .btn-admin:hover{background:rgba(255,255,255,.23);}
+  .btn-admin .icon{width:16px; height:16px;}
 
   /* ===== Stats strip ===== */
   .stats{
@@ -964,6 +980,55 @@
   .action-dialog-cancel{background:#fff; color:#355F56;}
   .action-dialog-confirm{border-color:transparent !important; background:linear-gradient(135deg,#08775B,#0EA57E); color:#fff; box-shadow:0 5px 12px rgba(14,165,126,.24);}
   .action-dialog-confirm.danger{background:linear-gradient(135deg,#C84129,#E55E3E); box-shadow:0 5px 12px rgba(210,70,43,.22);}
+  .admin-overlay{
+    position:fixed;
+    inset:0;
+    z-index:240;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(3,38,29,.58);
+    backdrop-filter:blur(4px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .18s ease, visibility .18s ease;
+  }
+  .admin-overlay.active{opacity:1; visibility:visible;}
+  .admin-panel{
+    width:min(100%,760px);
+    max-height:min(86vh,760px);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:#fff;
+    border:1px solid #B7E2D4;
+    border-radius:18px;
+    box-shadow:0 24px 70px rgba(0,35,26,.30);
+  }
+  .admin-head{
+    padding:19px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    background:linear-gradient(135deg,#E8FBF3,#F8FFFC);
+    border-bottom:1px solid #B7E2D4;
+  }
+  .admin-head-title{display:flex; align-items:center; gap:11px; min-width:0;}
+  .admin-head-title .icon-badge{width:38px; height:38px; border-radius:10px; background:#0B7A5F; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .admin-head-title h2{font-family:var(--font-display); font-size:20px; color:var(--color-primary-dark);}
+  .admin-head-title p{font-size:12px; color:var(--color-text-muted); margin-top:2px;}
+  .admin-body{padding:20px 22px; overflow:auto;}
+  .admin-help{font-size:13px; line-height:1.55; color:var(--color-text-muted); margin-bottom:14px;}
+  .admin-people-list{display:flex; flex-direction:column; gap:10px;}
+  .admin-person-row{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 38px; gap:9px; align-items:center; padding:10px; border:1px solid var(--color-border); border-radius:11px; background:#FBFEFD;}
+  .admin-person-row input{width:100%; min-width:0; padding:10px 11px; border:1.5px solid #B6D9CE; border-radius:8px; color:var(--color-text); font-family:var(--font-body); font-size:13px; outline:none;}
+  .admin-person-row input:focus{border-color:#087C5E; box-shadow:0 0 0 3px rgba(14,165,126,.12);}
+  .admin-remove-person{width:36px; height:36px; border:1px solid #FFD2C7; border-radius:8px; background:#FFF1ED; color:#D94E2D; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .admin-remove-person .icon{width:16px; height:16px;}
+  .admin-add-person{margin-top:12px; border:1.5px dashed #62B99E; background:#F1FCF7; color:#08775B; width:100%; min-height:42px; border-radius:9px; font-family:var(--font-body); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;}
+  .admin-actions{padding:15px 22px 19px; border-top:1px solid #B7E2D4; display:flex; justify-content:flex-end; gap:9px; background:#fff;}
   .toast{
     position:fixed;
     bottom:22px; left:50%;
@@ -1086,6 +1151,9 @@
       border-radius:8px;
     }
     .btn-add .icon{width:14px; height:14px;}
+    .topbar-actions{gap:5px;}
+    .btn-admin{font-size:0; padding:8px;}
+    .btn-admin .icon{width:16px; height:16px;}
     .stats{
       display:none;
     }
@@ -1146,6 +1214,15 @@
     .list-task{grid-template-columns:minmax(0,1fr) 18px; gap:10px;}
     .list-task-type{display:none;}
     .modal{padding:22px 18px 18px;}
+    .admin-overlay{padding:8px; align-items:flex-end;}
+    .admin-panel{max-height:92vh; border-radius:16px 16px 0 0;}
+    .admin-head{padding:15px 16px;}
+    .admin-head-title h2{font-size:17px;}
+    .admin-body{padding:15px 12px;}
+    .admin-person-row{grid-template-columns:1fr 38px;}
+    .admin-person-row .admin-person-position{grid-column:1 / -1; grid-row:2;}
+    .admin-person-row .admin-remove-person{grid-column:2; grid-row:1;}
+    .admin-actions{padding:12px;}
     .modal.summary-mode{padding:14px 16px 16px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
     #fTitle{min-height:104px; max-height:180px; font-size:15px;}
@@ -1212,10 +1289,16 @@
         <p>WORK CALENDAR SYSTEM</p>
       </div>
     </div>
-    <button class="btn-add" id="btnAddTask">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      เพิ่มงานใหม่
-    </button>
+    <div class="topbar-actions">
+      <button class="btn-admin" id="btnAdmin" type="button" aria-label="จัดการรายชื่อผู้รับผิดชอบ">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 21c1.3-4.1 4.5-6 7-6 1.2 0 2.5.4 3.6 1.1"/><path d="M18 14v6M15 17h6"/></svg>
+        จัดการรายชื่อ
+      </button>
+      <button class="btn-add" id="btnAddTask">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        เพิ่มงานใหม่
+      </button>
+    </div>
   </div>
 
   <div class="stats">
@@ -1461,6 +1544,36 @@
     </div>
   </div>
 
+  <div class="admin-overlay" id="adminOverlay" aria-hidden="true">
+    <form class="admin-panel" id="adminForm" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="admin-head">
+        <div class="admin-head-title">
+          <div class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 21c1.3-4.1 4.5-6 7-6 1.2 0 2.5.4 3.6 1.1"/><path d="M18 14v6M15 17h6"/></svg></div>
+          <div>
+            <h2 id="adminTitle">จัดการผู้รับผิดชอบ</h2>
+            <p>เพิ่ม แก้ไข หรือลบรายชื่อสำหรับการสร้างงานใหม่</p>
+          </div>
+        </div>
+        <button class="close-btn" id="btnCloseAdmin" type="button" aria-label="ปิด"><svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="admin-body">
+        <p class="admin-help">ชื่อที่บันทึกจะปรากฏในช่อง “ผู้รับผิดชอบ” และตัวกรองบนปฏิทินทุกเครื่อง งานเก่าจะยังคงชื่อเดิมไว้</p>
+        <div class="admin-people-list" id="adminPeopleList"></div>
+        <button class="admin-add-person" id="btnAddPerson" type="button">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          เพิ่มรายชื่อ
+        </button>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-ghost" id="btnCancelAdmin" type="button">ยกเลิก</button>
+        <button class="btn btn-primary" id="btnSavePeople" type="submit">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          บันทึกรายชื่อ
+        </button>
+      </div>
+    </form>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <div class="action-dialog-overlay" id="actionDialogOverlay" aria-hidden="true">
@@ -1487,6 +1600,7 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qmACNwg1Oq2bGEhQIJygbw_NnmZLgg5
 const SUPABASE_ATTACHMENT_BUCKET = 'calendar-attachments';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbqCOxgfG7uCPWdg9TqZR7GXcCx0YbjMyxe-5sPjnFUWc_p3n6FhxNBQxtdg7PV6UXOw/exec';
 const APPS_SCRIPT_TOKEN = 'CBPD-Calendar-2569';
+const PEOPLE_CACHE_KEY = 'cbpd-responsible-people-v1';
 
 let supabaseLoadSequence = 0;
 
@@ -1501,6 +1615,23 @@ function isBackendConfigured(){
 
 function setBackendStatus(message){
   document.getElementById('backendStatus').textContent = message;
+}
+
+async function adminApiRequest(action, payload = {}){
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-responsible-people`, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      apikey:SUPABASE_PUBLISHABLE_KEY,
+    },
+    body:JSON.stringify({action, ...payload}),
+  });
+  let result = {};
+  try{ result = await response.json(); }catch(error){ console.warn(error); }
+  if(!response.ok || !result.success){
+    throw new Error(result.message || `เชื่อมต่อระบบ Admin ไม่สำเร็จ (${response.status})`);
+  }
+  return result;
 }
 
 async function apiRequest(action, payload = {}){
@@ -1614,6 +1745,64 @@ function getSupabaseDataWindow(year, month){
   return {startDate, endDate, key:`${startDate}|${endDate}`};
 }
 
+function normalizeResponsiblePeople(value){
+  const rows = Array.isArray(value) ? value : [];
+  const seen = new Set();
+  return rows.map(item => ({
+    name:String(item?.name || '').trim(),
+    position:String(item?.position || '').trim(),
+  })).filter(item => {
+    const key = item.name.toLocaleLowerCase('th');
+    if(!item.name || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function applyResponsiblePeople(people, {cache = true} = {}){
+  const normalized = normalizeResponsiblePeople(people);
+  if(!normalized.length) return false;
+  responsiblePeople = normalized;
+  if(cache){
+    try{ localStorage.setItem(PEOPLE_CACHE_KEY, JSON.stringify(normalized)); }catch(error){ console.warn(error); }
+  }
+  populateOwnerOptions();
+  populateOwnerFilter();
+  renderCalendar();
+  return true;
+}
+
+function loadCachedResponsiblePeople(){
+  try{
+    const cached = JSON.parse(localStorage.getItem(PEOPLE_CACHE_KEY) || 'null');
+    if(cached) applyResponsiblePeople(cached, {cache:false});
+  }catch(error){ console.warn('อ่านรายชื่อที่บันทึกไว้ในเครื่องไม่สำเร็จ', error); }
+}
+
+async function loadResponsiblePeopleConfiguration(){
+  if(!isSupabaseConfigured()) return;
+  const query = new URLSearchParams({
+    select:'value,updated_at',
+    key:'eq.responsible_people',
+    limit:'1',
+  });
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/calendar_settings?${query}`, {
+    headers:{apikey:SUPABASE_PUBLISHABLE_KEY},
+  });
+  if(!response.ok) throw new Error(`โหลดรายชื่อผู้รับผิดชอบไม่สำเร็จ (${response.status})`);
+  const rows = await response.json();
+  const row = Array.isArray(rows) ? rows[0] : null;
+  if(!row) return;
+  applyResponsiblePeople(row.value);
+}
+
+async function saveResponsiblePeopleConfiguration(people, password){
+  const normalized = normalizeResponsiblePeople(people);
+  if(!normalized.length) throw new Error('ต้องมีผู้รับผิดชอบอย่างน้อย 1 คน');
+  await adminApiRequest('save', {password, people:normalized});
+  applyResponsiblePeople(normalized);
+}
+
 async function renderOrLoadCurrentWindow(){
   renderCalendar();
   const year = viewDate.getFullYear();
@@ -1649,7 +1838,7 @@ function escapeHtml(value){
   })[char]);
 }
 
-const responsiblePeople = [
+const defaultResponsiblePeople = [
   {name:'ผอ. นางสุภาพร นรินยา', position:'ผู้อำนวยการกลุ่มส่งเสริมและพัฒนาธุรกิจสหกรณ์'},
   {name:'(แหน่ง) นางสาวดุจนภา เทศสีหา', position:'นักวิชาการสหกรณ์ชำนาญการ'},
   {name:'(หนูดี) นางสาวจิดาภา เหลาพรม', position:'นักวิชาการสหกรณ์ปฏิบัติการ'},
@@ -1657,6 +1846,7 @@ const responsiblePeople = [
   {name:'(ทอป) นายนิธิกร เสริมปรุงสุข', position:'นักวิชาการสหกรณ์'},
   {name:'(เพียว) นางสาวชลธิชา อ่อนน้อม', position:'นักวิชาการมาตรฐานสินค้า'},
 ];
+let responsiblePeople = defaultResponsiblePeople.map(person => ({...person}));
 
 let mockTasks = [];
 
@@ -1719,6 +1909,138 @@ actionDialogOverlay.addEventListener('click', event => {
 });
 document.addEventListener('keydown', event => {
   if(event.key === 'Escape' && actionDialogOverlay.classList.contains('active')) finishActionDialog(null);
+});
+
+/* ============ Admin: responsible people ============ */
+const adminOverlay = document.getElementById('adminOverlay');
+const adminForm = document.getElementById('adminForm');
+const adminPeopleList = document.getElementById('adminPeopleList');
+let adminUnlocked = false;
+let adminPassword = '';
+
+function createAdminPersonRow(person = {name:'', position:''}){
+  const row = document.createElement('div');
+  row.className = 'admin-person-row';
+
+  const nameInput = document.createElement('input');
+  nameInput.className = 'admin-person-name';
+  nameInput.type = 'text';
+  nameInput.placeholder = 'ชื่อที่แสดง เช่น (ชื่อเล่น) ชื่อ-นามสกุล';
+  nameInput.value = person.name || '';
+  nameInput.setAttribute('aria-label', 'ชื่อผู้รับผิดชอบ');
+
+  const positionInput = document.createElement('input');
+  positionInput.className = 'admin-person-position';
+  positionInput.type = 'text';
+  positionInput.placeholder = 'ตำแหน่ง (ไม่บังคับ)';
+  positionInput.value = person.position || '';
+  positionInput.setAttribute('aria-label', 'ตำแหน่ง');
+
+  const removeButton = document.createElement('button');
+  removeButton.type = 'button';
+  removeButton.className = 'admin-remove-person';
+  removeButton.setAttribute('aria-label', `ลบ ${person.name || 'รายชื่อนี้'}`);
+  removeButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
+  removeButton.addEventListener('click', () => {
+    if(adminPeopleList.children.length <= 1){
+      showToast('ต้องมีผู้รับผิดชอบอย่างน้อย 1 คน', 'warn');
+      return;
+    }
+    row.remove();
+  });
+
+  row.append(nameInput, positionInput, removeButton);
+  return row;
+}
+
+function renderAdminPeople(){
+  adminPeopleList.innerHTML = '';
+  responsiblePeople.forEach(person => adminPeopleList.appendChild(createAdminPersonRow(person)));
+}
+
+function openAdminPanel(){
+  renderAdminPeople();
+  adminOverlay.classList.add('active');
+  adminOverlay.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => adminPeopleList.querySelector('input')?.focus());
+}
+
+function closeAdminPanel(){
+  adminOverlay.classList.remove('active');
+  adminOverlay.setAttribute('aria-hidden', 'true');
+}
+
+document.getElementById('btnAdmin').addEventListener('click', async () => {
+  if(!adminUnlocked){
+    const password = await requestActionDialog({
+      title:'เข้าสู่ระบบ Admin',
+      message:'กรอกรหัสผ่านเพื่อจัดการรายชื่อผู้รับผิดชอบ',
+      confirmLabel:'เข้าสู่ระบบ',
+      password:true,
+    });
+    if(password === null) return;
+    try{
+      await adminApiRequest('verify', {password});
+      adminUnlocked = true;
+      adminPassword = password;
+    }catch(error){
+      showToast(error.message, 'warn');
+      return;
+    }
+  }
+  openAdminPanel();
+});
+
+document.getElementById('btnAddPerson').addEventListener('click', () => {
+  const row = createAdminPersonRow();
+  adminPeopleList.appendChild(row);
+  row.querySelector('.admin-person-name').focus();
+});
+document.getElementById('btnCloseAdmin').addEventListener('click', closeAdminPanel);
+document.getElementById('btnCancelAdmin').addEventListener('click', closeAdminPanel);
+adminOverlay.addEventListener('click', event => {
+  if(event.target === adminOverlay) closeAdminPanel();
+});
+document.addEventListener('keydown', event => {
+  if(event.key === 'Escape' && adminOverlay.classList.contains('active')) closeAdminPanel();
+});
+
+adminForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  const people = [...adminPeopleList.querySelectorAll('.admin-person-row')].map(row => ({
+    name:row.querySelector('.admin-person-name').value.trim(),
+    position:row.querySelector('.admin-person-position').value.trim(),
+  }));
+  if(people.some(person => !person.name)){
+    showToast('กรุณากรอกชื่อให้ครบทุกรายการ', 'warn');
+    adminPeopleList.querySelector('.admin-person-name:placeholder-shown')?.focus();
+    return;
+  }
+  if(normalizeResponsiblePeople(people).length !== people.length){
+    showToast('พบชื่อซ้ำ กรุณาตรวจสอบอีกครั้ง', 'warn');
+    return;
+  }
+  if(!isBackendConfigured()){
+    showToast('ยังไม่ได้เชื่อมต่อระบบบันทึกข้อมูล', 'warn');
+    return;
+  }
+
+  const saveButton = document.getElementById('btnSavePeople');
+  const originalHtml = saveButton.innerHTML;
+  saveButton.disabled = true;
+  saveButton.textContent = 'กำลังบันทึก...';
+  try{
+    await saveResponsiblePeopleConfiguration(people, adminPassword);
+    closeAdminPanel();
+    showToast('บันทึกรายชื่อผู้รับผิดชอบเรียบร้อย', 'ok');
+    setBackendStatus('บันทึกรายชื่อผู้รับผิดชอบลง Supabase แล้ว');
+  }catch(error){
+    console.error(error);
+    showToast(error.message || 'บันทึกรายชื่อไม่สำเร็จ', 'warn');
+  }finally{
+    saveButton.disabled = false;
+    saveButton.innerHTML = originalHtml;
+  }
 });
 
 function getTaskOwners(task){
@@ -2691,10 +3013,21 @@ function showToast(msg, type){
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-populateOwnerOptions();
-populateOwnerFilter();
-renderCalendar();
-loadTasksFromBackend();
+async function initializeApp(){
+  loadCachedResponsiblePeople();
+  populateOwnerOptions();
+  populateOwnerFilter();
+  renderCalendar();
+  try{
+    await loadResponsiblePeopleConfiguration();
+  }catch(error){
+    console.error(error);
+    showToast('ใช้รายชื่อสำรอง เนื่องจากโหลดรายชื่อส่วนกลางไม่สำเร็จ', 'warn');
+  }
+  await loadTasksFromBackend();
+}
+
+initializeApp();
 </script>
 </body>
 </html>
