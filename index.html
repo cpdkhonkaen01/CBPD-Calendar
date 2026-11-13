@@ -2970,6 +2970,11 @@ function reportIcon(ctx, kind, x, y, size, color){
   };
   ctx.stroke(new Path2D(paths[kind])); ctx.restore();
 }
+function reportGradient(ctx, x, y, endX, endY, colors){
+  const gradient = ctx.createLinearGradient(x,y,endX,endY);
+  colors.forEach((color,index) => gradient.addColorStop(index/(colors.length-1),color));
+  return gradient;
+}
 function paintReportBackground(ctx, w, h){
   ctx.fillStyle = reportGradient(ctx,0,0,w,h,['#edf5f9','#ffffff','#e5f4eb']);
   ctx.fillRect(0, 0, w, h);
