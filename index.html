@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: owner-filter-next-to-list-20261113 -->
+<!-- Release: admin-logout-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1085,7 +1085,26 @@
   .admin-delete-status.warn{border:1px solid #F0C982; background:#FFF8E8; color:#936116;}
   .admin-delete-status.error{border:1px solid #F2B7AA; background:#FFF0EC; color:#B13E28;}
   .admin-delete-status.success{border:1px solid #9FD8C5; background:#EAF9F3; color:#08775B;}
-  .admin-actions{padding:15px 22px 19px; border-top:1px solid #B7E2D4; display:flex; justify-content:flex-end; gap:9px; background:#fff;}
+  .admin-actions{padding:15px 22px 19px; border-top:1px solid #B7E2D4; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff;}
+  .admin-primary-actions{display:flex; align-items:center; justify-content:flex-end; gap:9px;}
+  .admin-logout{
+    min-height:40px;
+    padding:8px 13px;
+    border:1.5px solid #E6A697;
+    border-radius:9px;
+    background:#FFF3EF;
+    color:#B33D27;
+    font-family:var(--font-body);
+    font-size:12.5px;
+    font-weight:800;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+  }
+  .admin-logout:hover{background:#FFE7E0; border-color:#D66C54;}
+  .admin-logout .icon{width:16px; height:16px;}
   .toast{
     position:fixed;
     bottom:22px; left:50%;
@@ -1284,7 +1303,10 @@
     .admin-person-row{grid-template-columns:1fr 38px;}
     .admin-person-row .admin-person-position{grid-column:1 / -1; grid-row:2;}
     .admin-person-row .admin-remove-person{grid-column:2; grid-row:1;}
-    .admin-actions{padding:12px;}
+    .admin-actions{padding:12px; flex-wrap:wrap;}
+    .admin-logout{width:100%;}
+    .admin-primary-actions{width:100%;}
+    .admin-primary-actions .btn{flex:1;}
     .modal.summary-mode{padding:14px 16px 16px;}
     .modal-head{margin:-22px -18px 20px; padding:17px 18px;}
     #fTitle{min-height:104px; max-height:180px; font-size:15px;}
@@ -1704,11 +1726,17 @@
         </section>
       </div>
       <div class="admin-actions">
-        <button class="btn btn-ghost" id="btnCancelAdmin" type="button">ยกเลิก</button>
-        <button class="btn btn-primary" id="btnSavePeople" type="submit">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-          บันทึกการตั้งค่า
+        <button class="admin-logout" id="btnLogoutAdmin" type="button">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 4h5a2 2 0 012 2v12a2 2 0 01-2 2h-5"/></svg>
+          ออกจากระบบ Admin
         </button>
+        <div class="admin-primary-actions">
+          <button class="btn btn-ghost" id="btnCancelAdmin" type="button">ยกเลิก</button>
+          <button class="btn btn-primary" id="btnSavePeople" type="submit">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            บันทึกการตั้งค่า
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -2292,6 +2320,23 @@ function closeAdminPanel(){
   adminOverlay.setAttribute('aria-hidden', 'true');
 }
 
+function logoutAdmin(){
+  adminUnlocked = false;
+  adminPassword = '';
+  document.getElementById('adminDatabaseUsage').textContent = '—';
+  document.getElementById('adminStorageUsage').textContent = '—';
+  document.getElementById('adminDatabasePercent').textContent = '—';
+  document.getElementById('adminStoragePercent').textContent = '—';
+  document.getElementById('adminDatabaseQuota').textContent = 'โควตา —';
+  document.getElementById('adminStorageQuota').textContent = 'โควตา —';
+  document.getElementById('adminDatabaseMeter').style.width = '0';
+  document.getElementById('adminStorageMeter').style.width = '0';
+  document.getElementById('adminUsageStatus').textContent = '';
+  setAdminDeleteStatus('');
+  closeAdminPanel();
+  showToast('ออกจากระบบ Admin แล้ว', 'ok');
+}
+
 document.getElementById('btnAdmin').addEventListener('click', async () => {
   if(!adminUnlocked){
     const password = await requestActionDialog({
@@ -2409,6 +2454,7 @@ document.getElementById('btnDeletePeriod').addEventListener('click', async () =>
 });
 document.getElementById('btnCloseAdmin').addEventListener('click', closeAdminPanel);
 document.getElementById('btnCancelAdmin').addEventListener('click', closeAdminPanel);
+document.getElementById('btnLogoutAdmin').addEventListener('click', logoutAdmin);
 adminOverlay.addEventListener('click', event => {
   if(event.target === adminOverlay) closeAdminPanel();
 });
