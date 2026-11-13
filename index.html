@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: personal-report-all-pages-20261113 -->
+<!-- Release: personal-report-type-colors-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -3011,7 +3011,8 @@ function drawPersonalReport(tasks, person, year, month){
   });
   const categories = taskTypes.map(type => ({...type, count:filtered.filter(task => task.type === type.key).length})).filter(type => type.count);
   const other = filtered.filter(task => !taskTypes.some(type => type.key === task.type)).length;
-  if(other) categories.push({label:'ประเภทเดิม', color:'#776BE9', count:other});
+  const legacyType = {label:'ประเภทเดิม', color:'#776BE9'};
+  if(other) categories.push({...legacyType, count:other});
   categories.sort((a,b) => b.count-a.count);
   const displayCategories = categories.length > 5 ? [...categories.slice(0,4), {label:'ประเภทที่เหลือ',color:'#8457bb',count:categories.slice(4).reduce((sum,type) => sum+type.count,0)}] : categories;
   const categoryHeight = 67 + Math.max(1,displayCategories.length) * 44;
@@ -3078,13 +3079,24 @@ function drawPersonalReport(tasks, person, year, month){
     const lines = wrapReportTitle(ctx,task.title,1030);
     const {start,end} = getTaskDateRange(task);
     const date = formatThaiDateRange(start,end);
+    const type = taskTypes.find(item => item.key === task.type) || legacyType;
     if(y + 37 + Math.min(lines.length,2)*26 > bottom-14) nextPage();
     let offset = 0;
     do {
       const count = Math.min(lines.length-offset,Math.floor((bottom-14-y-37)/26));
       const height = 37 + count*26;
-      reportBox(pageCtx,72,y,1096,height,index%2 ? '#e5f8f1' : '#f2e8fc',11);
+      pageCtx.save();
+      pageCtx.globalAlpha = .14;
+      reportBox(pageCtx,72,y,1096,height,type.color,11);
+      pageCtx.restore();
+      reportBox(pageCtx,72,y+6,6,height-12,type.color,3);
       reportText(pageCtx,`${index+1}. ${date}${offset ? ' (ต่อ)' : ''}`,94,y+24,18,'#69349d',700);
+      pageCtx.font = '700 18px Sarabun, sans-serif';
+      const typeLabel = reportTruncate(pageCtx,type.label,380);
+      const labelWidth = pageCtx.measureText(typeLabel).width;
+      const labelX = 1137-labelWidth;
+      reportBox(pageCtx,labelX-23,y+12,11,11,type.color,5);
+      reportText(pageCtx,typeLabel,labelX,y+24,18,'#382459',700);
       lines.slice(offset,offset+count).forEach((line,i) => reportText(pageCtx,line,94,y+51+i*26,21,'#302253',600));
       y += height+7;
       offset += count;
