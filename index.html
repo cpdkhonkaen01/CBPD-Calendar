@@ -2996,14 +2996,20 @@ function drawReportHeader(ctx, title, person, period, compact = false){
   ctx.restore();
 
   reportIcon(ctx,'calendar',79,65,28,'#acffb6');
-  reportText(ctx, 'กลุ่มส่งเสริมและพัฒนาธุรกิจสหกรณ์', 118, 89, 20, '#e4f5ff', 700);
+  reportText(ctx, 'สำนักงานสหกรณ์จังหวัดขอนแก่น', 118, 85, 22, '#e4f5ff', 700);
+  reportText(ctx, 'กลุ่มส่งเสริมและพัฒนาธุรกิจสหกรณ์', 118, 116, 20, '#e4f5ff', 700);
   ctx.textAlign = 'right';
   reportText(ctx, period, 1154, 89, 22, '#d4f9cb', 700);
   ctx.textAlign = 'left';
-  if(!compact) reportText(ctx, title, 82, 167, 58, '#ffffff', 700);
+  if(!compact) reportText(ctx, title, 82, 184, 52, '#ffffff', 700);
+  const profile = responsiblePeople.find(item => item.name === person);
+  const displayName = person.replace(/^ผอ\.\s*(?:นางสาว|นาง|นาย)\s*/, 'ผอ. ');
   ctx.font = '700 37px Sarabun, sans-serif';
-  reportText(ctx, reportTruncate(ctx, person, 1055), 83, compact ? 153 : 239, 37, '#ffffff', 700);
-  if(!compact) reportText(ctx, 'สำนักงานสหกรณ์จังหวัดขอนแก่น', 84, 280, 22, '#d0e0d8', 500);
+  reportText(ctx, reportTruncate(ctx, displayName, 1055), 83, compact ? 158 : 239, 37, '#ffffff', 700);
+  if(profile?.position){
+    ctx.font = '500 22px Sarabun, sans-serif';
+    reportText(ctx, reportTruncate(ctx, profile.position, 1055), 84, compact ? 193 : 280, 22, '#d0e0d8', 500);
+  }
 }
 
 function wrapReportTitle(ctx, title, maxWidth){
@@ -3148,14 +3154,15 @@ function drawPersonalReport(tasks, person, year, month, range){
     const type = taskTypes.find(item => item.key === task.type) || legacyType;
     pageCtx.font = '700 19px Sarabun, sans-serif';
     const dateLines = wrapReportTitle(pageCtx, date, 215);
-    const headerHeight = 32;
+    const headerHeight = 46;
+    const lineHeight = 36;
     const minHeight = 23 + dateLines.length * 22;
-    const rowHeight = Math.max(minHeight,headerHeight + Math.max(1, lines.length) * 28 + 9);
+    const rowHeight = Math.max(minHeight,headerHeight + Math.max(1, lines.length) * lineHeight + 9);
     if(y + rowHeight > bottom && (rowHeight <= bottom - 286 || bottom - y < headerHeight + 65)) nextPage();
     let offset = 0;
     do {
-      const count = Math.min(lines.length - offset, Math.floor((bottom - y - headerHeight - 9) / 28));
-      const height = Math.max(minHeight,headerHeight + Math.max(1, count) * 28 + 9);
+      const count = Math.min(lines.length - offset, Math.floor((bottom - y - headerHeight - 9) / lineHeight));
+      const height = Math.max(minHeight,headerHeight + Math.max(1, count) * lineHeight + 9);
       reportBox(pageCtx, 44, y, 1152, height, '#ffffff', 12);
       reportBox(pageCtx, 62, y, 3, height+6, '#d6e4e9', 1);
       reportBox(pageCtx, 55, y+16, 17, 17, type.color, 8);
@@ -3169,7 +3176,7 @@ function drawPersonalReport(tasks, person, year, month, range){
       reportBox(pageCtx, 327, y + 20, 10, 10, type.color || '#0EA57E', 5);
       pageCtx.font = '600 18px Sarabun, sans-serif';
       reportText(pageCtx, reportTruncate(pageCtx, offset ? type.label + ' (ต่อ)' : type.label, 810), 347, y + 30, 18, '#43635b', 600);
-      lines.slice(offset, offset + count).forEach((line, index) => reportText(pageCtx, line, 327, y + headerHeight + 20 + index * 28, 23, '#102e4c', 600));
+      lines.slice(offset, offset + count).forEach((line, index) => reportText(pageCtx, line, 327, y + headerHeight + 20 + index * lineHeight, 23, '#102e4c', 600));
       y += height + 6;
       offset += count;
       if(offset < lines.length) nextPage();
