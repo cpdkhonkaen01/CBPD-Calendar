@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: admin-responsible-people-20261112 -->
+<!-- Release: admin-data-management-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1021,6 +1021,22 @@
   .admin-head-title p{font-size:12px; color:var(--color-text-muted); margin-top:2px;}
   .admin-body{padding:20px 22px; overflow:auto;}
   .admin-help{font-size:13px; line-height:1.55; color:var(--color-text-muted); margin-bottom:14px;}
+  .admin-section{padding:16px; border:1px solid #CBE7DE; border-radius:14px; background:#FBFEFD;}
+  .admin-section + .admin-section{margin-top:14px;}
+  .admin-section-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;}
+  .admin-section-title{font-family:var(--font-display); font-size:16px; color:var(--color-primary-dark);}
+  .admin-section-desc{font-size:11.5px; color:var(--color-text-muted); margin-top:2px; line-height:1.5;}
+  .admin-refresh{border:1px solid #9FD2C1; background:#fff; color:#08775B; border-radius:8px; min-height:34px; padding:6px 10px; font-family:var(--font-body); font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap;}
+  .admin-refresh:disabled{opacity:.55; cursor:wait;}
+  .admin-usage-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .admin-usage-card{padding:13px; border:1px solid #D7ECE5; border-radius:11px; background:#fff;}
+  .admin-usage-label{font-size:11px; color:var(--color-text-muted);}
+  .admin-usage-value{font-family:var(--font-display); font-size:20px; color:#075E49; margin:3px 0 8px;}
+  .admin-usage-meter{height:7px; overflow:hidden; border-radius:999px; background:#E4F2ED;}
+  .admin-usage-meter span{display:block; width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#0EA57E,#50C99F); transition:width .25s ease;}
+  .admin-usage-meter span.warning{background:linear-gradient(90deg,#E59A2F,#E56B3F);}
+  .admin-usage-meta{display:flex; justify-content:space-between; gap:8px; margin-top:6px; font-size:10.5px; color:var(--color-text-muted);}
+  .admin-usage-status{min-height:18px; margin-top:8px; font-size:11px; color:var(--color-text-muted);}
   .admin-people-list{display:flex; flex-direction:column; gap:10px;}
   .admin-person-row{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 38px; gap:9px; align-items:center; padding:10px; border:1px solid var(--color-border); border-radius:11px; background:#FBFEFD;}
   .admin-person-row input{width:100%; min-width:0; padding:10px 11px; border:1.5px solid #B6D9CE; border-radius:8px; color:var(--color-text); font-family:var(--font-body); font-size:13px; outline:none;}
@@ -1028,6 +1044,21 @@
   .admin-remove-person{width:36px; height:36px; border:1px solid #FFD2C7; border-radius:8px; background:#FFF1ED; color:#D94E2D; cursor:pointer; display:flex; align-items:center; justify-content:center;}
   .admin-remove-person .icon{width:16px; height:16px;}
   .admin-add-person{margin-top:12px; border:1.5px dashed #62B99E; background:#F1FCF7; color:#08775B; width:100%; min-height:42px; border-radius:9px; font-family:var(--font-body); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;}
+  .admin-type-list{display:flex; flex-direction:column; gap:9px;}
+  .admin-type-row{display:grid; grid-template-columns:46px minmax(0,1fr) 38px; gap:9px; align-items:center; padding:9px; border:1px solid var(--color-border); border-radius:11px; background:#fff;}
+  .admin-type-color{width:42px; height:38px; padding:3px; border:1px solid #C7DDD5; border-radius:8px; background:#fff; cursor:pointer;}
+  .admin-type-name{width:100%; min-width:0; padding:10px 11px; border:1.5px solid #B6D9CE; border-radius:8px; color:var(--color-text); font-family:var(--font-body); font-size:13px; outline:none;}
+  .admin-type-name:focus{border-color:#087C5E; box-shadow:0 0 0 3px rgba(14,165,126,.12);}
+  .admin-remove-type{width:36px; height:36px; border:1px solid #FFD2C7; border-radius:8px; background:#FFF1ED; color:#D94E2D; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .admin-danger-zone{border-color:#F0C8BE; background:#FFF9F7;}
+  .admin-danger-zone .admin-section-title{color:#A83B26;}
+  .admin-delete-grid{display:grid; grid-template-columns:150px 1fr 130px; gap:9px; align-items:end;}
+  .admin-field label{display:block; margin-bottom:5px; font-size:11px; font-weight:700; color:#4A6B63;}
+  .admin-field input,.admin-field select{width:100%; min-height:40px; padding:8px 10px; border:1.5px solid #C9DED8; border-radius:8px; background:#fff; color:var(--color-text); font-family:var(--font-body); font-size:13px; outline:none;}
+  .admin-field input:focus,.admin-field select:focus{border-color:#087C5E; box-shadow:0 0 0 3px rgba(14,165,126,.12);}
+  .admin-delete-button{min-height:40px; border:0; border-radius:8px; background:linear-gradient(135deg,#C84129,#E55E3E); color:#fff; font-family:var(--font-body); font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 4px 10px rgba(210,70,43,.2);}
+  .admin-delete-button:disabled{opacity:.58; cursor:wait;}
+  .admin-delete-note{margin-top:9px; font-size:10.5px; line-height:1.55; color:#8A5146;}
   .admin-actions{padding:15px 22px 19px; border-top:1px solid #B7E2D4; display:flex; justify-content:flex-end; gap:9px; background:#fff;}
   .toast{
     position:fixed;
@@ -1219,6 +1250,10 @@
     .admin-head{padding:15px 16px;}
     .admin-head-title h2{font-size:17px;}
     .admin-body{padding:15px 12px;}
+    .admin-section{padding:13px 11px;}
+    .admin-usage-grid{grid-template-columns:1fr;}
+    .admin-delete-grid{grid-template-columns:1fr 1fr;}
+    .admin-delete-grid .admin-delete-button{grid-column:1 / -1;}
     .admin-person-row{grid-template-columns:1fr 38px;}
     .admin-person-row .admin-person-position{grid-column:1 / -1; grid-row:2;}
     .admin-person-row .admin-remove-person{grid-column:2; grid-row:1;}
@@ -1290,9 +1325,9 @@
       </div>
     </div>
     <div class="topbar-actions">
-      <button class="btn-admin" id="btnAdmin" type="button" aria-label="จัดการรายชื่อผู้รับผิดชอบ">
+      <button class="btn-admin" id="btnAdmin" type="button" aria-label="เปิดศูนย์จัดการระบบ">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 21c1.3-4.1 4.5-6 7-6 1.2 0 2.5.4 3.6 1.1"/><path d="M18 14v6M15 17h6"/></svg>
-        จัดการรายชื่อ
+        จัดการระบบ
       </button>
       <button class="btn-add" id="btnAddTask">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
@@ -1389,12 +1424,12 @@
           <span class="result-count" id="resultCount"></span>
         </div>
       </div>
-      <div class="legend">
+      <div class="legend" id="taskTypeLegend">
         <span><span class="dot project"></span> จัดโครงการ</span>
-          <span><span class="dot participate"></span> ร่วมประชุม/สัมมนา/อบรม</span>
-          <span><span class="dot monitor"></span> ตรวจติดตาม</span>
-          <span><span class="dot followup"></span> ติดตามงาน</span>
-          <span><span class="dot other"></span> อื่นๆ</span>
+        <span><span class="dot participate"></span> ร่วมประชุม/สัมมนา/อบรม</span>
+        <span><span class="dot monitor"></span> ตรวจติดตาม</span>
+        <span><span class="dot followup"></span> ติดตามงาน</span>
+        <span><span class="dot other"></span> อื่นๆ</span>
         <span class="hint">
           <svg class="icon" viewBox="0 0 24 24"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
           คลิกวันที่เพื่อเพิ่มงาน · คลิกงานเพื่อแก้ไข
@@ -1550,25 +1585,101 @@
         <div class="admin-head-title">
           <div class="icon-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 21c1.3-4.1 4.5-6 7-6 1.2 0 2.5.4 3.6 1.1"/><path d="M18 14v6M15 17h6"/></svg></div>
           <div>
-            <h2 id="adminTitle">จัดการผู้รับผิดชอบ</h2>
-            <p>เพิ่ม แก้ไข หรือลบรายชื่อสำหรับการสร้างงานใหม่</p>
+            <h2 id="adminTitle">ศูนย์จัดการระบบ</h2>
+            <p>จัดการข้อมูลตั้งค่า พื้นที่ใช้งาน และข้อมูลเก่า</p>
           </div>
         </div>
         <button class="close-btn" id="btnCloseAdmin" type="button" aria-label="ปิด"><svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
       <div class="admin-body">
-        <p class="admin-help">ชื่อที่บันทึกจะปรากฏในช่อง “ผู้รับผิดชอบ” และตัวกรองบนปฏิทินทุกเครื่อง งานเก่าจะยังคงชื่อเดิมไว้</p>
-        <div class="admin-people-list" id="adminPeopleList"></div>
-        <button class="admin-add-person" id="btnAddPerson" type="button">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          เพิ่มรายชื่อ
-        </button>
+        <section class="admin-section" aria-labelledby="adminUsageTitle">
+          <div class="admin-section-head">
+            <div>
+              <h3 class="admin-section-title" id="adminUsageTitle">พื้นที่ใช้งาน Supabase</h3>
+              <p class="admin-section-desc">ข้อมูลนี้แสดงเฉพาะผู้ดูแลระบบ</p>
+            </div>
+            <button class="admin-refresh" id="btnRefreshUsage" type="button">รีเฟรช</button>
+          </div>
+          <div class="admin-usage-grid">
+            <article class="admin-usage-card">
+              <div class="admin-usage-label">ฐานข้อมูล PostgreSQL</div>
+              <div class="admin-usage-value" id="adminDatabaseUsage">กำลังโหลด...</div>
+              <div class="admin-usage-meter"><span id="adminDatabaseMeter"></span></div>
+              <div class="admin-usage-meta"><span id="adminDatabasePercent">—</span><span id="adminDatabaseQuota">โควตา —</span></div>
+            </article>
+            <article class="admin-usage-card">
+              <div class="admin-usage-label">Supabase Storage</div>
+              <div class="admin-usage-value" id="adminStorageUsage">กำลังโหลด...</div>
+              <div class="admin-usage-meter"><span id="adminStorageMeter"></span></div>
+              <div class="admin-usage-meta"><span id="adminStoragePercent">—</span><span id="adminStorageQuota">โควตา —</span></div>
+            </article>
+          </div>
+          <div class="admin-usage-status" id="adminUsageStatus" aria-live="polite"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="adminPeopleTitle">
+          <div class="admin-section-head">
+            <div>
+              <h3 class="admin-section-title" id="adminPeopleTitle">ผู้รับผิดชอบ</h3>
+              <p class="admin-section-desc">รายชื่อจะปรากฏในช่องผู้รับผิดชอบและตัวกรองทุกเครื่อง</p>
+            </div>
+          </div>
+          <div class="admin-people-list" id="adminPeopleList"></div>
+          <button class="admin-add-person" id="btnAddPerson" type="button">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            เพิ่มรายชื่อ
+          </button>
+        </section>
+
+        <section class="admin-section" aria-labelledby="adminTypesTitle">
+          <div class="admin-section-head">
+            <div>
+              <h3 class="admin-section-title" id="adminTypesTitle">ประเภทงาน</h3>
+              <p class="admin-section-desc">แก้ชื่อ สี หรือเพิ่มประเภทงานใหม่ได้ตามต้องการ</p>
+            </div>
+          </div>
+          <div class="admin-type-list" id="adminTypeList"></div>
+          <button class="admin-add-person" id="btnAddTaskType" type="button">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            เพิ่มประเภทงาน
+          </button>
+        </section>
+
+        <section class="admin-section admin-danger-zone" aria-labelledby="adminDeleteTitle">
+          <div class="admin-section-head">
+            <div>
+              <h3 class="admin-section-title" id="adminDeleteTitle">ลบข้อมูลเก่า</h3>
+              <p class="admin-section-desc">ลบงานและไฟล์แนบทั้งหมดตามเดือนหรือปีที่เลือก</p>
+            </div>
+          </div>
+          <div class="admin-delete-grid">
+            <div class="admin-field">
+              <label for="adminDeleteScope">ช่วงข้อมูล</label>
+              <select id="adminDeleteScope"><option value="month">ทั้งเดือน</option><option value="year">ทั้งปี</option></select>
+            </div>
+            <div class="admin-field" id="adminDeleteMonthField">
+              <label for="adminDeleteMonth">เดือน</label>
+              <select id="adminDeleteMonth">
+                <option value="1">มกราคม</option><option value="2">กุมภาพันธ์</option><option value="3">มีนาคม</option>
+                <option value="4">เมษายน</option><option value="5">พฤษภาคม</option><option value="6">มิถุนายน</option>
+                <option value="7">กรกฎาคม</option><option value="8">สิงหาคม</option><option value="9">กันยายน</option>
+                <option value="10">ตุลาคม</option><option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="adminDeleteYear">ปี พ.ศ.</label>
+              <input id="adminDeleteYear" type="number" min="2500" max="2800" inputmode="numeric">
+            </div>
+            <button class="admin-delete-button" id="btnDeletePeriod" type="button">ตรวจสอบและลบ</button>
+          </div>
+          <p class="admin-delete-note">คำเตือน: การลบไม่สามารถย้อนกลับได้ ระบบจะลบไฟล์แนบใน Storage ด้วย โดยยึดปีและเดือนจากวันเริ่มงาน</p>
+        </section>
       </div>
       <div class="admin-actions">
         <button class="btn btn-ghost" id="btnCancelAdmin" type="button">ยกเลิก</button>
         <button class="btn btn-primary" id="btnSavePeople" type="submit">
           <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-          บันทึกรายชื่อ
+          บันทึกการตั้งค่า
         </button>
       </div>
     </form>
@@ -1601,6 +1712,7 @@ const SUPABASE_ATTACHMENT_BUCKET = 'calendar-attachments';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbqCOxgfG7uCPWdg9TqZR7GXcCx0YbjMyxe-5sPjnFUWc_p3n6FhxNBQxtdg7PV6UXOw/exec';
 const APPS_SCRIPT_TOKEN = 'CBPD-Calendar-2569';
 const PEOPLE_CACHE_KEY = 'cbpd-responsible-people-v1';
+const TASK_TYPES_CACHE_KEY = 'cbpd-task-types-v1';
 
 let supabaseLoadSequence = 0;
 
@@ -1779,21 +1891,98 @@ function loadCachedResponsiblePeople(){
   }catch(error){ console.warn('อ่านรายชื่อที่บันทึกไว้ในเครื่องไม่สำเร็จ', error); }
 }
 
+function normalizeTaskTypes(value){
+  const rows = Array.isArray(value) ? value : [];
+  const seenKeys = new Set();
+  const seenLabels = new Set();
+  return rows.map(item => ({
+    key:String(item?.key || '').trim().toLowerCase(),
+    label:String(item?.label || '').trim(),
+    color:/^#[0-9a-f]{6}$/i.test(String(item?.color || '')) ? String(item.color).toUpperCase() : '#6D6AE8',
+  })).filter(item => {
+    const labelKey = item.label.toLocaleLowerCase('th');
+    if(!/^[a-z][a-z0-9_-]{0,39}$/.test(item.key) || !item.label || seenKeys.has(item.key) || seenLabels.has(labelKey)) return false;
+    seenKeys.add(item.key);
+    seenLabels.add(labelKey);
+    return true;
+  });
+}
+
+function getTaskType(key){
+  return taskTypes.find(item => item.key === key) || taskTypes.find(item => item.key === 'other') || defaultTaskTypes[4];
+}
+
+function getTaskTypeColor(key){
+  return getTaskType(key).color;
+}
+
+function populateTaskTypeOptions(selectedValue = ''){
+  const select = document.getElementById('fType');
+  if(!select) return;
+  const previous = selectedValue || select.value;
+  select.innerHTML = '';
+  taskTypes.forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.key;
+    option.textContent = item.label;
+    select.appendChild(option);
+  });
+  select.value = taskTypes.some(item => item.key === previous) ? previous : taskTypes[0]?.key || 'other';
+}
+
+function renderTaskTypeLegend(){
+  const legend = document.getElementById('taskTypeLegend');
+  if(!legend) return;
+  const hint = legend.querySelector('.hint');
+  legend.querySelectorAll(':scope > span:not(.hint)').forEach(item => item.remove());
+  taskTypes.forEach(item => {
+    const row = document.createElement('span');
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = item.color;
+    row.append(dot, document.createTextNode(` ${item.label}`));
+    legend.insertBefore(row, hint);
+  });
+}
+
+function applyTaskTypes(value, {cache = true} = {}){
+  const normalized = normalizeTaskTypes(value);
+  if(!normalized.length) return false;
+  taskTypes = normalized;
+  typeLabels = Object.fromEntries(taskTypes.map(item => [item.key, item.label]));
+  if(cache){
+    try{ localStorage.setItem(TASK_TYPES_CACHE_KEY, JSON.stringify(taskTypes)); }catch(error){ console.warn(error); }
+  }
+  populateTaskTypeOptions();
+  renderTaskTypeLegend();
+  renderCalendar();
+  return true;
+}
+
+function loadCachedTaskTypes(){
+  try{
+    const cached = JSON.parse(localStorage.getItem(TASK_TYPES_CACHE_KEY) || 'null');
+    if(cached) applyTaskTypes(cached, {cache:false});
+  }catch(error){ console.warn('อ่านประเภทงานที่บันทึกไว้ในเครื่องไม่สำเร็จ', error); }
+}
+
 async function loadResponsiblePeopleConfiguration(){
   if(!isSupabaseConfigured()) return;
   const query = new URLSearchParams({
-    select:'value,updated_at',
-    key:'eq.responsible_people',
-    limit:'1',
+    select:'key,value,updated_at',
+    key:'in.(responsible_people,task_types)',
+    limit:'2',
   });
   const response = await fetch(`${SUPABASE_URL}/rest/v1/calendar_settings?${query}`, {
     headers:{apikey:SUPABASE_PUBLISHABLE_KEY},
   });
   if(!response.ok) throw new Error(`โหลดรายชื่อผู้รับผิดชอบไม่สำเร็จ (${response.status})`);
   const rows = await response.json();
-  const row = Array.isArray(rows) ? rows[0] : null;
-  if(!row) return;
-  applyResponsiblePeople(row.value);
+  if(!Array.isArray(rows)) return;
+  const peopleRow = rows.find(row => row.key === 'responsible_people');
+  const typesRow = rows.find(row => row.key === 'task_types');
+  if(peopleRow) applyResponsiblePeople(peopleRow.value);
+  if(typesRow) applyTaskTypes(typesRow.value);
 }
 
 async function saveResponsiblePeopleConfiguration(people, password){
@@ -1801,6 +1990,13 @@ async function saveResponsiblePeopleConfiguration(people, password){
   if(!normalized.length) throw new Error('ต้องมีผู้รับผิดชอบอย่างน้อย 1 คน');
   await adminApiRequest('save', {password, people:normalized});
   applyResponsiblePeople(normalized);
+}
+
+async function saveTaskTypeConfiguration(types, password){
+  const normalized = normalizeTaskTypes(types);
+  if(!normalized.length || normalized.length !== types.length) throw new Error('ประเภทงานไม่ถูกต้องหรือมีชื่อซ้ำ');
+  await adminApiRequest('save-task-types', {password, taskTypes:normalized});
+  applyTaskTypes(normalized);
 }
 
 async function renderOrLoadCurrentWindow(){
@@ -1847,6 +2043,16 @@ const defaultResponsiblePeople = [
   {name:'(เพียว) นางสาวชลธิชา อ่อนน้อม', position:'นักวิชาการมาตรฐานสินค้า'},
 ];
 let responsiblePeople = defaultResponsiblePeople.map(person => ({...person}));
+
+const defaultTaskTypes = [
+  {key:'project', label:'จัดโครงการ', color:'#0EA57E'},
+  {key:'participate', label:'ร่วมประชุม/สัมมนา/อบรม', color:'#E8871B'},
+  {key:'monitor', label:'ตรวจติดตาม', color:'#2F9FE5'},
+  {key:'followup', label:'ติดตามงาน', color:'#DB2777'},
+  {key:'other', label:'อื่นๆ', color:'#6D6AE8'},
+];
+let taskTypes = defaultTaskTypes.map(item => ({...item}));
+let typeLabels = Object.fromEntries(taskTypes.map(item => [item.key, item.label]));
 
 let mockTasks = [];
 
@@ -1915,6 +2121,10 @@ document.addEventListener('keydown', event => {
 const adminOverlay = document.getElementById('adminOverlay');
 const adminForm = document.getElementById('adminForm');
 const adminPeopleList = document.getElementById('adminPeopleList');
+const adminTypeList = document.getElementById('adminTypeList');
+const adminDeleteScope = document.getElementById('adminDeleteScope');
+const adminDeleteMonth = document.getElementById('adminDeleteMonth');
+const adminDeleteYear = document.getElementById('adminDeleteYear');
 let adminUnlocked = false;
 let adminPassword = '';
 
@@ -1958,11 +2168,93 @@ function renderAdminPeople(){
   responsiblePeople.forEach(person => adminPeopleList.appendChild(createAdminPersonRow(person)));
 }
 
+function createAdminTypeRow(item = {key:'', label:'', color:'#6D6AE8'}){
+  const row = document.createElement('div');
+  row.className = 'admin-type-row';
+  row.dataset.key = item.key || `type_${Date.now().toString(36)}`;
+
+  const colorInput = document.createElement('input');
+  colorInput.className = 'admin-type-color';
+  colorInput.type = 'color';
+  colorInput.value = /^#[0-9a-f]{6}$/i.test(item.color || '') ? item.color : '#6D6AE8';
+  colorInput.setAttribute('aria-label', `สีของประเภท ${item.label || 'ใหม่'}`);
+
+  const nameInput = document.createElement('input');
+  nameInput.className = 'admin-type-name';
+  nameInput.type = 'text';
+  nameInput.maxLength = 100;
+  nameInput.placeholder = 'ชื่อประเภทงาน';
+  nameInput.value = item.label || '';
+  nameInput.setAttribute('aria-label', 'ชื่อประเภทงาน');
+
+  const removeButton = document.createElement('button');
+  removeButton.type = 'button';
+  removeButton.className = 'admin-remove-type';
+  removeButton.setAttribute('aria-label', `ลบประเภท ${item.label || 'นี้'}`);
+  removeButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
+  removeButton.addEventListener('click', () => {
+    if(adminTypeList.children.length <= 1){
+      showToast('ต้องมีประเภทงานอย่างน้อย 1 ประเภท', 'warn');
+      return;
+    }
+    row.remove();
+  });
+
+  row.append(colorInput, nameInput, removeButton);
+  return row;
+}
+
+function renderAdminTaskTypes(){
+  adminTypeList.innerHTML = '';
+  taskTypes.forEach(item => adminTypeList.appendChild(createAdminTypeRow(item)));
+}
+
+function formatAdminBytes(bytes){
+  const value = Number(bytes) || 0;
+  if(value >= 1024 ** 3) return `${(value / (1024 ** 3)).toFixed(2)} GB`;
+  if(value >= 1024 ** 2) return `${(value / (1024 ** 2)).toFixed(1)} MB`;
+  if(value >= 1024) return `${(value / 1024).toFixed(1)} KB`;
+  return `${value} B`;
+}
+
+function setUsageCard(prefix, usedBytes, quotaBytes){
+  const percent = quotaBytes > 0 ? (usedBytes / quotaBytes) * 100 : 0;
+  document.getElementById(`admin${prefix}Usage`).textContent = formatAdminBytes(usedBytes);
+  document.getElementById(`admin${prefix}Quota`).textContent = `จาก ${formatAdminBytes(quotaBytes)}`;
+  document.getElementById(`admin${prefix}Percent`).textContent = `ใช้ ${percent.toFixed(percent < 10 ? 1 : 0)}%`;
+  const meter = document.getElementById(`admin${prefix}Meter`);
+  meter.style.width = `${Math.min(100, Math.max(percent, usedBytes > 0 ? 1 : 0))}%`;
+  meter.classList.toggle('warning', percent >= 70);
+}
+
+async function loadAdminUsage(){
+  const button = document.getElementById('btnRefreshUsage');
+  const status = document.getElementById('adminUsageStatus');
+  button.disabled = true;
+  status.textContent = 'กำลังตรวจสอบพื้นที่ใช้งาน...';
+  try{
+    const result = await adminApiRequest('usage', {password:adminPassword});
+    setUsageCard('Database', Number(result.usage?.databaseBytes || 0), Number(result.usage?.databaseQuotaBytes || 0));
+    setUsageCard('Storage', Number(result.usage?.storageBytes || 0), Number(result.usage?.storageQuotaBytes || 0));
+    const measuredAt = result.usage?.measuredAt ? new Date(result.usage.measuredAt).toLocaleString('th-TH') : 'ขณะนี้';
+    status.textContent = `${Number(result.usage?.taskCount || 0).toLocaleString('th-TH')} งาน · ${Number(result.usage?.fileCount || 0).toLocaleString('th-TH')} ไฟล์ · อัปเดต ${measuredAt}`;
+  }catch(error){
+    console.error(error);
+    status.textContent = error.message || 'โหลดพื้นที่ใช้งานไม่สำเร็จ';
+  }finally{
+    button.disabled = false;
+  }
+}
+
 function openAdminPanel(){
   renderAdminPeople();
+  renderAdminTaskTypes();
+  adminDeleteYear.value = viewDate.getFullYear() + 543;
+  adminDeleteMonth.value = String(viewDate.getMonth() + 1);
+  adminDeleteScope.dispatchEvent(new Event('change'));
   adminOverlay.classList.add('active');
   adminOverlay.setAttribute('aria-hidden', 'false');
-  requestAnimationFrame(() => adminPeopleList.querySelector('input')?.focus());
+  loadAdminUsage();
 }
 
 function closeAdminPanel(){
@@ -1974,7 +2266,7 @@ document.getElementById('btnAdmin').addEventListener('click', async () => {
   if(!adminUnlocked){
     const password = await requestActionDialog({
       title:'เข้าสู่ระบบ Admin',
-      message:'กรอกรหัสผ่านเพื่อจัดการรายชื่อผู้รับผิดชอบ',
+      message:'กรอกรหัสผ่านเพื่อเปิดศูนย์จัดการระบบ',
       confirmLabel:'เข้าสู่ระบบ',
       password:true,
     });
@@ -1995,6 +2287,70 @@ document.getElementById('btnAddPerson').addEventListener('click', () => {
   const row = createAdminPersonRow();
   adminPeopleList.appendChild(row);
   row.querySelector('.admin-person-name').focus();
+});
+document.getElementById('btnAddTaskType').addEventListener('click', () => {
+  const palette = ['#6D6AE8','#0EA57E','#E8871B','#2F9FE5','#DB2777','#D14D3B'];
+  const row = createAdminTypeRow({
+    key:`type_${Date.now().toString(36)}`,
+    label:'',
+    color:palette[adminTypeList.children.length % palette.length],
+  });
+  adminTypeList.appendChild(row);
+  row.querySelector('.admin-type-name').focus();
+});
+document.getElementById('btnRefreshUsage').addEventListener('click', loadAdminUsage);
+adminDeleteScope.addEventListener('change', () => {
+  document.getElementById('adminDeleteMonthField').hidden = adminDeleteScope.value === 'year';
+});
+
+function getAdminDeletePeriod(){
+  const buddhistYear = Number(adminDeleteYear.value);
+  const year = buddhistYear > 2400 ? buddhistYear - 543 : buddhistYear;
+  const month = adminDeleteScope.value === 'month' ? Number(adminDeleteMonth.value) : null;
+  if(!Number.isInteger(year) || year < 2000 || year > 2257) throw new Error('กรุณาระบุปี พ.ศ. ให้ถูกต้อง');
+  if(month !== null && (!Number.isInteger(month) || month < 1 || month > 12)) throw new Error('กรุณาเลือกเดือนให้ถูกต้อง');
+  return {year, month, scope:adminDeleteScope.value};
+}
+
+function getAdminDeleteLabel(period){
+  return period.scope === 'year'
+    ? `ปี ${period.year + 543}`
+    : `${thaiMonths[period.month - 1]} ${period.year + 543}`;
+}
+
+document.getElementById('btnDeletePeriod').addEventListener('click', async () => {
+  const button = document.getElementById('btnDeletePeriod');
+  let period;
+  try{ period = getAdminDeletePeriod(); }catch(error){ showToast(error.message, 'warn'); return; }
+  button.disabled = true;
+  button.textContent = 'กำลังตรวจสอบ...';
+  try{
+    const preview = await adminApiRequest('preview-delete-period', {password:adminPassword, ...period});
+    const taskCount = Number(preview.summary?.taskCount || 0);
+    const fileCount = Number(preview.summary?.fileCount || 0);
+    if(!taskCount){
+      showToast(`ไม่พบข้อมูลใน${getAdminDeleteLabel(period)}`, 'warn');
+      return;
+    }
+    const confirmed = await requestActionDialog({
+      title:`ยืนยันลบข้อมูล${getAdminDeleteLabel(period)}`,
+      message:`พบ ${taskCount.toLocaleString('th-TH')} งาน และไฟล์แนบ ${fileCount.toLocaleString('th-TH')} ไฟล์ การลบนี้ไม่สามารถย้อนกลับได้`,
+      confirmLabel:'ลบข้อมูลถาวร',
+      danger:true,
+    });
+    if(!confirmed) return;
+
+    button.textContent = 'กำลังลบข้อมูล...';
+    const result = await adminApiRequest('delete-period', {password:adminPassword, ...period});
+    showToast(`ลบ ${Number(result.deleted?.taskCount || 0).toLocaleString('th-TH')} งาน และ ${Number(result.deleted?.fileCount || 0).toLocaleString('th-TH')} ไฟล์แล้ว`, 'ok');
+    await Promise.all([renderOrLoadCurrentWindow(), loadAdminUsage()]);
+  }catch(error){
+    console.error(error);
+    showToast(error.message || 'ลบข้อมูลไม่สำเร็จ', 'warn');
+  }finally{
+    button.disabled = false;
+    button.textContent = 'ตรวจสอบและลบ';
+  }
 });
 document.getElementById('btnCloseAdmin').addEventListener('click', closeAdminPanel);
 document.getElementById('btnCancelAdmin').addEventListener('click', closeAdminPanel);
@@ -2020,8 +2376,18 @@ adminForm.addEventListener('submit', async event => {
     showToast('พบชื่อซ้ำ กรุณาตรวจสอบอีกครั้ง', 'warn');
     return;
   }
-  if(!isBackendConfigured()){
-    showToast('ยังไม่ได้เชื่อมต่อระบบบันทึกข้อมูล', 'warn');
+  const types = [...adminTypeList.querySelectorAll('.admin-type-row')].map(row => ({
+    key:row.dataset.key,
+    label:row.querySelector('.admin-type-name').value.trim(),
+    color:row.querySelector('.admin-type-color').value,
+  }));
+  if(types.some(item => !item.label)){
+    showToast('กรุณากรอกชื่อประเภทงานให้ครบทุกรายการ', 'warn');
+    adminTypeList.querySelector('.admin-type-name:placeholder-shown')?.focus();
+    return;
+  }
+  if(normalizeTaskTypes(types).length !== types.length){
+    showToast('พบประเภทงานซ้ำหรือข้อมูลไม่ถูกต้อง', 'warn');
     return;
   }
 
@@ -2030,10 +2396,13 @@ adminForm.addEventListener('submit', async event => {
   saveButton.disabled = true;
   saveButton.textContent = 'กำลังบันทึก...';
   try{
-    await saveResponsiblePeopleConfiguration(people, adminPassword);
+    await Promise.all([
+      saveResponsiblePeopleConfiguration(people, adminPassword),
+      saveTaskTypeConfiguration(types, adminPassword),
+    ]);
     closeAdminPanel();
-    showToast('บันทึกรายชื่อผู้รับผิดชอบเรียบร้อย', 'ok');
-    setBackendStatus('บันทึกรายชื่อผู้รับผิดชอบลง Supabase แล้ว');
+    showToast('บันทึกการตั้งค่าเรียบร้อย', 'ok');
+    setBackendStatus('บันทึกการตั้งค่าลง Supabase แล้ว');
   }catch(error){
     console.error(error);
     showToast(error.message || 'บันทึกรายชื่อไม่สำเร็จ', 'warn');
@@ -2052,7 +2421,7 @@ function taskMatchesFilters(task){
   const taskOwners = getTaskOwners(task);
   const ownerMatch = selectedOwner === 'all' || taskOwners.includes(selectedOwner);
   const positions = taskOwners.map(owner => responsiblePeople.find(p => p.name === owner)?.position).filter(Boolean);
-  const haystack = [task.title, task.desc, ...taskOwners, ...positions, task.location, typeLabels[task.type]]
+  const haystack = [task.title, task.desc, ...taskOwners, ...positions, task.location, getTaskType(task.type).label]
     .filter(Boolean).join(' ').toLowerCase();
   return ownerMatch && (!searchQuery || haystack.includes(searchQuery));
 }
@@ -2187,12 +2556,13 @@ function renderCalendar(){
 
     let pillsHtml = visible.map(t => {
       const cls = t.type;
+      const color = getTaskTypeColor(t.type);
       const range = getTaskDateRange(t);
       const isMultiDay = range.end !== range.start;
       const rangeLabel = isMultiDay ? ` · ${formatThaiDate(range.start)} – ${formatThaiDate(range.end)}` : '';
       const locationLabel = t.location ? ` · ${t.location}` : '';
       const tip = `${t.title}${rangeLabel}${locationLabel}`;
-      return `<div class="task-pill ${cls}${isMultiDay ? ' multi-day' : ''}" data-id="${escapeHtml(t.id)}" title="${escapeHtml(tip)}">${isMultiDay ? '<span class="multi-day-mark" aria-hidden="true">↔</span>' : ''}${escapeHtml(t.title)}</div>`;
+      return `<div class="task-pill ${cls}${isMultiDay ? ' multi-day' : ''}" style="background:${escapeHtml(color)}" data-id="${escapeHtml(t.id)}" title="${escapeHtml(tip)}">${isMultiDay ? '<span class="multi-day-mark" aria-hidden="true">↔</span>' : ''}${escapeHtml(t.title)}</div>`;
     }).join('');
     if(remaining > 0){
       pillsHtml += `<button type="button" class="more-tasks" data-date="${iso}" aria-label="ดูงานทั้งหมด ${dayTasks.length} งาน วันที่ ${formatThaiDate(iso)}">ดูทั้งหมด ${dayTasks.length} งาน</button>`;
@@ -2275,6 +2645,7 @@ function renderListView(){
     const item = document.createElement('button');
     item.type = 'button';
     item.className = `list-task ${task.type || 'other'}`;
+    item.style.borderLeftColor = getTaskTypeColor(task.type);
     item.dataset.id = task.id;
 
     const main = document.createElement('div');
@@ -2302,7 +2673,8 @@ function renderListView(){
 
     const type = document.createElement('span');
     type.className = 'list-task-type';
-    type.textContent = typeLabels[task.type] || typeLabels.other;
+    type.textContent = getTaskType(task.type).label;
+    type.style.color = getTaskTypeColor(task.type);
     const chevron = document.createElement('span');
     chevron.className = 'list-task-chevron';
     chevron.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>';
@@ -2332,7 +2704,15 @@ function updateStats(){
   document.getElementById('statParticipate').textContent = monthTasks.filter(t=>t.type==='participate').length;
   document.getElementById('statMonitor').textContent = monthTasks.filter(t=>t.type==='monitor').length;
   document.getElementById('statFollowup').textContent = monthTasks.filter(t=>t.type==='followup').length;
-  document.getElementById('statOther').textContent = monthTasks.filter(t=>t.type==='other').length;
+  document.getElementById('statOther').textContent = monthTasks.filter(t=>!['project','participate','monitor','followup'].includes(t.type)).length;
+  const statTypeMap = [
+    ['project','statProject'], ['participate','statParticipate'], ['monitor','statMonitor'], ['followup','statFollowup'],
+  ];
+  statTypeMap.forEach(([key,id]) => {
+    const card = document.getElementById(id)?.closest('.stat-card');
+    const label = card?.querySelector('.label');
+    if(label && typeLabels[key]) label.textContent = typeLabels[key];
+  });
 }
 
 /* ============ Modal ============ */
@@ -2340,7 +2720,6 @@ const overlay = document.getElementById('modalOverlay');
 const modal = overlay.querySelector('.modal');
 const summaryView = document.getElementById('summaryView');
 const taskForm = document.getElementById('taskForm');
-const typeLabels = {project:'จัดโครงการ', participate:'ร่วมประชุม/สัมมนา/อบรม', monitor:'ตรวจติดตาม', followup:'ติดตามงาน', other:'อื่นๆ'};
 
 function formatThaiDate(iso){
   if(!iso) return 'ไม่ระบุ';
@@ -2704,8 +3083,10 @@ function showTaskSummary(task){
   renderSummaryAttachments(task.attachments || []);
 
   const typeBadge = document.getElementById('summaryType');
-  typeBadge.textContent = typeLabels[task.type] || typeLabels.other;
+  typeBadge.textContent = getTaskType(task.type).label;
   typeBadge.className = `summary-badge type ${task.type || 'other'}`;
+  typeBadge.style.background = getTaskTypeColor(task.type);
+  typeBadge.style.color = '#fff';
   overlay.classList.add('active');
 }
 
@@ -3015,8 +3396,11 @@ function showToast(msg, type){
 
 async function initializeApp(){
   loadCachedResponsiblePeople();
+  loadCachedTaskTypes();
   populateOwnerOptions();
   populateOwnerFilter();
+  populateTaskTypeOptions(taskTypes[0]?.key);
+  renderTaskTypeLegend();
   renderCalendar();
   try{
     await loadResponsiblePeopleConfiguration();
