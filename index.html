@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: admin-data-management-20261113 -->
+<!-- Release: admin-delete-password-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -2340,8 +2340,19 @@ document.getElementById('btnDeletePeriod').addEventListener('click', async () =>
     });
     if(!confirmed) return;
 
+    const deletePassword = await requestActionDialog({
+      title:'ยืนยันรหัส Admin',
+      message:'กรอกรหัส Admin อีกครั้งเพื่ออนุญาตให้ลบข้อมูลและไฟล์แนบถาวร',
+      confirmLabel:'ตรวจสอบรหัสและลบ',
+      password:true,
+      danger:true,
+    });
+    if(deletePassword === null) return;
+
+    button.textContent = 'กำลังตรวจสอบรหัส...';
+    await adminApiRequest('verify', {password:deletePassword});
     button.textContent = 'กำลังลบข้อมูล...';
-    const result = await adminApiRequest('delete-period', {password:adminPassword, ...period});
+    const result = await adminApiRequest('delete-period', {password:deletePassword, ...period});
     showToast(`ลบ ${Number(result.deleted?.taskCount || 0).toLocaleString('th-TH')} งาน และ ${Number(result.deleted?.fileCount || 0).toLocaleString('th-TH')} ไฟล์แล้ว`, 'ok');
     await Promise.all([renderOrLoadCurrentWindow(), loadAdminUsage()]);
   }catch(error){
