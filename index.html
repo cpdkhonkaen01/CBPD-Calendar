@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: admin-delete-password-20261113 -->
+<!-- Release: admin-delete-inline-status-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -1059,6 +1059,12 @@
   .admin-delete-button{min-height:40px; border:0; border-radius:8px; background:linear-gradient(135deg,#C84129,#E55E3E); color:#fff; font-family:var(--font-body); font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 4px 10px rgba(210,70,43,.2);}
   .admin-delete-button:disabled{opacity:.58; cursor:wait;}
   .admin-delete-note{margin-top:9px; font-size:10.5px; line-height:1.55; color:#8A5146;}
+  .admin-delete-status{display:none; margin-top:10px; padding:11px 13px; border-radius:9px; font-size:12px; font-weight:700; line-height:1.5;}
+  .admin-delete-status.show{display:flex; align-items:flex-start; gap:8px;}
+  .admin-delete-status.info{border:1px solid #B8DDD2; background:#F0FAF7; color:#176B58;}
+  .admin-delete-status.warn{border:1px solid #F0C982; background:#FFF8E8; color:#936116;}
+  .admin-delete-status.error{border:1px solid #F2B7AA; background:#FFF0EC; color:#B13E28;}
+  .admin-delete-status.success{border:1px solid #9FD8C5; background:#EAF9F3; color:#08775B;}
   .admin-actions{padding:15px 22px 19px; border-top:1px solid #B7E2D4; display:flex; justify-content:flex-end; gap:9px; background:#fff;}
   .toast{
     position:fixed;
@@ -1074,7 +1080,7 @@
     opacity:0;
     pointer-events:none;
     transition:all .25s ease;
-    z-index:100;
+    z-index:400;
     display:flex; align-items:center; gap:8px;
   }
   .toast .icon{width:16px; height:16px;}
@@ -1673,6 +1679,7 @@
             <button class="admin-delete-button" id="btnDeletePeriod" type="button">ตรวจสอบและลบ</button>
           </div>
           <p class="admin-delete-note">คำเตือน: การลบไม่สามารถย้อนกลับได้ ระบบจะลบไฟล์แนบใน Storage ด้วย โดยยึดปีและเดือนจากวันเริ่มงาน</p>
+          <div class="admin-delete-status" id="adminDeleteStatus" role="status" aria-live="polite"></div>
         </section>
       </div>
       <div class="admin-actions">
@@ -2125,6 +2132,7 @@ const adminTypeList = document.getElementById('adminTypeList');
 const adminDeleteScope = document.getElementById('adminDeleteScope');
 const adminDeleteMonth = document.getElementById('adminDeleteMonth');
 const adminDeleteYear = document.getElementById('adminDeleteYear');
+const adminDeleteStatus = document.getElementById('adminDeleteStatus');
 let adminUnlocked = false;
 let adminPassword = '';
 
@@ -2252,6 +2260,7 @@ function openAdminPanel(){
   adminDeleteYear.value = viewDate.getFullYear() + 543;
   adminDeleteMonth.value = String(viewDate.getMonth() + 1);
   adminDeleteScope.dispatchEvent(new Event('change'));
+  setAdminDeleteStatus('');
   adminOverlay.classList.add('active');
   adminOverlay.setAttribute('aria-hidden', 'false');
   loadAdminUsage();
@@ -2318,27 +2327,36 @@ function getAdminDeleteLabel(period){
     : `${thaiMonths[period.month - 1]} ${period.year + 543}`;
 }
 
+function setAdminDeleteStatus(message, type = 'info'){
+  adminDeleteStatus.textContent = message || '';
+  adminDeleteStatus.className = `admin-delete-status${message ? ` show ${type}` : ''}`;
+}
+
 document.getElementById('btnDeletePeriod').addEventListener('click', async () => {
   const button = document.getElementById('btnDeletePeriod');
   let period;
-  try{ period = getAdminDeletePeriod(); }catch(error){ showToast(error.message, 'warn'); return; }
+  try{ period = getAdminDeletePeriod(); }catch(error){ setAdminDeleteStatus(error.message, 'error'); showToast(error.message, 'warn'); return; }
   button.disabled = true;
   button.textContent = 'กำลังตรวจสอบ...';
+  setAdminDeleteStatus(`กำลังตรวจสอบข้อมูล${getAdminDeleteLabel(period)}...`, 'info');
   try{
     const preview = await adminApiRequest('preview-delete-period', {password:adminPassword, ...period});
     const taskCount = Number(preview.summary?.taskCount || 0);
     const fileCount = Number(preview.summary?.fileCount || 0);
     if(!taskCount){
-      showToast(`ไม่พบข้อมูลใน${getAdminDeleteLabel(period)}`, 'warn');
+      const message = `ไม่พบข้อมูลใน${getAdminDeleteLabel(period)} — ไม่มีรายการที่ต้องลบ`;
+      setAdminDeleteStatus(message, 'warn');
+      showToast(message, 'warn');
       return;
     }
+    setAdminDeleteStatus(`พบ ${taskCount.toLocaleString('th-TH')} งาน และไฟล์แนบ ${fileCount.toLocaleString('th-TH')} ไฟล์`, 'warn');
     const confirmed = await requestActionDialog({
       title:`ยืนยันลบข้อมูล${getAdminDeleteLabel(period)}`,
       message:`พบ ${taskCount.toLocaleString('th-TH')} งาน และไฟล์แนบ ${fileCount.toLocaleString('th-TH')} ไฟล์ การลบนี้ไม่สามารถย้อนกลับได้`,
       confirmLabel:'ลบข้อมูลถาวร',
       danger:true,
     });
-    if(!confirmed) return;
+    if(!confirmed){ setAdminDeleteStatus('ยกเลิกการลบแล้ว ข้อมูลยังอยู่ครบ', 'info'); return; }
 
     const deletePassword = await requestActionDialog({
       title:'ยืนยันรหัส Admin',
@@ -2347,16 +2365,21 @@ document.getElementById('btnDeletePeriod').addEventListener('click', async () =>
       password:true,
       danger:true,
     });
-    if(deletePassword === null) return;
+    if(deletePassword === null){ setAdminDeleteStatus('ยกเลิกการลบแล้ว เนื่องจากยังไม่ได้ยืนยันรหัส Admin', 'info'); return; }
 
     button.textContent = 'กำลังตรวจสอบรหัส...';
+    setAdminDeleteStatus('กำลังตรวจสอบรหัส Admin...', 'info');
     await adminApiRequest('verify', {password:deletePassword});
     button.textContent = 'กำลังลบข้อมูล...';
+    setAdminDeleteStatus('รหัสถูกต้อง กำลังลบข้อมูลและไฟล์แนบ...', 'warn');
     const result = await adminApiRequest('delete-period', {password:deletePassword, ...period});
-    showToast(`ลบ ${Number(result.deleted?.taskCount || 0).toLocaleString('th-TH')} งาน และ ${Number(result.deleted?.fileCount || 0).toLocaleString('th-TH')} ไฟล์แล้ว`, 'ok');
+    const successMessage = `ลบ ${Number(result.deleted?.taskCount || 0).toLocaleString('th-TH')} งาน และ ${Number(result.deleted?.fileCount || 0).toLocaleString('th-TH')} ไฟล์เรียบร้อยแล้ว`;
+    setAdminDeleteStatus(successMessage, 'success');
+    showToast(successMessage, 'ok');
     await Promise.all([renderOrLoadCurrentWindow(), loadAdminUsage()]);
   }catch(error){
     console.error(error);
+    setAdminDeleteStatus(error.message || 'ลบข้อมูลไม่สำเร็จ', 'error');
     showToast(error.message || 'ลบข้อมูลไม่สำเร็จ', 'warn');
   }finally{
     button.disabled = false;
