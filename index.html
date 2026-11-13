@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: personal-report-pop-20261113 -->
+<!-- Release: personal-report-pop-no-attachments-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -2875,7 +2875,7 @@ async function fetchReportYear(year){
   const tasks = [];
   for(let offset = 0; ; offset += 500){
     const query = new URLSearchParams({
-      select:'id,title,description,start_date,start_time,end_date,end_time,task_type,owners,location,attachments,created_at,updated_at',
+      select:'id,title,description,start_date,start_time,end_date,end_time,task_type,owners,location',
       order:'start_date.asc,id.asc', limit:'500', offset:String(offset),
     });
     if(year !== 'all'){
@@ -3148,12 +3148,11 @@ document.getElementById('reportExcel').addEventListener('click', async () => {
     const rows = report.filtered.map(task => {
       const {start,end} = getTaskDateRange(task);
       const excelDate = iso => Date.parse(iso + 'T00:00:00Z') / 86400000 + 25569;
-      const attachments = (task.attachments || []).map(file => [file.name, getSupabaseAttachmentPublicUrl(file) || file.url].filter(Boolean).join(': ')).join('\n');
-      return [task.title,excelDate(start),excelDate(end),getTaskType(task.type).label,task.location || '',getTaskOwners(task).join(', '),task.startTime || '',task.endTime || '',task.desc || '',attachments,task.id];
+      return [task.title,excelDate(start),excelDate(end),getTaskType(task.type).label,task.location || '',getTaskOwners(task).join(', '),task.startTime || '',task.endTime || '',task.desc || '',task.id];
     });
-    const detail = XLSX.utils.aoa_to_sheet([['ชื่องาน','วันเริ่มต้น','วันสิ้นสุด','ประเภทงาน','สถานที่','ผู้รับผิดชอบ','เวลาเริ่ม','เวลาสิ้นสุด','รายละเอียด','ไฟล์แนบ','รหัสงาน'], ...rows]);
+    const detail = XLSX.utils.aoa_to_sheet([['ชื่องาน','วันเริ่มต้น','วันสิ้นสุด','ประเภทงาน','สถานที่','ผู้รับผิดชอบ','เวลาเริ่ม','เวลาสิ้นสุด','รายละเอียด','รหัสงาน'], ...rows]);
     for(let i=2;i<=rows.length+1;i++) for(const col of ['B','C']) detail[col+i].z = 'dd/mm/yyyy';
-    detail['!cols'] = [64,17,17,30,34,52,13,13,64,60,32].map(wch => ({wch}));
+    detail['!cols'] = [64,17,17,30,34,52,13,13,64,32].map(wch => ({wch}));
     detail['!autofilter'] = {ref:detail['!ref']};
     XLSX.utils.book_append_sheet(workbook,summary,'ภาพรวม');
     XLSX.utils.book_append_sheet(workbook,detail,'รายการงาน');
