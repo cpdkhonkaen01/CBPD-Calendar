@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: admin-logout-20261113 -->
+<!-- Release: personal-report-a4-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -324,6 +324,19 @@
     text-align:center;
     box-shadow:0 2px 8px rgba(245,158,11,.12);
   }
+  .personal-report{display:none; padding:22px; background:#EAF8F2;}
+  .personal-report.active{display:block;}
+  .report-controls{display:flex; align-items:end; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+  .report-field{display:flex; flex-direction:column; gap:5px; color:#176B58; font-size:12px; font-weight:700;}
+  .report-field[hidden]{display:none;}
+  .report-field select,.report-field input{min-height:40px; padding:7px 10px; border:1.5px solid #A8D9C8; border-radius:9px; background:#fff; color:#075E49; font:600 13px var(--font-body);}
+  .report-field.person{min-width:220px; flex:1;}
+  .report-download{min-height:40px; padding:8px 13px; border:0; border-radius:9px; background:#08775B; color:#fff; font:700 13px var(--font-body); cursor:pointer;}
+  .report-download.secondary{background:#E67832;}
+  .report-download:disabled{opacity:.5; cursor:wait;}
+  .report-status{font-size:12px; color:#47776B; margin:0 0 12px; min-height:18px;}
+  .report-sheet{max-width:720px; margin:auto; background:#fff; box-shadow:0 10px 36px rgba(5,78,55,.17);}
+  .report-sheet canvas{display:block; width:100%; height:auto; aspect-ratio:210 / 297;}
   .legend{
     display:flex;gap:16px;align-items:center;
     padding:10px 22px;
@@ -1283,6 +1296,9 @@
     .owner-filter{flex:1;}
     .owner-filter select{min-width:0; width:100%;}
     .result-count{min-width:45px; padding:7px 8px;}
+    .personal-report{padding:12px 8px;}
+    .report-field.person{min-width:100%;}
+    .report-download{flex:1;}
     .legend{gap:7px 10px; padding:7px 8px; font-size:9.5px;}
     .legend .hint{display:none;}
     .dot{width:7px; height:7px;}
@@ -1462,6 +1478,10 @@
             <svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r=".8"/><circle cx="3.5" cy="12" r=".8"/><circle cx="3.5" cy="18" r=".8"/></svg>
             รายการ
           </button>
+          <button type="button" class="view-btn" data-view="report" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V4m0 16h16M8 16v-5m5 5V7m5 9v-7"/></svg>
+            สรุปรายบุคคล
+          </button>
         </div>
         <div class="filter-tools">
           <label class="owner-filter" for="ownerFilter">
@@ -1489,6 +1509,18 @@
       </div>
       <div class="grid" id="calGrid"></div>
       <div class="list-view" id="listView"></div>
+      <section class="personal-report" id="personalReport" aria-label="อินโฟกราฟิกสรุปงานรายบุคคล">
+        <div class="report-controls">
+          <label class="report-field person">ผู้รับผิดชอบ<select id="reportPerson"></select></label>
+          <label class="report-field">ช่วงเวลา<select id="reportPeriod"><option value="month">รายเดือน</option><option value="year">รายปี</option></select></label>
+          <label class="report-field" id="reportMonthField">เดือน<select id="reportMonth"></select></label>
+          <label class="report-field">ปี พ.ศ.<input id="reportYear" type="number" min="2500" max="2800" inputmode="numeric"></label>
+          <button class="report-download" id="reportPng" type="button">ดาวน์โหลด PNG</button>
+          <button class="report-download secondary" id="reportPdf" type="button">ดาวน์โหลด PDF</button>
+        </div>
+        <p class="report-status" id="reportStatus" role="status" aria-live="polite"></p>
+        <div class="report-sheet"><canvas id="reportCanvas" width="1240" height="1754" aria-label="ภาพสรุปงานขนาด A4 แนวตั้ง"></canvas></div>
+      </section>
     </div>
   </div>
 
@@ -1871,6 +1903,7 @@ async function loadTasksFromSupabase(year, month, options = {}){
   const activeWindow = getSupabaseDataWindow(viewDate.getFullYear(), viewDate.getMonth());
   if(requestSequence === supabaseLoadSequence && activeWindow.key === dataWindow.key){
     mockTasks = tasks;
+    reportState.year = null;
     populateOwnerFilter();
     renderCalendar();
   }
@@ -2586,6 +2619,7 @@ function populateOwnerFilter(){
     option.selected = owner === selectedOwner;
     select.appendChild(option);
   });
+  populateReportPeople();
 }
 
 function populateOwnerOptions(){
@@ -2787,15 +2821,223 @@ function renderListView(){
 
 function updateViewVisibility(){
   const showCalendar = activeView === 'calendar';
+  const showReport = activeView === 'report';
   document.querySelector('.weekdays').style.display = showCalendar ? 'grid' : 'none';
   document.getElementById('calGrid').style.display = showCalendar ? 'grid' : 'none';
-  document.getElementById('listView').style.display = showCalendar ? 'none' : 'block';
+  document.getElementById('listView').style.display = activeView === 'list' ? 'block' : 'none';
+  document.getElementById('taskTypeLegend').style.display = showReport ? 'none' : 'flex';
+  document.getElementById('personalReport').classList.toggle('active', showReport);
   document.querySelectorAll('.view-btn').forEach(btn => {
     const active = btn.dataset.view === activeView;
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-pressed', active ? 'true' : 'false');
   });
+  if(showReport) refreshPersonalReport();
 }
+
+/* ============ Personal A4 infographic ============ */
+const reportCanvas = document.getElementById('reportCanvas');
+const reportState = {year:null, tasks:[], loading:false, loadPromise:null, sequence:0};
+const reportPerson = document.getElementById('reportPerson');
+const reportPeriod = document.getElementById('reportPeriod');
+const reportMonth = document.getElementById('reportMonth');
+const reportYear = document.getElementById('reportYear');
+thaiMonths.forEach((name, index) => reportMonth.add(new Option(name, String(index + 1))));
+reportMonth.value = String(viewDate.getMonth() + 1);
+reportYear.value = String(viewDate.getFullYear() + 543);
+
+function populateReportPeople(){
+  const previous = reportPerson.value || (selectedOwner !== 'all' ? selectedOwner : '');
+  const names = [...new Set([...responsiblePeople.map(p => p.name), ...mockTasks.flatMap(getTaskOwners), ...reportState.tasks.flatMap(getTaskOwners)])];
+  reportPerson.replaceChildren();
+  names.forEach(name => reportPerson.add(new Option(name, name)));
+  reportPerson.value = names.includes(previous) ? previous : (names[0] || '');
+}
+
+async function fetchReportYear(year){
+  const start = `${year}-01-01`, end = `${year + 1}-01-01`;
+  const tasks = [];
+  for(let offset = 0; ; offset += 500){
+    const query = new URLSearchParams({
+      select:'id,title,description,start_date,start_time,end_date,end_time,task_type,owners,location,attachments,created_at,updated_at',
+      start_date:`lt.${end}`, end_date:`gte.${start}`, order:'start_date.asc,id.asc', limit:'500', offset:String(offset),
+    });
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/calendar_tasks?${query}`, {headers:{apikey:SUPABASE_PUBLISHABLE_KEY}});
+    if(!response.ok) throw new Error(`โหลดข้อมูลรายปีไม่สำเร็จ (${response.status})`);
+    const rows = await response.json();
+    tasks.push(...rows.map(supabaseRowToTask));
+    if(rows.length < 500) break;
+  }
+  return tasks;
+}
+
+function reportText(ctx, text, x, y, size, color, weight = 500){
+  ctx.fillStyle = color;
+  ctx.font = `${weight} ${size}px Sarabun, sans-serif`;
+  ctx.fillText(String(text), x, y);
+}
+function reportBox(ctx, x, y, width, height, fill, radius = 22){
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, radius);
+  ctx.fill();
+}
+function reportTruncate(ctx, text, width){
+  let value = String(text);
+  while(value.length && ctx.measureText(value).width > width) value = value.slice(0, -1);
+  return value === text ? value : `${value.slice(0, -1)}…`;
+}
+function drawPersonalReport(tasks, person, year, month){
+  const ctx = reportCanvas.getContext('2d');
+  const w = reportCanvas.width, h = reportCanvas.height;
+  ctx.fillStyle = '#F7FCF9'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#08775B'; ctx.fillRect(0, 0, w, 270);
+  reportText(ctx, 'รายงานสรุปงานรายบุคคล', 72, 95, 39, '#fff', 700);
+  reportText(ctx, 'กลุ่ม กพส.  •  WORK PROFILE', 72, 143, 23, '#C9F2E4', 600);
+  const periodLabel = month ? `${thaiMonths[month - 1]} ${year + 543}` : `ประจำปี ${year + 543}`;
+  reportText(ctx, periodLabel, 72, 215, 30, '#fff', 700);
+  reportBox(ctx, 72, 301, 1096, 122, '#E1F6EB');
+  reportText(ctx, 'ผู้รับผิดชอบ', 98, 345, 21, '#527D70', 600);
+  ctx.font = '700 36px Sarabun, sans-serif';
+  reportText(ctx, reportTruncate(ctx, person || '—', 1010), 98, 391, 36, '#075E49', 700);
+
+  const rangeStart = month ? dstr(year, month - 1, 1) : `${year}-01-01`;
+  const rangeEnd = month ? dstr(year, month - 1, new Date(year, month, 0).getDate()) : `${year}-12-31`;
+  const filtered = tasks.filter(task => getTaskOwners(task).includes(person) && taskOverlapsRange(task, rangeStart, rangeEnd));
+  const dates = new Set();
+  filtered.forEach(task => {
+    const range = getTaskDateRange(task);
+    let cursor = new Date(Math.max(new Date(`${range.start}T12:00:00`).getTime(), new Date(`${rangeStart}T12:00:00`).getTime()));
+    const last = range.end < rangeEnd ? range.end : rangeEnd;
+    while(dstr(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()) <= last){
+      dates.add(dstr(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  });
+  const uniqueTypes = new Set(filtered.map(task => task.type)).size;
+  const cards = [['งานทั้งหมด', filtered.length, '#08775B'], ['วันที่มีงาน', dates.size, '#E67832'], ['ประเภทงาน', uniqueTypes, '#6558D8']];
+  cards.forEach(([label, value, color], index) => {
+    const x = 72 + index * 375;
+    reportBox(ctx, x, 457, 346, 172, '#fff');
+    ctx.fillStyle = color; ctx.fillRect(x, 457, 346, 8);
+    reportText(ctx, label, x + 24, 508, 22, '#5B7D73', 600);
+    reportText(ctx, value.toLocaleString('th-TH'), x + 24, 587, 62, color, 700);
+  });
+  reportText(ctx, 'สัดส่วนตามประเภทงาน', 72, 705, 31, '#075E49', 700);
+  const categories = taskTypes.map(type => ({...type, count:filtered.filter(task => task.type === type.key).length})).filter(type => type.count);
+  const other = filtered.filter(task => !taskTypes.some(type => type.key === task.type)).length;
+  if(other) categories.push({label:'อื่นๆ', color:'#776BE9', count:other});
+  if(!filtered.length){
+    reportBox(ctx, 72, 750, 1096, 222, '#EFF8F3');
+    reportText(ctx, 'ไม่มีงานในช่วงเวลาที่เลือก', 110, 870, 32, '#66897C', 600);
+  }else{
+    categories.forEach((item, index) => {
+      const y = 758 + index * 78;
+      reportText(ctx, item.label, 75, y + 16, 22, '#234D42', 600);
+      reportText(ctx, `${item.count} งาน`, 1070, y + 16, 21, '#234D42', 700);
+      reportBox(ctx, 75, y + 29, 1010, 17, '#E3F1EB', 8);
+      reportBox(ctx, 75, y + 29, Math.max(18, 1010 * item.count / filtered.length), 17, item.color || '#0EA57E', 8);
+    });
+  }
+  const chartY = Math.max(1080, 785 + categories.length * 78);
+  reportText(ctx, month ? 'งานในเดือนนี้' : 'งานรายเดือน', 72, chartY, 31, '#075E49', 700);
+  if(month){
+    const sorted = [...filtered].sort((a,b) => a.date.localeCompare(b.date)).slice(0, 5);
+    sorted.forEach((task, index) => {
+      const y = chartY + 70 + index * 65;
+      reportBox(ctx, 72, y - 31, 1096, 55, index % 2 ? '#F0F8F4' : '#fff', 10);
+      reportText(ctx, `${Number(task.date.slice(8,10))} ${thaiMonths[month - 1]}`, 91, y + 4, 19, '#08775B', 700);
+      ctx.font = '600 20px Sarabun, sans-serif';
+      reportText(ctx, reportTruncate(ctx, task.title, 855), 255, y + 4, 20, '#234D42', 600);
+    });
+    if(filtered.length > 5) reportText(ctx, `และอีก ${filtered.length - 5} งาน`, 90, chartY + 435, 19, '#66897C', 600);
+  }else{
+    const counts = Array.from({length:12}, (_, i) => filtered.filter(task => taskOverlapsRange(task, dstr(year,i,1), dstr(year,i,new Date(year,i+1,0).getDate()))).length);
+    const max = Math.max(1, ...counts);
+    counts.forEach((count, index) => {
+      const x = 88 + index * 90;
+      const barHeight = count ? Math.max(13, count / max * 310) : 3;
+      reportBox(ctx, x, chartY + 390 - barHeight, 48, barHeight, count ? '#0EA57E' : '#D9E8E0', 8);
+      reportText(ctx, count, x + 13, chartY + 377 - barHeight, 18, '#075E49', 700);
+      reportText(ctx, thaiMonths[index].slice(0,3), x + 3, chartY + 427, 18, '#53776C', 600);
+    });
+  }
+  ctx.fillStyle = '#D5E9DF'; ctx.fillRect(72, h - 118, 1096, 2);
+  reportText(ctx, 'นับหนึ่งงานต่อหนึ่งรายการ • งานหลายวันนับวันที่มีงานแยก', 72, h - 73, 18, '#6A8A7E', 500);
+  reportText(ctx, 'CBPD WORK CALENDAR', 902, h - 73, 17, '#08775B', 700);
+  document.getElementById('reportStatus').textContent = `แสดง ${filtered.length.toLocaleString('th-TH')} งาน • ${periodLabel} • A4 แนวตั้ง`;
+}
+
+async function refreshPersonalReport(){
+  if(activeView !== 'report') return;
+  const year = Number(reportYear.value) - 543;
+  if(!Number.isInteger(year) || year < 1957 || year > 2257){ document.getElementById('reportStatus').textContent = 'กรุณาระบุปี พ.ศ. ให้ถูกต้อง'; return; }
+  const sequence = ++reportState.sequence;
+  if(reportState.year !== year){
+    document.getElementById('reportStatus').textContent = 'กำลังโหลดข้อมูลสำหรับรายงาน...';
+    try{
+      if(!reportState.loadPromise || reportState.loading !== year){
+        reportState.loading = year;
+        reportState.loadPromise = fetchReportYear(year);
+      }
+      reportState.tasks = await reportState.loadPromise;
+      reportState.year = year;
+      populateReportPeople();
+    }catch(error){
+      document.getElementById('reportStatus').textContent = error.message;
+      reportState.loading = false; reportState.loadPromise = null;
+      return;
+    }
+    reportState.loading = false; reportState.loadPromise = null;
+  }
+  if(sequence !== reportState.sequence) return;
+  await document.fonts.ready;
+  drawPersonalReport(reportState.tasks, reportPerson.value, year, reportPeriod.value === 'month' ? Number(reportMonth.value) : null);
+}
+
+function reportFilename(extension){
+  const person = (reportPerson.value || 'บุคคล').replace(/[\\/:*?"<>|]/g, '-');
+  const period = reportPeriod.value === 'month' ? `${reportMonth.value}-${reportYear.value}` : reportYear.value;
+  return `สรุปงาน-${person}-${period}.${extension}`;
+}
+function downloadReport(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a'); link.href = url; link.download = filename; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+document.getElementById('reportPng').addEventListener('click', async () => {
+  await document.fonts.ready;
+  await refreshPersonalReport();
+  reportCanvas.toBlob(blob => {if(blob) downloadReport(blob, reportFilename('png'));}, 'image/png');
+});
+document.getElementById('reportPdf').addEventListener('click', async () => {
+  await document.fonts.ready;
+  await refreshPersonalReport();
+  const bytes = Uint8Array.from(atob(reportCanvas.toDataURL('image/jpeg', .92).split(',')[1]), char => char.charCodeAt(0));
+  const encoder = new TextEncoder();
+  const parts = [], offsets = [0]; let length = 0;
+  const add = chunk => {parts.push(chunk); length += chunk.length;};
+  const write = text => add(encoder.encode(text));
+  const object = (number, body) => {offsets[number] = length; write(`${number} 0 obj\n${body}\nendobj\n`);};
+  write('%PDF-1.4\n');
+  object(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  object(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  object(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+  offsets[4] = length;
+  write(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`);
+  add(bytes); write('\nendstream\nendobj\n');
+  const commands = 'q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+  object(5, `<< /Length ${commands.length} >>\nstream\n${commands}\nendstream`);
+  const xref = length;
+  write('xref\n0 6\n0000000000 65535 f \n');
+  for(let i = 1; i <= 5; i++) write(`${String(offsets[i]).padStart(10,'0')} 00000 n \n`);
+  write(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  downloadReport(new Blob(parts, {type:'application/pdf'}), reportFilename('pdf'));
+});
+reportPerson.addEventListener('change', refreshPersonalReport);
+reportPeriod.addEventListener('change', () => {document.getElementById('reportMonthField').hidden = reportPeriod.value === 'year'; refreshPersonalReport();});
+reportMonth.addEventListener('change', refreshPersonalReport);
+reportYear.addEventListener('change', refreshPersonalReport);
 
 function updateStats(){
   const y = viewDate.getFullYear(), m = viewDate.getMonth();
