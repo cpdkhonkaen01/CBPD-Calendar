@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: personal-report-pop-no-attachments-20261113 -->
+<!-- Release: personal-report-all-pages-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -341,11 +341,7 @@
   .report-download.secondary{background:#a32b71;}
   .report-download.excel{background:#086b56;}
   .report-download .icon{width:16px; height:16px;}
-  .report-agenda{max-width:720px; margin:24px auto 0; color:#302253;}
-  .report-agenda h3{font-size:18px; margin-bottom:8px;}
-  .report-agenda ul{list-style:none; padding:0; margin:0; display:grid; gap:8px;}
-  .report-agenda li{background:#fff; border:1px solid #e4daf9; border-radius:12px; padding:10px 14px; overflow-wrap:anywhere;}
-  .report-agenda time,.report-agenda .date-range{display:block; color:#64339b; font-size:13px; font-weight:700; margin-bottom:3px;}
+  #reportContinuation .report-sheet{margin-top:20px;}
   .report-types{position:relative; color:#43257b; font-size:13px; font-weight:700;}
   .report-types summary{cursor:pointer; padding:10px; background:#fff; border:1px solid #cfc0ed; border-radius:9px;}
   .report-types-panel{position:absolute; z-index:2; background:#fff; border:1px solid #cfc0ed; border-radius:12px; padding:12px; width:min(265px,75vw); max-height:280px; overflow:auto; box-shadow:0 10px 25px #412b7730;}
@@ -1531,12 +1527,13 @@
           <label class="report-field" id="reportYearField">ปี พ.ศ.<input id="reportYear" type="number" min="2500" max="2800" inputmode="numeric"></label>
           <details class="report-types"><summary id="reportTypeSummary">ประเภทงาน: ทั้งหมด</summary><div class="report-types-panel" id="reportTypes"></div></details>
           <button class="report-download" id="reportPng" type="button" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m4 17 5-5 4 4 3-3 5 5"/><circle cx="15" cy="8" r="1.5"/></svg>ดาวน์โหลด PNG</button>
+          <label class="report-field" id="reportPngPageField" hidden>หน้า PNG<select id="reportPngPage"></select></label>
           <button class="report-download secondary" id="reportPdf" type="button" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 13h6m-6 4h6"/></svg>ดาวน์โหลด PDF</button>
           <button class="report-download excel" id="reportExcel" type="button" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M11 4v16"/></svg>ดาวน์โหลด Excel</button>
         </div>
         <p class="report-status" id="reportStatus" role="status" aria-live="polite"></p>
         <div class="report-sheet"><canvas id="reportCanvas" width="1240" height="1754" aria-label="ภาพสรุปงานขนาด A4 แนวตั้ง"></canvas></div>
-        <section class="report-agenda" id="reportAgenda" hidden aria-labelledby="reportAgendaTitle"><h3 id="reportAgendaTitle">รายการงานทั้งหมดในช่วงที่เลือก</h3><ul></ul></section>
+        <div id="reportContinuation"></div>
       </section>
     </div>
   </div>
@@ -2948,28 +2945,46 @@ function reportGradient(ctx,x,y,xx,yy,colors){
   colors.forEach((color,i) => fill.addColorStop(i/(colors.length-1),color));
   return fill;
 }
+function paintReportBackground(ctx, w, h){
+  ctx.fillStyle = reportGradient(ctx,0,0,w,h,['#e6d9ff','#f8edff','#d8faf0']); ctx.fillRect(0,0,w,h);
+  for(let x=28;x<w;x+=34) for(let y=210;y<h;y+=34){
+    ctx.fillStyle='#835ac51e'; ctx.beginPath(); ctx.arc(x,y,1.8,0,Math.PI*2); ctx.fill();
+  }
+}
+function wrapReportTitle(ctx, title, maxWidth){
+  const lines = [];
+  const words = new Intl.Segmenter('th', {granularity:'word'});
+  const graphemes = new Intl.Segmenter('th', {granularity:'grapheme'});
+  let line = '';
+  for(const {segment} of words.segment(String(title).replace(/\s+/g,' ').trim())){
+    const pieces = ctx.measureText(segment).width > maxWidth ? Array.from(graphemes.segment(segment), item => item.segment) : [segment];
+    for(const piece of pieces){
+      if(line && ctx.measureText(line + piece).width > maxWidth){
+        lines.push(line.trimEnd());
+        line = '';
+      }
+      line += line ? piece : piece.trimStart();
+    }
+  }
+  if(line) lines.push(line.trimEnd());
+  return lines;
+}
 function drawPersonalReport(tasks, person, year, month){
   const ctx = reportCanvas.getContext('2d');
   const w = reportCanvas.width, h = reportCanvas.height;
-  ctx.fillStyle = reportGradient(ctx,0,0,w,h,['#e6d9ff','#f8edff','#d8faf0']); ctx.fillRect(0,0,w,h);
-  for(let x=28;x<w;x+=34) for(let y=300;y<h;y+=34){
-    ctx.fillStyle='#835ac51e'; ctx.beginPath(); ctx.arc(x,y,1.8,0,Math.PI*2); ctx.fill();
-  }
-  reportBox(ctx,40,40,1160,242,reportGradient(ctx,40,40,1200,282,['#34206e','#6634bb','#a83285']),34);
-  ctx.save(); ctx.translate(995,160); ctx.rotate(-.16);
-  reportBox(ctx,-83,-72,180,138,'#ffffff29',30);
-  reportIcon(ctx,'chart',-38,-40,88,'#fff'); ctx.restore();
-  reportIcon(ctx,'spark',1090,76,45,'#f9e17f');
-  reportIcon(ctx,'spark',880,180,29,'#a9ffe5');
-  reportText(ctx, 'WORK RECAP  /  กลุ่ม กพส.', 77, 101, 23, '#dcfcb1', 700);
-  reportText(ctx, person === '*' ? 'สรุปงานทั้งหมด' : 'สรุปงานรายบุคคล', 72, 172, 59, '#fff', 700);
+  paintReportBackground(ctx,w,h);
+  reportBox(ctx,40,35,1160,158,reportGradient(ctx,40,35,1200,193,['#34206e','#6634bb','#a83285']),30);
+  reportBox(ctx,1010,62,105,105,'#ffffff29',24);
+  reportIcon(ctx,'chart',1033,85,58,'#fff');
+  reportIcon(ctx,'spark',1134,63,32,'#f9e17f');
+  reportText(ctx, 'WORK RECAP  /  กลุ่ม กพส.', 77, 76, 20, '#dcfcb1', 700);
+  reportText(ctx, person === '*' ? 'สรุปงานทั้งหมด' : 'สรุปงานรายบุคคล', 74, 127, 45, '#fff', 700);
   const periodLabel = year === 'all' ? 'ทุกช่วงเวลา' : month ? `${thaiMonths[month - 1]} ${year + 543}` : `ประจำปี ${year + 543}`;
-  reportText(ctx, periodLabel, 77, 235, 30, '#fff', 700);
-  reportBox(ctx, 72, 301, 1096, 122, '#ffffffd9');
-  reportText(ctx, 'ผู้รับผิดชอบ', 98, 345, 21, '#527D70', 600);
-  ctx.font = '700 36px Sarabun, sans-serif';
+  reportText(ctx, periodLabel, 77, 167, 25, '#fff', 700);
+  reportBox(ctx, 72, 207, 1096, 68, '#ffffffd9');
+  ctx.font = '700 30px Sarabun, sans-serif';
   const personLabel = person === '*' ? 'ผู้รับผิดชอบทุกคน' : person;
-  reportText(ctx, reportTruncate(ctx, personLabel || '—', 1010), 98, 391, 36, '#075E49', 700);
+  reportText(ctx, reportTruncate(ctx, personLabel || '—', 1010), 98, 251, 30, '#075E49', 700);
 
   const rangeStart = year === 'all' ? '0001-01-01' : month ? dstr(year, month - 1, 1) : `${year}-01-01`;
   const rangeEnd = year === 'all' ? '9999-12-31' : month ? dstr(year, month - 1, new Date(year, month, 0).getDate()) : `${year}-12-31`;
@@ -2988,72 +3003,108 @@ function drawPersonalReport(tasks, person, year, month){
   const cards = [['งานทั้งหมด', filtered.length, '#4e2898','#f0e2ff','list'], ['วันที่มีงาน', dates.size, '#8b285e','#ffdced','calendar'], ['ประเภทงาน', uniqueTypes, '#096552','#d4f8e9','chart']];
   cards.forEach(([label, value, color,tint,icon], index) => {
     const x = 72 + index * 375;
-    reportBox(ctx, x, 457, 346, 172, tint, 28);
-    reportBox(ctx, x + 247, 480, 72, 72, '#ffffffc9', 22);
-    reportIcon(ctx,icon,x+267,500,32,color);
-    reportText(ctx, label, x + 24, 508, 22, '#5B7D73', 600);
-    reportText(ctx, value.toLocaleString('th-TH'), x + 24, 587, 62, color, 700);
+    reportBox(ctx, x, 289, 346, 104, tint, 22);
+    reportBox(ctx, x + 262, 315, 57, 57, '#ffffffc9', 16);
+    reportIcon(ctx,icon,x+277,330,27,color);
+    reportText(ctx, label, x + 22, 321, 20, '#475569', 600);
+    reportText(ctx, value.toLocaleString('th-TH'), x + 22, 371, 43, color, 700);
   });
-  reportText(ctx, 'สัดส่วนตามประเภทงาน', 72, 705, 31, '#075E49', 700);
   const categories = taskTypes.map(type => ({...type, count:filtered.filter(task => task.type === type.key).length})).filter(type => type.count);
   const other = filtered.filter(task => !taskTypes.some(type => type.key === task.type)).length;
   if(other) categories.push({label:'ประเภทเดิม', color:'#776BE9', count:other});
   categories.sort((a,b) => b.count-a.count);
   const displayCategories = categories.length > 5 ? [...categories.slice(0,4), {label:'ประเภทที่เหลือ',color:'#8457bb',count:categories.slice(4).reduce((sum,type) => sum+type.count,0)}] : categories;
-  reportBox(ctx, 48, 651, 1144, 510, '#ffffffc7', 30);
+  const categoryHeight = 67 + Math.max(1,displayCategories.length) * 44;
+  reportBox(ctx, 48, 408, 1144, categoryHeight, '#ffffffdf', 24);
+  reportText(ctx, 'สัดส่วนตามประเภทงาน', 76, 449, 28, '#43257b', 700);
   if(!filtered.length){
-    reportBox(ctx, 72, 750, 1096, 222, '#EFF8F3');
-    reportText(ctx, 'ไม่มีงานในช่วงเวลาที่เลือก', 110, 870, 32, '#66897C', 600);
+    reportText(ctx, 'ไม่มีงานในช่วงเวลาที่เลือก', 76, 495, 23, '#644184', 600);
   }else{
     displayCategories.forEach((item, index) => {
-      const y = 758 + index * 78;
+      const y = 478 + index * 44;
       ctx.font = '600 22px Sarabun, sans-serif';
-      reportText(ctx, reportTruncate(ctx,item.label,940), 75, y + 16, 22, '#382459', 600);
-      reportText(ctx, `${item.count} งาน`, 1070, y + 16, 21, '#234D42', 700);
-      reportBox(ctx, 75, y + 29, 1010, 17, '#E3F1EB', 8);
-      reportBox(ctx, 75, y + 29, Math.max(18, 1010 * item.count / filtered.length), 17, item.color || '#0EA57E', 8);
+      reportText(ctx, reportTruncate(ctx,item.label,940), 76, y, 22, '#382459', 600);
+      reportText(ctx, `${item.count} งาน`, 1070, y, 20, '#234D42', 700);
+      reportBox(ctx, 76, y + 9, 1010, 9, '#E3F1EB', 4);
+      reportBox(ctx, 76, y + 9, Math.max(9, 1010 * item.count / filtered.length), 9, item.color || '#0EA57E', 4);
     });
   }
-  const chartY = 1215;
-  reportBox(ctx,48,1175,1144,445,'#ffffffcf',30);
-  const showExamples = Boolean(month) || year === 'all';
-  reportText(ctx, showExamples ? 'รายการงาน' : 'งานรายเดือน', 124, chartY + 10, 31, '#43257b', 700);
-  reportIcon(ctx,showExamples?'calendar':'chart',77,chartY-20,34,'#7545c2');
-  if(showExamples){
-    const sorted = filtered.slice(0, 5);
-    sorted.forEach((task, index) => {
-      const y = chartY + 52 + index * 61;
-      reportBox(ctx, 72, y - 18, 1096, 55, index % 2 ? '#e5f8f1' : '#f2e8fc', 11);
-      const {start,end} = getTaskDateRange(task);
-      reportText(ctx, formatThaiDateRange(start,end), 94, y + 2, 18, '#69349d', 700);
-      ctx.font = '600 21px Sarabun, sans-serif';
-      reportText(ctx, reportTruncate(ctx, task.title, 1030), 94, y + 26, 21, '#302253', 600);
-    });
-    if(filtered.length > 5) reportText(ctx, `อีก ${filtered.length - 5} งาน ดูรายการทั้งหมดบนเว็บหรือใน Excel`, 90, chartY + 379, 19, '#644184', 600);
-  }else{
+  let listTop = 425 + categoryHeight;
+  if(!month && year !== 'all'){
+    const chartY = listTop;
+    reportBox(ctx,48,chartY,1144,192,'#ffffffdf',24);
+    reportText(ctx, 'งานรายเดือน', 76, chartY + 39, 28, '#43257b', 700);
     const counts = Array.from({length:12}, (_, i) => filtered.filter(task => taskOverlapsRange(task, dstr(year,i,1), dstr(year,i,new Date(year,i+1,0).getDate()))).length);
     const max = Math.max(1, ...counts);
     counts.forEach((count, index) => {
       const x = 88 + index * 90;
-      const barHeight = count ? Math.max(13, count / max * 243) : 3;
-      reportBox(ctx, x, chartY + 320 - barHeight, 48, barHeight, count ? reportGradient(ctx,x,chartY+320,x,chartY+68,['#aa45ad','#6742c1']) : '#e3d9f0', 8);
-      reportText(ctx, count, x + 13, chartY + 307 - barHeight, 18, '#43257b', 700);
-      reportText(ctx, ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][index], x + 3, chartY + 354, 18, '#594676', 600);
+      const barHeight = count ? Math.max(8, count / max * 79) : 3;
+      reportBox(ctx, x, chartY + 151 - barHeight, 48, barHeight, count ? '#7545c2' : '#e3d9f0', 5);
+      reportText(ctx, count, x + 13, chartY + 144 - barHeight, 18, '#43257b', 700);
+      reportText(ctx, ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][index], x + 3, chartY + 178, 18, '#594676', 600);
     });
+    listTop += 209;
   }
-  ctx.fillStyle = '#D5E9DF'; ctx.fillRect(72, h - 118, 1096, 2);
-  reportText(ctx, 'นับหนึ่งงานต่อหนึ่งรายการ • งานหลายวันนับวันที่มีงานแยก', 72, h - 73, 18, '#6A8A7E', 500);
-  reportText(ctx, 'CBPD WORK CALENDAR', 902, h - 73, 17, '#08775B', 700);
-  document.getElementById('reportStatus').textContent = `แสดง ${filtered.length.toLocaleString('th-TH')} งาน • ${periodLabel} • A4 แนวตั้ง`;
-  const agenda = document.getElementById('reportAgenda');
-  agenda.hidden = !filtered.length;
-  agenda.querySelector('ul').replaceChildren(...filtered.map(task => {
-    const li = document.createElement('li'), date = document.createElement('span');
+  const pages = [reportCanvas];
+  const continuation = document.createDocumentFragment();
+  const bottom = h - 110;
+  function startList(pageCtx, top){
+    reportBox(pageCtx,48,top,1144,bottom-top,'#ffffffdf',24);
+    reportIcon(pageCtx,'calendar',76,top+16,30,'#7545c2');
+    reportText(pageCtx, 'รายการงาน', 121, top+42, 28, '#43257b', 700);
+    return top+58;
+  }
+  let pageCtx = ctx;
+  let y = startList(pageCtx,listTop);
+  function nextPage(){
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.setAttribute('aria-label', `รายงาน A4 หน้า ${pages.length+1}`);
+    const sheet = document.createElement('div');
+    sheet.className = 'report-sheet';
+    sheet.append(canvas);
+    continuation.append(sheet);
+    pages.push(canvas);
+    pageCtx = canvas.getContext('2d');
+    paintReportBackground(pageCtx,w,h);
+    reportBox(pageCtx,40,35,1160,121,reportGradient(pageCtx,40,35,1200,156,['#34206e','#6634bb','#a83285']),26);
+    pageCtx.font = '700 31px Sarabun, sans-serif';
+    reportText(pageCtx,reportTruncate(pageCtx,personLabel,1050),75,88,31,'#fff',700);
+    reportText(pageCtx,periodLabel,75,126,22,'#dcfcb1',600);
+    y = startList(pageCtx,174);
+  }
+  filtered.forEach((task,index) => {
+    ctx.font = '600 21px Sarabun, sans-serif';
+    const lines = wrapReportTitle(ctx,task.title,1030);
     const {start,end} = getTaskDateRange(task);
-    date.className = 'date-range'; date.textContent = formatThaiDateRange(start,end);
-    li.append(date,task.title); return li;
-  }));
-  return {filtered, person:personLabel, periodLabel, categories, activeDays:dates.size};
+    const date = formatThaiDateRange(start,end);
+    if(y + 37 + Math.min(lines.length,2)*26 > bottom-14) nextPage();
+    let offset = 0;
+    do {
+      const count = Math.min(lines.length-offset,Math.floor((bottom-14-y-37)/26));
+      const height = 37 + count*26;
+      reportBox(pageCtx,72,y,1096,height,index%2 ? '#e5f8f1' : '#f2e8fc',11);
+      reportText(pageCtx,`${index+1}. ${date}${offset ? ' (ต่อ)' : ''}`,94,y+24,18,'#69349d',700);
+      lines.slice(offset,offset+count).forEach((line,i) => reportText(pageCtx,line,94,y+51+i*26,21,'#302253',600));
+      y += height+7;
+      offset += count;
+      if(offset < lines.length) nextPage();
+    } while(offset < lines.length);
+  });
+  if(!filtered.length) reportText(ctx,'ไม่มีรายการงาน',76,y+28,22,'#644184',600);
+  pages.forEach((canvas,index) => {
+    const page = canvas.getContext('2d');
+    reportText(page, 'CBPD WORK CALENDAR', 72, h-57, 17, '#08775B', 700);
+    reportText(page, `หน้า ${index+1} / ${pages.length}`, 1020, h-57, 20, '#43257b', 700);
+  });
+  document.getElementById('reportContinuation').replaceChildren(continuation);
+  const pageSelect = document.getElementById('reportPngPage');
+  const selectedPage = Number(pageSelect.value);
+  pageSelect.replaceChildren(...pages.map((_,index) => new Option(`หน้า ${index+1}`,String(index))));
+  pageSelect.value = String(Math.min(selectedPage,pages.length-1));
+  document.getElementById('reportPngPageField').hidden = pages.length === 1;
+  document.getElementById('reportStatus').textContent = `แสดง ${filtered.length.toLocaleString('th-TH')} งาน • ${periodLabel} • A4 แนวตั้ง ${pages.length} หน้า`;
+  return {filtered, person:personLabel, periodLabel, categories, activeDays:dates.size, pages};
 }
 
 const reportExportButtons = ['reportPng','reportPdf','reportExcel'].map(id => document.getElementById(id));
@@ -3103,15 +3154,16 @@ function downloadReport(blob, filename){
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 document.getElementById('reportPng').addEventListener('click', async () => {
-  await document.fonts.ready;
-  if(!await refreshPersonalReport()) return;
-  const filename = reportFilename('png');
-  reportCanvas.toBlob(blob => {if(blob) downloadReport(blob, filename);}, 'image/png');
+  const report = await refreshPersonalReport();
+  if(!report) return;
+  const index = Number(document.getElementById('reportPngPage').value);
+  const suffix = report.pages.length > 1 ? `-หน้า-${index+1}.png` : '.png';
+  const filename = reportFilename('png').replace(/\.png$/,suffix);
+  report.pages[index].toBlob(blob => {if(blob) downloadReport(blob, filename);}, 'image/png');
 });
 document.getElementById('reportPdf').addEventListener('click', async () => {
-  await document.fonts.ready;
-  if(!await refreshPersonalReport()) return;
-  const bytes = Uint8Array.from(atob(reportCanvas.toDataURL('image/jpeg', .92).split(',')[1]), char => char.charCodeAt(0));
+  const report = await refreshPersonalReport();
+  if(!report) return;
   const encoder = new TextEncoder();
   const parts = [], offsets = [0]; let length = 0;
   const add = chunk => {parts.push(chunk); length += chunk.length;};
@@ -3119,17 +3171,23 @@ document.getElementById('reportPdf').addEventListener('click', async () => {
   const object = (number, body) => {offsets[number] = length; write(`${number} 0 obj\n${body}\nendobj\n`);};
   write('%PDF-1.4\n');
   object(1, '<< /Type /Catalog /Pages 2 0 R >>');
-  object(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-  object(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
-  offsets[4] = length;
-  write(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`);
-  add(bytes); write('\nendstream\nendobj\n');
-  const commands = 'q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
-  object(5, `<< /Length ${commands.length} >>\nstream\n${commands}\nendstream`);
+  const pageRefs = report.pages.map((_,index) => `${3+index*3} 0 R`).join(' ');
+  object(2, `<< /Type /Pages /Kids [${pageRefs}] /Count ${report.pages.length} >>`);
+  report.pages.forEach((canvas,index) => {
+    const pageId = 3+index*3, imageId = pageId+1, contentId = pageId+2;
+    object(pageId,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 ${imageId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+    const bytes = Uint8Array.from(atob(canvas.toDataURL('image/jpeg',.92).split(',')[1]), char => char.charCodeAt(0));
+    offsets[imageId] = length;
+    write(`${imageId} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${canvas.width} /Height ${canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`);
+    add(bytes);
+    write('\nendstream\nendobj\n');
+    const commands = 'q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+    object(contentId,`<< /Length ${commands.length} >>\nstream\n${commands}\nendstream`);
+  });
   const xref = length;
-  write('xref\n0 6\n0000000000 65535 f \n');
-  for(let i = 1; i <= 5; i++) write(`${String(offsets[i]).padStart(10,'0')} 00000 n \n`);
-  write(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  write(`xref\n0 ${offsets.length}\n0000000000 65535 f \n`);
+  for(let i = 1; i < offsets.length; i++) write(`${String(offsets[i]).padStart(10,'0')} 00000 n \n`);
+  write(`trailer\n<< /Size ${offsets.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
   downloadReport(new Blob(parts, {type:'application/pdf'}), reportFilename('pdf'));
 });
 document.getElementById('reportExcel').addEventListener('click', async () => {
