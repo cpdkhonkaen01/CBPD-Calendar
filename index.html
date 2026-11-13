@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Release: admin-delete-inline-status-20261113 -->
+<!-- Release: owner-filter-next-to-list-20261113 -->
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -251,8 +251,8 @@
   .view-filter-bar{
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    gap:14px;
+    justify-content:flex-start;
+    gap:10px;
     padding:12px 22px;
     border-bottom:1px solid var(--color-border);
     background:#fff;
@@ -282,28 +282,48 @@
   }
   .view-btn .icon{width:15px; height:15px;}
   .view-btn.active{background:#fff; color:var(--color-primary-dark); box-shadow:0 2px 7px rgba(14,165,126,.14);}
-  .filter-tools{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .filter-tools{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .owner-filter{
     display:flex;
     align-items:center;
-    gap:7px;
-    color:var(--color-text-muted);
+    gap:8px;
+    color:var(--color-primary-dark);
     font-size:12.5px;
+    font-weight:700;
+    padding:4px 5px 4px 10px;
+    border:2px solid var(--color-primary);
+    border-radius:10px;
+    background:#E9FBF5;
+    box-shadow:0 2px 8px rgba(14,165,126,.12);
   }
-  .owner-filter .icon{width:15px; height:15px; color:var(--color-primary);}
+  .owner-filter .icon{width:17px; height:17px; color:var(--color-primary-dark); stroke-width:2.2;}
   .owner-filter select{
     min-width:175px;
-    border:1px solid var(--color-border);
-    border-radius:8px;
-    background:#FBFEFD;
-    color:var(--color-text);
+    border:1px solid #9ADBC9;
+    border-radius:7px;
+    background:#fff;
+    color:#075F49;
     font-family:var(--font-body);
     font-size:13px;
+    font-weight:700;
     padding:7px 30px 7px 10px;
     outline:none;
   }
   .owner-filter select:focus{border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(14,165,126,.12);}
-  .result-count{font-size:12px; color:var(--color-text-muted); font-family:var(--font-mono);}
+  .result-count{
+    min-width:48px;
+    padding:7px 10px;
+    border:2px solid #F59E0B;
+    border-radius:9px;
+    background:#FFF7E6;
+    color:#9A5800;
+    font-family:var(--font-body);
+    font-size:13px;
+    font-weight:800;
+    line-height:1;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(245,158,11,.12);
+  }
   .legend{
     display:flex;gap:16px;align-items:center;
     padding:10px 22px;
@@ -1240,9 +1260,10 @@
     .view-filter-bar{padding:8px; gap:8px; align-items:stretch;}
     .view-switch{width:100%;}
     .view-btn{flex:1; justify-content:center; padding:6px 8px; font-size:12px;}
-    .filter-tools{width:100%;}
+    .filter-tools{width:100%; gap:6px;}
     .owner-filter{flex:1;}
     .owner-filter select{min-width:0; width:100%;}
+    .result-count{min-width:45px; padding:7px 8px;}
     .legend{gap:7px 10px; padding:7px 8px; font-size:9.5px;}
     .legend .hint{display:none;}
     .dot{width:7px; height:7px;}
